@@ -49,6 +49,9 @@ void yices_push(context ctx);
 [mlname(pop)]
 void yices_pop(context ctx);
 
+[mlname(interrupt)]
+void yices_interrupt(context ctx);
+
 [mlname(assert_simple)]
 void yices_assert(context ctx, expr expr);
 [mlname(assert_weighted)]
@@ -98,8 +101,8 @@ int yices_get_bitvector_value(model m, var_decl d, unsigned int n, [size_is(n)] 
 [mlname(get_assertion_value)]
 int yices_get_assertion_value(model m, assertion_id id);
 
-[string] char* get_rational_value_as_string(model m, var_decl d) quote(call,"free(_res);");
-[string] char* get_integer_value_as_string(model m, var_decl d) quote(call,"free(_res);");
+[string] char* get_rational_value_as_string(model m, var_decl d) quote(dealloc,"if (_res) free(_res);");
+[string] char* get_integer_value_as_string(model m, var_decl d) quote(dealloc,"if (_res) free(_res);");
 
 quote(ml,"let get_ratio_value m d =\
   Ratio.ratio_of_string (get_rational_value_as_string m d);;\n\n\
@@ -150,23 +153,20 @@ expr yices_mk_not(context ctx, expr a);
 
 // dont export var_decl_iterator
 quote(mli,"(*")
-[mlname(create_var_decl_iterator)]
 var_decl_iterator yices_create_var_decl_iterator(context c);
-[mlname(iterator_has_next)]
 boolean yices_iterator_has_next(var_decl_iterator it);
-[mlname(iterator_next)]
 var_decl yices_iterator_next(var_decl_iterator it);
-[mlname(iterator_reset)]
-void yices_iterator_reset(var_decl_iterator it);
-[mlname(del_iterator)]
+//void yices_iterator_reset(var_decl_iterator it);
 void yices_del_iterator(var_decl_iterator it);
 quote(mli,"*)")
 
-quote(ml,"let iter_var_decl f ctx = \n\
-  let it = create_var_decl_iterator ctx in\n\
-    while iterator_has_next it do f (iterator_next it) done;\n\
-    del_iterator it;;\n");
-quote(mli,"val iter_var_decl: (var_decl -> unit) -> context -> unit;;\n");
+quote(ml,"let iter_bool_var_decl f ctx = \n\
+  let it = yices_create_var_decl_iterator ctx in\n\
+    while yices_iterator_has_next it do\n\
+      f (yices_iterator_next it);\n\
+    done;\n\
+    yices_del_iterator it;;\n");
+quote(mli,"val iter_bool_var_decl: (var_decl -> unit) -> context -> unit;;\n");
 
 [mlname(mk_type)]
 typ yices_mk_type(context ctx, [string] char * name);

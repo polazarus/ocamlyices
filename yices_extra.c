@@ -7,7 +7,9 @@
 #include <caml/custom.h>
 #include <caml/bigarray.h>
 #endif
+#include<stdio.h>
 #include "yices.h"
+
 
 struct unsat_core get_unsat_core(yices_context ctx) {
   struct unsat_core res;
@@ -23,7 +25,7 @@ struct unsat_core get_unsat_core(yices_context ctx) {
   return res;
 }
 
-char* get_rational_value_as_string(model m, var_decl d) {
+char* get_rational_value_as_string(yices_model m, yices_var_decl d) {
   mpq_t q;
   mpq_init(q);
   int base = 10;
@@ -40,7 +42,7 @@ char* get_rational_value_as_string(model m, var_decl d) {
   return res;
 }
 
-char* get_integer_value_as_string(model m, var_decl d) {
+char* get_integer_value_as_string(yices_model m, yices_var_decl d) {
   mpz_t z;
   mpz_init(z);
   int base = 10;

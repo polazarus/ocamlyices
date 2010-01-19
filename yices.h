@@ -1,6 +1,9 @@
 #include <gmp.h>
 #include <yices_c.h>
 
+// Given on yices-help by Bruno Dutertre (2009-12-16)
+extern void yices_interrupt(yices_context ctx);
+
 #define expr yices_expr
 #define typ yices_type
 #define var_decl yices_var_decl
@@ -14,6 +17,7 @@
 
 #define value_error int
 #define ptyp yices_type*
+
 
 struct unsat_core {
   int length;

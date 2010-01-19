@@ -21,10 +21,19 @@ let ex1 =
       | True -> print_endline ((get_var_decl_name v)^": true")
       | False -> print_endline ((get_var_decl_name v)^": false")
       | Undef -> print_endline ((get_var_decl_name v)^": undef")
-    in iter_var_decl (print_value m) ctx
+    in iter_bool_var_decl (print_value m) ctx
   | False -> print_endline "false"
   | Undef -> print_endline "undef"
   end; del_context ctx
   
   
-  
+let ex2 =
+  let ctx = mk_context () in
+  let it = mk_type ctx int_type_name in
+  let dv = mk_var_decl ctx "v" it in
+    assert_simple ctx (mk_eq ctx (mk_var_from_decl ctx dv) (mk_num ctx 1));
+    match check ctx with
+    | True -> let m = get_model ctx in
+      print_endline (get_integer_value_as_string m dv)
+    |_ -> failwith "bad verdict"
+
