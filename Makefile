@@ -77,4 +77,4 @@ install:
 	mkdir -p '$(OCAMLYICES_LIB_DIR)'
 	cp '$(CAMLIDL_GENERATED_MLI:.mli=.cmi)' '$(OUTPUT_C_LIBRARY)' '$(GENERATED_LIBRARY_FOR_CMXA)' '$(OUTPUT_OCAML_LIBRARY_BYTECODE)' '$(OUTPUT_OCAML_LIBRARY_NATIVE)' '$(OCAMLYICES_LIB_DIR)/'
 
-.PHONY: clean dist all install
+.PHONY: clean all install
