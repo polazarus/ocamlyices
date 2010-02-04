@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2009, Mickaël Delahaye <mickael.delahaye@gmail.com>
+Copyright (c) 2010, Mickaël Delahaye <mickael.delahaye@gmail.com>
 
 Permission to use, copy, modify, and/or distribute this software for any purpose
 with or without fee is hereby granted, provided that the above copyright notice
