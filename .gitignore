@@ -11,3 +11,4 @@
 /yices.ml
 /yices_stubs.c
 .depend
+/Makefile

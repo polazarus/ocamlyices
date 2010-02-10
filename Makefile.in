@@ -12,7 +12,21 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-OCAML_LIB_DIR=$(shell ocamlc -where)
+PACKAGE_NAME=@PACKAGE_NAME@
+PACKAGE_VERSION=@PACKAGE_VERSION@
+PACKAGE_TARNAME=@PACKAGE_TARNAME@
+
+prefix = @prefix@
+bindir = @bindir@
+datarootdir = @datarootdir@
+datadir = @datadir@
+docdir = @docdir@
+exec_prefix = @exec_prefix@
+libdir = @libdir@
+sharedstatedir = @sharedstatedir@
+
+
+OCAML_LIB_DIR=$(libdir)/ocaml
 OCAMLYICES_LIB_DIR=$(OCAML_LIB_DIR)/ocamlyices
 
 OUTPUT_OCAML_LIBRARY=ocamlyices
@@ -42,13 +56,13 @@ CAMLIDL_GENERATED_STUBS=$(CAMLIDL_SOURCE:.idl=_stubs.c)
 CAMLIDL_GENERATED_FILES=$(CAMLIDL_GENERATED_ML) $(CAMLIDL_GENERATED_MLI) $(CAMLIDL_GENERATED_STUBS)
 
 # Tools
-CAMLIDL=camlidl
-OCAMLC=ocamlc
-OCAMLOPT=ocamlopt
-CC=gcc
+CAMLIDL=@CAMLIDL@
+OCAMLC=@OCAMLC@
+OCAMLOPT=@OCAMLOPT@
+CC=@CC@
 CFLAGS=-O2
 AR=ar
-RANLIB=ranlib
+RANLIB=@RANLIB@
 MKDIR=mkdir
 
 all: bytecode native
@@ -88,7 +102,6 @@ clean:
 	$(RM) *.cm[aoix] *.cmxa  *.[ao]  $(CAMLIDL_GENERATED_FILES)
 
 install:
-	mkdir -p '$(OCAMLYICES_LIB_DIR)'
-	cp '$(CAMLIDL_GENERATED_MLI:.mli=.cmi)' '$(OUTPUT_C_LIBRARY)' '$(GENERATED_LIBRARY_FOR_CMXA)' '$(OUTPUT_OCAML_LIBRARY_BYTECODE)' '$(OUTPUT_OCAML_LIBRARY_NATIVE)' '$(OCAMLYICES_LIB_DIR)/'
+	install -D '$(CAMLIDL_GENERATED_MLI:.mli=.cmi)' '$(OUTPUT_C_LIBRARY)' '$(GENERATED_LIBRARY_FOR_CMXA)' '$(OUTPUT_OCAML_LIBRARY_BYTECODE)' '$(OUTPUT_OCAML_LIBRARY_NATIVE)' '$(OCAMLYICES_LIB_DIR)'
 
 .PHONY: clean all install
