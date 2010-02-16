@@ -4,35 +4,43 @@ Mickaël Delahaye
 * Requirement
 
 - Yices >= 1.0.26 < 2 <http://yices.csl.sri.com>
-  without GMP statically linked
-  libyices.so/.a must be installed on the system
+  with or without GMP statically linked
+  libyices.a or libyices.a must be installed on the system
   
-  you can use './install-yices.sh yices.tar.gz' to install yices in /usr/local
-  and register the dll
+  You can use './install-yices.sh yices.tar.gz' to install yices in /usr/local
+  and register the DLL
 
-- gmp.h
+- GMP and GMP header <gmp.h>
 
 - Camlidl
 
+- For deveoppers, to use the latest version from the repository: autoconf
+
 * Install
 
+$ autoconf # Only if there is no configure
+$ ./configure
+
 $ make
-to build the library with yices
-(the actual linking will be done by ocamlc or ocamlopt when you use the ocamlyices library)
-$ make install
-install the library in in $(ocamlc -where)/ocamlyices
 
-OR
+Build the Ocamlyices library (for ocamlopt and ocamlc).
 
-$ make STATIC=yes
-to build the library with yices statically linked
-$ make install
-install the library in in $(ocamlc -where)/ocamlyices
+Part of the linking is done by an incremental, partial, linking, the rest is
+done by ocamlc or ocamlopt when you use the Ocamlyices library.
+
+Use 'make FORCE_STATIC=yes' to force the use of libyices.a instead of
+libyices.so.
+
+$ sudo make install
+
+Install the library in `ocamlc -where`/ocamlyices
 
 * Usage
 
-ocamlc -I +ocamlyices ocamlyices.cma ...
-ocamlopt -I +ocamlyices ocamlyices.cmxa ...
+ocamlc -I +ocamlyices nums.cmxa ocamlyices.cma ...
+ocamlopt -I +ocamlyices nums.cmxa ocamlyices.cmxa ...
+
+nums.cmxa is needed for big_int and ratio
 
 * WARNING
 

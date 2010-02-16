@@ -72,10 +72,22 @@ if echo "let _ = Sys.os_type" | ocaml | grep -q Win32; then
 	OCAMLWIN32=yes
 	EXEEXT=.exe
 else
+  AC_MSG_RESULT(*nix)
 	OCAMLWIN32=no
 	EXEEXT=
 fi
 
+AC_MSG_CHECKING(yices shared library)
+if ldconfig -p | grep -q libyices.so; then
+	YICES_SHARED_LIB=yes
+else
+	YICES_SHARED_LIB=no
+fi
+AC_MSG_RESULT($YICES_SHARED_LIB)
+
+
+
+AC_SUBST(YICES_SHARED_LIB)
 AC_SUBST(OCAMLC)
 AC_SUBST(CAMLIDL)
 AC_SUBST(OCAMLOPT)

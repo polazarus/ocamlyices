@@ -10,5 +10,12 @@
 /yices.mli
 /yices.ml
 /yices_stubs.c
+/yicesl.ml
+/yicesl.mli
+/yicesl_stubs.c
 .depend
 /Makefile
+/configure
+/config.status
+/config.log
+autom4te.cache

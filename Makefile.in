@@ -25,83 +25,137 @@ exec_prefix = @exec_prefix@
 libdir = @libdir@
 sharedstatedir = @sharedstatedir@
 
+OCAMLLIB=@OCAMLLIB@
+OCAMLYICES_LIB_DIR=$(OCAMLLIB)/ocamlyices
 
-OCAML_LIB_DIR=$(libdir)/ocaml
-OCAMLYICES_LIB_DIR=$(OCAML_LIB_DIR)/ocamlyices
+# Input
 
-OUTPUT_OCAML_LIBRARY=ocamlyices
-OUTPUT_OCAML_LIBRARY_BYTECODE=$(OUTPUT_OCAML_LIBRARY).cma
-OUTPUT_OCAML_LIBRARY_NATIVE=$(OUTPUT_OCAML_LIBRARY).cmxa
-OUTPUT_C_LIBRARY=libocamlyices.a
+CAMLIDL_SOURCE=yices yicesl
 
-GENERATED_LIBRARY_FOR_CMXA=$(OUTPUT_OCAML_LIBRARY_NATIVE:.cmxa=.a)
+# Output
 
-OCAMLLIB=/usr/lib/ocaml
-
-ifdef STATIC
-PARTIAL_LINKING_LIBS=camlidl yices
-PARTIAL_LINKING_LIB_DIRS=$(OCAMLLIB) /usr/lib /usr/local/lib
-CMALIBS=stdc++ gmp
-else
-#$(shell echo Use dynamic yices)
-PARTIAL_LINKING_LIBS=camlidl
-PARTIAL_LINKING_LIB_DIRS=$(OCAMLLIB) /usr/lib /usr/local/lib
-CMALIBS=yices stdc++ gmp
-endif
-
-CAMLIDL_SOURCE=yices.idl
-CAMLIDL_GENERATED_ML=$(CAMLIDL_SOURCE:.idl=.ml)
-CAMLIDL_GENERATED_MLI=$(CAMLIDL_SOURCE:.idl=.mli)
-CAMLIDL_GENERATED_STUBS=$(CAMLIDL_SOURCE:.idl=_stubs.c)
-CAMLIDL_GENERATED_FILES=$(CAMLIDL_GENERATED_ML) $(CAMLIDL_GENERATED_MLI) $(CAMLIDL_GENERATED_STUBS)
+OUTPUT = ocamlyices
+OUTPUT_BYTECODE = $(OUTPUT).cma
+OUTPUT_NATIVE = $(OUTPUT).cmxa
+OUTPUT_NATIVE_LIB = $(OUTPUT_NATIVE:.cmxa=.a)
+OUTPUT_O = $(OUTPUT).o
+OUTPUT_LIB = lib$(OUTPUT).a
 
 # Tools
-CAMLIDL=@CAMLIDL@
-OCAMLC=@OCAMLC@
-OCAMLOPT=@OCAMLOPT@
-CC=@CC@
-CFLAGS=-O2
-AR=ar
-RANLIB=@RANLIB@
-MKDIR=mkdir
+CAMLIDL = @CAMLIDL@
+OCAMLC = @OCAMLC@
+OCAMLOPT = @OCAMLOPT@
+CC = @CC@
+CFLAGS = -O2
+AR = ar
+MKDIR_P = mkdir -p
 
-all: bytecode native
+INCREMENTAL_LINKER = gcc -r -nostdlib -L/usr/local/lib -L/usr/lib
+#INCREMENTAL_LINKER = ld -r -L/usr/local/lib -L/usr/lib
 
-bytecode: $(OUTPUT_OCAML_LIBRARY_BYTECODE)
-native: $(OUTPUT_OCAML_LIBRARY_NATIVE)
+# Is libyices.so present?
+ifeq (@YICES_SHARED_LIB@,no)
+FORCE_YICES_STATIC=yes
+endif
 
-$(CAMLIDL_GENERATED_FILES): $(CAMLIDL_SOURCE)
+ifdef NO_PARTIAL_LINKING
+CCLIBS = camlidl stdc++ gmp yices
+else
+ifdef FORCE_YICES_STATIC
+CLIBS = camlidl yices
+# -lgmp is ignored if not needed by the linker (that is if Yices is compiled
+#   with GMP) , but it's required otherwise
+CCLIBS = stdc++ gmp
+else
+CLIBS = camlidl
+CCLIBS = stdc++ gmp yices
+endif
+endif
+
+CAMLIDL_IDL=$(CAMLIDL_SOURCE:=.idl)
+CAMLIDL_ML=$(CAMLIDL_SOURCE:=.ml)
+CAMLIDL_MLI=$(CAMLIDL_SOURCE:=.mli)
+CAMLIDL_STUBS_C=$(CAMLIDL_SOURCE:=_stubs.c)
+CAMLIDL_GENERATED=$(CAMLIDL_ML) $(CAMLIDL_MLI) $(CAMLIDL_STUBS_C)
+
+CAMLIDL_STUBS_O=$(CAMLIDL_STUBS_C:.c=.o)
+CAMLIDL_CMI=$(CAMLIDL_MLI:.mli=.cmi)
+CAMLIDL_CMO=$(CAMLIDL_ML:.ml=.cmo)
+CAMLIDL_CMX=$(CAMLIDL_ML:.ml=.cmx)
+
+################################################################################
+
+.PHONY: clean all install camlidl
+
+all: camlidl bytecode native
+
+camlidl : $(CAMLIDL_ML) $(CAMLIDL_MLI) $(CAMLIDL_STUBS_C)
+
+bytecode: $(CAMLIDL_CMI) $(OUTPUT_BYTECODE)
+native: $(CAMLIDL_CMI) $(OUTPUT_NATIVE)
+
+# Generic compilation ##########################################################
+
+%.ml %.mli %_stubs.c : %.idl
 	$(CAMLIDL) $<
-
-$(CAMLIDL_GENERATED_ML:.ml=.cmo): $(CAMLIDL_GENERATED_MLI:.mli=.cmi)
-$(CAMLIDL_GENERATED_ML:.ml=.cmx): $(CAMLIDL_GENERATED_MLI:.mli=.cmi)
 
 %.cmi: %.mli
 	$(OCAMLC) -c $< -o $@
-
 %.cmo: %.ml
 	$(OCAMLC) -c $< -o $@
 %.cmx: %.ml
 	$(OCAMLOPT) -c $< -o $@
 
+# Generic dependencies #########################################################
+
+$(CAMLIDL_CMO): %.cmo: %.cmi
+$(CAMLIDL_CMX): %.cmx: %.cmi
+%_stubs.o : %.h
+
+# C compilation and linking ####################################################
+
+$(OUTPUT_LIB): $(CAMLIDL_STUBS_O) yices_extra.o
+ifdef NO_PARTIAL_LINKING
+	$(AR) crs $@ $^
+else
 # Partial linking for efficiency
-$(OUTPUT_C_LIBRARY:lib%.a=%.o): $(CAMLIDL_GENERATED_STUBS:.c=.o) yices_extra.o
-	$(LD) -r $^ $(PARTIAL_LINKING_LIB_DIRS:%=-L'%') $(PARTIAL_LINKING_LIBS:%=-l%) -o $@
+# For ld, libraries must be after last
+	$(INCREMENTAL_LINKER) -L$(OCAMLLIB) -o $(OUTPUT_O) $^ $(CLIBS:%=-l%) 
+	$(AR) crs $@ $(OUTPUT_O)
+endif
 
-$(OUTPUT_C_LIBRARY): $(OUTPUT_C_LIBRARY:lib%.a=%.o)
-	$(AR) cr $@ $<
-	$(RANLIB) $@
-
-$(OUTPUT_OCAML_LIBRARY_BYTECODE): $(CAMLIDL_GENERATED_ML:.ml=.cmo) $(OUTPUT_C_LIBRARY)
-	$(OCAMLC) -a -custom -o $@ $< -cclib -l$(OUTPUT_C_LIBRARY:lib%.a=%) $(CMALIBS:%=-cclib -l%)
+$(OUTPUT_BYTECODE): $(CAMLIDL_CMO) $(OUTPUT_LIB)
+	$(OCAMLC) -a -custom -o $@ -cclib -l$(OUTPUT_LIB:lib%.a=%) $(CCLIBS:%=-cclib -l%) $(CAMLIDL_CMO)
 	
-$(OUTPUT_OCAML_LIBRARY_NATIVE): $(CAMLIDL_GENERATED_ML:.ml=.cmx) $(OUTPUT_C_LIBRARY)
-	$(OCAMLOPT) -a -o $@ -cclib -l$(OUTPUT_C_LIBRARY:lib%.a=%) $< $(CMALIBS:%=-cclib -l%)
+$(OUTPUT_NATIVE): $(CAMLIDL_CMX) $(OUTPUT_LIB)
+	$(OCAMLOPT) -a -o $@ -cclib -l$(OUTPUT_LIB:lib%.a=%) $(CCLIBS:%=-cclib -l%) $(CAMLIDL_CMX)
+
+# Cleaning #####################################################################
 
 clean:
-	$(RM) *.cm[aoix] *.cmxa  *.[ao]  $(CAMLIDL_GENERATED_FILES)
+	$(RM) *.cm[oix] *.[ao] $(CAMLIDL_GENERATED)
+
+mrproper: clean
+	$(RM) *.cma *.cmxa *.a
+
+# Install ######################################################################
 
 install:
-	install -D '$(CAMLIDL_GENERATED_MLI:.mli=.cmi)' '$(OUTPUT_C_LIBRARY)' '$(GENERATED_LIBRARY_FOR_CMXA)' '$(OUTPUT_OCAML_LIBRARY_BYTECODE)' '$(OUTPUT_OCAML_LIBRARY_NATIVE)' '$(OCAMLYICES_LIB_DIR)'
+	$(MKDIR_P) $(OCAMLYICES_LIB_DIR)
+	install $(CAMLIDL_CMI) $(OUTPUT_LIB) \
+	$(OUTPUT_NATIVE_LIB) $(OUTPUT_BYTECODE) \
+	$(OUTPUT_NATIVE) $(OCAMLYICES_LIB_DIR)/
 
-.PHONY: clean all install
+uninstall:
+	rm -rf $(OCAMLYICES_LIB_DIR)
+
+# Makefile and configure #######################################################
+Makefile: Makefile.in config.status
+	./config.status
+
+config.status: configure
+	./config.status --recheck
+
+configure: configure.ac
+	autoconf
+
