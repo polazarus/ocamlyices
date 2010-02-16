@@ -26,18 +26,15 @@ tar -xzf "$ARCHIVE" || failwith cannot untar $ARCHIVE
 
 cd yices*
 
-echo install libraries...
-mv lib/libyices.so lib/libyices.a "$INSTALL"/lib || failwith "cannot install libraries"
-chmod a+r,g-wx "$INSTALL"/lib/libyices.* || failwith "cannot set libraries' rights"
+echo Install libraries...
+install lib/* "$INSTALL"/lib || failwith "cannot install libraries"
 ldconfig -n "$INSTALL"/lib || failwith "ldconfig failed"
 
-echo install headers...
-mv include/yices*.h "$INSTALL"/include || failwith "cannot install headers"
-chmod a+r,g-wx "$INSTALL"/include/yices*.h || failwith "cannot set headers' rights"
+echo Install headers...
+install -m 'a=r,u+w' include/*.h "$INSTALL"/include || failwith "cannot install headers"
 
-echo install executable...
-mv bin/yices "$INSTALL"/bin/ || failwith "cannot install executable"
-chmod a+rx,g-w "$INSTALL"/bin/yices || failwith "cannot set yices executable's rights"
+echo Install executable...
+install bin/yices "$INSTALL"/bin/ || failwith "cannot install executable"
 
 cd /tmp
 
