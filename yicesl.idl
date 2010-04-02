@@ -32,10 +32,8 @@ void yicesl_enable_log_file([string] char * file_name);
 [mlname(mk_context)]
 context yicesl_mk_context();
 
-//[mlname(del_context)]
 //void yicesl_del_context(context ctx);
-
-
+// -> Used as the context type finalize
 
 [mlname(read)]
 error_code yicesl_read(context ctx,[string] char * cmd) ;
@@ -43,8 +41,8 @@ error_code yicesl_read(context ctx,[string] char * cmd) ;
 [mlname(inconsitent)]
 boolean yicesl_inconsistent(context ctx);
 
-//[mlname(get_last_error_message), string]
 //char * yicesl_get_last_error_message();
+// -> Used in the error check of error_code
 
 [mlname(set_output_file)]
 void yicesl_set_output_file([string] char * file_name);

@@ -166,21 +166,30 @@ expr yices_mk_ite(context ctx, expr c, expr t, expr e);
 [mlname(mk_not)]
 expr yices_mk_not(context ctx, expr a);
 
-// dont export var_decl_iterator
-quote(mli,"(*")
-var_decl_iterator yices_create_var_decl_iterator(context c);
-boolean yices_iterator_has_next(var_decl_iterator it);
-var_decl yices_iterator_next(var_decl_iterator it);
-//void yices_iterator_reset(var_decl_iterator it);
-void yices_del_iterator(var_decl_iterator it);
-quote(mli,"*)")
+// Don't export the operations on var_decl_iterator
+quote(mli,"(*");
 
+var_decl_iterator yices_create_var_decl_iterator(context c);
+
+boolean yices_iterator_has_next(var_decl_iterator it);
+
+var_decl yices_iterator_next(var_decl_iterator it);
+
+//void yices_iterator_reset(var_decl_iterator it);
+// -> Not used
+
+void yices_del_iterator(var_decl_iterator it);
+
+quote(mli,"*)");
+
+// MLize the iterator
 quote(ml,"let iter_bool_var_decl f ctx = \n\
   let it = yices_create_var_decl_iterator ctx in\n\
     while yices_iterator_has_next it do\n\
       f (yices_iterator_next it);\n\
     done;\n\
     yices_del_iterator it;;\n");
+
 quote(mli,"val iter_bool_var_decl: (var_decl -> unit) -> context -> unit;;\n");
 
 [mlname(mk_type)]

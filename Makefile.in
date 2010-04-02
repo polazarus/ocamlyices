@@ -26,7 +26,8 @@ libdir = @libdir@
 sharedstatedir = @sharedstatedir@
 
 OCAMLLIB=@OCAMLLIB@
-OCAMLYICES_LIB_DIR=$(OCAMLLIB)/ocamlyices
+OCAMLDESTDIR = @OCAMLDESTDIR@
+OCAMLYICES_LIB_DIR=$(OCAMLDESTDIR)/ocamlyices
 
 # Input
 
@@ -135,7 +136,7 @@ $(OUTPUT_NATIVE): $(CAMLIDL_CMX) $(OUTPUT_LIB)
 clean:
 	$(RM) *.cm[oix] *.[ao] $(CAMLIDL_GENERATED)
 
-mrproper: clean
+distclean mrproper: clean
 	$(RM) *.cma *.cmxa *.a
 
 # Install ######################################################################

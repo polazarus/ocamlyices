@@ -37,10 +37,10 @@ Install the library in `ocamlc -where`/ocamlyices
 
 * Usage
 
-ocamlc -I +ocamlyices nums.cmxa ocamlyices.cma ...
+ocamlc -I +ocamlyices nums.cma ocamlyices.cma ...
 ocamlopt -I +ocamlyices nums.cmxa ocamlyices.cmxa ...
 
-nums.cmxa is needed for big_int and ratio
+nums is required in order to handle GMP big integers as big_int.
 
 * WARNING
 

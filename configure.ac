@@ -13,6 +13,10 @@ echo "ocaml version is $OCAMLVERSION"
 OCAMLLIB=`$OCAMLC -where`
 echo "ocaml library path is $OCAMLLIB"
 
+OCAMLDESTDIR=$OCAMLLIB
+AC_ARG_WITH(destdir,[AS_HELP_STRING([--with-destdir=destdir],[force a dest dir])],[OCAMLDESTDIR=$with_destdir],[])
+
+
 AC_CHECK_PROG(OCAMLOPT,ocamlopt,ocamlopt,no)
 OCAMLBEST=byte
 if test "$OCAMLOPT" = no ; then
@@ -95,6 +99,7 @@ AC_SUBST(OCAMLDEP)
 AC_SUBST(OCAMLBEST)
 AC_SUBST(OCAMLVERSION)
 AC_SUBST(OCAMLLIB)
+AC_SUBST(OCAMLDESTDIR)
 AC_SUBST(OCAMLWIN32)
 AC_SUBST(EXEEXT)
 
