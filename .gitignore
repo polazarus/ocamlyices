@@ -19,3 +19,6 @@
 /config.status
 /config.log
 autom4te.cache
+*.so
+*.opt
+*.byte
