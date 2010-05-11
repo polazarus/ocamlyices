@@ -1,4 +1,4 @@
-Ocamlyices: An Ocaml binding for Yices 1
+Ocamlyices: An Ocaml binding for Yices 1, version 0.2
 Mickaël Delahaye
 
 * Requirement
@@ -28,8 +28,16 @@ Build the Ocamlyices library (for ocamlopt and ocamlc).
 Part of the linking is done by an incremental, partial, linking, the rest is
 done by ocamlc or ocamlopt when you use the Ocamlyices library.
 
-Use 'make FORCE_STATIC=yes' to force the use of libyices.a instead of
-libyices.so.
+Not-so-hidden make options you should not normally use:
+
+CUSTOM=y
+  Use a "custom" bytecode compilation (see Ocamlc manual).
+FORCE_STATIC=y
+  Force the use of libyices.a instead of libyices.so (must be use in combination
+  with CUSTOM for bytecode).
+NO_PARTIAL_LINKING=y
+  Do not use partial linking, not compatible with FORCE_STATIC (to obtain this
+  behavior just delete libyices.so).
 
 $ sudo make install
 
@@ -44,7 +52,7 @@ nums is required in order to handle GMP big integers as big_int.
 
 * WARNING
 
-Hardly tested and only under Linux!
+Hardly tested! and only under Linux, but reported to work under MacOS X...
 
 * License *
 

@@ -1,4 +1,4 @@
-AC_INIT(ocamlyices,0.1)
+AC_INIT(ocamlyices,0.2)
 
 AC_PROG_CC
 AC_PROG_RANLIB
