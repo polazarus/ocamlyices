@@ -1,0 +1,107 @@
+--- yicesl_c.h
++++ yicesl.idl
+@@ -1,13 +1,11 @@
+ // Copyright (c) SRI International 2006.
+ // Author: Leonardo de Moura
+-#ifndef YICESL_C_H
+-#define YICESL_C_H
++//
++// Camlidl patch: Mickaël Delahaye
+ 
+-#ifdef __cplusplus
+-extern "C" {
+-#endif
++typedef [abstract, errorcode, errorcheck(checkerror)] int error_code;
+ 
+-typedef void * yicesl_context;
++typedef [abstract] void * context;
+ 
+ /**
+    \defgroup capil C API Lite
+@@ -16,28 +14,33 @@
+ /**
+    \brief Set the verbosity level. 
+  */
++[mlname(set_verbosity)]
+ void yicesl_set_verbosity(int l);
+ 
+ /**
+    \brief Return the yices version number.
+  */
++[mlname(version), string]
+ char * yicesl_version();
+ 
+ /**
+    \brief Force Yices to type check expressions when they are asserted (default = false).
+  */
+-void yicesl_enable_type_checker(int flag);
++[mlname(enable_type_checker)]
++void yicesl_enable_type_checker(boolean flag);
+ 
+ /**
+    \brief Enable a log file that will store the assertions, checks, decls, etc.
+    If the log file is already open, then nothing happens.
+  */
+-void yicesl_enable_log_file(char * file_name);
++[mlname(enable_log_file)]
++void yicesl_enable_log_file([string] char * file_name);
+ 
+ /**
+    \brief Create a logical context.
+  */
+-yicesl_context yicesl_mk_context();
++[mlname(mk_context)]
++context yicesl_mk_context();
+ 
+ 
+ /**
+@@ -45,7 +48,8 @@
+    
+    \sa yicesl_mk_context
+  */
+-void yicesl_del_context(yicesl_context ctx);
++[mlname(del_context)]
++void yicesl_del_context(context ctx);
+ 
+ /**
+    \brief Process the given command in the given logical context.
+@@ -55,28 +59,26 @@
+    Commands yicesl_get_last_error_message can be used to retrieve
+    the error message.
+  */
+-int yicesl_read(yicesl_context ctx, char * cmd);
++[mlname(read)]
++error_code yicesl_read(context ctx,[string] char * cmd) ;
+ 
+ /**
+    \brief Return true if the given logical context is inconsistent.
+  */
+-int yicesl_inconsistent(yicesl_context ctx);
++[mlname(inconsitent)]
++boolean yicesl_inconsistent(context ctx);
+ 
+-/**
+-   \brief Return the last error message produced by the logical context.
+- */
+-char * yicesl_get_last_error_message();
++///**
++//   \brief Return the last error message produced by the logical context.
++//*/
++//char * yicesl_get_last_error_message();
++// -> Used in the error check of error_code
+ 
+ /**
+    \brief Set the file that will store the output produced by yices (e.g., models).
+    The default behavior is to send the output to standard output.
+  */
+-void yicesl_set_output_file(char * file_name);
++[mlname(set_output_file)]
++void yicesl_set_output_file([string] char * file_name);
+ 
+ /*@}*/
+-#ifdef __cplusplus
+-} /* end of extern "C" */
+-#endif
+-
+-
+-#endif /* YICESL_C_H */

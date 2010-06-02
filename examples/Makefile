@@ -1,14 +1,16 @@
+TEST = one mixed
+
 all: native byte
 
-byte: one.byte
+byte: $(TEST:=.byte)
 
-native: one.opt
+native: $(TEST:=.opt)
 
-one.byte: one.ml
-	ocamlc -I +ocamlyices nums.cma ocamlyices.cma one.ml -o one.byte
+%.byte: %.ml
+	ocamlc -I +ocamlyices nums.cma ocamlyices.cma $< -o $@
 
-one.opt: one.ml
-	ocamlopt -I +ocamlyices nums.cmxa ocamlyices.cmxa one.ml -o one.opt
+%.opt: %.ml
+	ocamlopt -I +ocamlyices nums.cmxa ocamlyices.cmxa $< -o $@
 
 clean:
 	rm -rf *.cmi *.cmo *.cmx *.o

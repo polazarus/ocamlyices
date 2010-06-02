@@ -20,6 +20,13 @@ THIS SOFTWARE.
 // Given on yices-help by Bruno Dutertre (2009-12-16)
 extern void yices_interrupt(yices_context ctx);
 
+typedef void* yicesl_context;
+
+// Given on yices-help by Bruno Dutertre (2010-06-01)
+extern yicesl_context yices_get_lite_context(yices_context ctx);
+
+
+#define yicesl yicesl_context
 #define expr yices_expr
 #define typ yices_type
 #define var_decl yices_var_decl
@@ -54,6 +61,5 @@ char* get_integer_value_as_string(model m, var_decl d);
 #define check_context(e) CHECKNOTNULL(e,"returns null context")
 #define check_model(e) CHECKNOTNULL(e,"returns null model")
 #define check_var_decl_iterator(e) CHECKNOTNULL(e,"returns null iterator")
-
 
 

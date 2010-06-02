@@ -1,0 +1,1152 @@
+--- yices_c.h
++++ yices.idl
+@@ -1,21 +1,11 @@
+ /* Copyright (c) SRI International 2006.
+    Author: Leonardo de Moura.
+    Revisions: Bruno Dutertre.	 
+-*/
+-#ifndef YICES_C_H
+-#define YICES_C_H
+-
+-#ifdef __cplusplus
+-extern "C" {
+-#endif
+-
+-typedef void * yices_ast;
+-
+-/**
+-   \defgroup capi C API
+ 
++   Patch for Camlidl: Mickaël Delahaye.
+ */
+-/*@{*/
++
++[long_default(nativeint)] interface yices {
+ 
+ /**
+    The current C API is not yet complete, but the basic Yices functionalities can be used.
+@@ -24,11 +14,14 @@
+  */
+ 
+ 
++typedef [errorcode,errorcheck(check_value_error)] int value_error;
++
+ /** \brief Yices expressions (abstract syntax tree) */
+-typedef void * yices_expr;
++typedef [abstract,errorcheck(check_expr)] void * expr;
+ 
+ /** \brief Yices types (abstract syntax tree) */
+-typedef void * yices_type;
++typedef [abstract,errorcheck(check_type)] void * typ;
++typedef [ref] typ* ptyp;
+ 
+ /** 
+    \brief Variable declaration 
+@@ -39,7 +32,7 @@
+    expressions. Instances can be created using
+    #yices_mk_bool_var_from_decl or #yices_mk_var_from_decl.
+ */
+-typedef void * yices_var_decl;
++typedef [abstract,errorcheck(check_var_decl)] void * var_decl;
+ 
+ /** 
+    \brief Yices context.
+@@ -47,7 +40,7 @@
+    A context stores a collection of declarations and assertions.
+ 
+  */
+-typedef void * yices_context;
++typedef [abstract,errorcheck(check_context)] void * context;
+ 
+ /**
+    \brief Assertion index, to identify retractable assertions.  
+@@ -62,29 +55,28 @@
+   The model is constructed by calling #yices_check (or its relatives) then
+   #yices_get_model.
+ */
+-typedef void * yices_model;
++typedef [abstract,errorcheck(check_model)] void * model;
+ 
+ /**
+    \brief Iterator for scanning the boolean variables.
+ */
+-typedef void * yices_var_decl_iterator;
+-
++typedef [abstract,errorcheck(check_var_decl_iterator)] void * var_decl_iterator;
+ 
+ /** 
+   \brief Extended booleans: to represent the value of literals in the context 
+ */
+-typedef enum { l_false=-1, l_undef, l_true } lbool;
+-
+-
++enum lbool { False=-1, Undef, True };
+ 
+ /**
+    \brief Set the verbosity level. 
+  */
++[mlname(set_verbosity)]
+ void yices_set_verbosity(int l);
+ 
+ /**
+    \brief Return the yices version number.
+ */
++[mlname(version), string]
+ char * yices_version();
+ 
+ /**
+@@ -93,23 +85,27 @@
+ 
+    If the maximum is reached, then "unknown" (i.e., l_undef) is returned by maxsat.
+  */
+-void yices_set_max_num_conflicts_in_maxsat_iteration(unsigned n);
++[mlname(set_max_num_conflicts_in_maxsat_iteration)]
++void yices_set_max_num_conflicts_in_maxsat_iteration(unsigned int n);
+ 
+ /**
+    \brief Force Yices to type check expressions when they are asserted (default = false).
+  */
+-void yices_enable_type_checker(int flag);
++[mlname(enable_type_checker)]
++void yices_enable_type_checker(boolean flag);
+ 
+ /**
+    \brief Set the maximum number of iterations in the MaxSAT algorithm.
+ 
+    If the maximum is reached, then "unknown" (i.e., l_undef) is returned by maxsat.
+  */
+-void yices_set_max_num_iterations_in_maxsat (unsigned n);
++[mlname(set_max_num_iterations_in_maxsat)]
++void yices_set_max_num_iterations_in_maxsat (unsigned int n);
+ 
+ /**
+    \brief Set the initial cost for a maxsat problem.
+  */
++[mlname(set_maxsat_initial_cost)]
+ void yices_set_maxsat_initial_cost(long long c);
+ 
+ /**
+@@ -117,38 +113,44 @@
+ 
+    This flag usually improves performance (default = false).
+  */
+-void yices_set_arith_only(int flag);
++[mlname(set_arith_only)]
++void yices_set_arith_only(boolean flag);
+ 
+ /**
+    \brief Enable a log file that will store the assertions, checks, decls, etc.
+ 
+    If the log file is already open, then nothing happens.
+  */
+-void yices_enable_log_file(char * file_name);
++[mlname(enable_log_file)]
++void yices_enable_log_file([string] char * file_name);
+ 
+ /**
+    \brief Create a logical context.
+  */
+-yices_context yices_mk_context();
++[mlname(mk_context)]
++context yices_mk_context();
+ 
+ /**
+    \brief Delete the given logical context.
+ 	 
+    \sa yices_mk_context
+  */
+-void yices_del_context(yices_context ctx);
++[mlname(del_context)]
++void yices_del_context(context ctx);
+ 
+ /**
+    \brief Reset the given logical context. 
+  */
+-void yices_reset(yices_context ctx);
++[mlname(reset)]
++void yices_reset(context ctx);
+ 
+ /**
+    \brief Display the internal representation of the given logical context on <tt>stderr</tt>. 
+ 
+    This function is mostly for debugging.
+  */
+-void yices_dump_context(yices_context ctx);
++[mlname(dump_context)]
++void yices_dump_context(context ctx);
+ 
+ /**
+    \brief Create a backtracking point in the given logical context.
+@@ -157,7 +159,8 @@
+    The scope level is the number of elements on this stack. The stack
+    of contexts is simulated using trail (undo) stacks.
+  */
+-void yices_push(yices_context ctx);
++[mlname(push)]
++void yices_push(context ctx);
+ 
+ /**
+    \brief Backtrack.
+@@ -170,7 +173,10 @@
+    
+    \sa yices_push
+  */
+-void yices_pop(yices_context ctx);
++[mlname(pop)]
++void yices_pop(context ctx);
++
++
+ 
+ /**
+    \brief Assert a constraint in the logical context.
+@@ -178,7 +184,8 @@
+    After one assertion, the logical context may become inconsistent.
+    The method #yices_inconsistent may be used to check that.       
+  */
+-void yices_assert(yices_context ctx, yices_expr expr);
++[mlname(assert_simple)]
++void yices_assert(context ctx, expr expr);
+ 
+ /**
+    \brief Assert a constraint in the logical context with weight \c w.
+@@ -187,7 +194,8 @@
+ 
+    \sa yices_retract
+ */
+-assertion_id yices_assert_weighted(yices_context ctx, yices_expr expr, long long w);
++[mlname(assert_weighted)]
++assertion_id yices_assert_weighted(context ctx, expr expr, long long w);
+ 
+ /**
+    \brief Assert a constraint that can be later retracted.
+@@ -198,7 +206,8 @@
+ 
+    \sa yices_retract
+ */
+-assertion_id yices_assert_retractable(yices_context ctx, yices_expr expr);
++[mlname(assert_retractable)]
++assertion_id yices_assert_retractable(context ctx, expr expr);
+ 
+ /**
+    \brief Retract a retractable or weighted constraint.
+@@ -206,12 +215,14 @@
+    \sa yices_assert_weighted
+    \sa yices_assert_retractable
+ */
+-void yices_retract(yices_context ctx, assertion_id id);
++[mlname(retract)]
++void yices_retract(context ctx, assertion_id id);
+ 
+ /**
+    \brief Return 1 if the logical context is known to be inconsistent.
+ */
+-int yices_inconsistent(yices_context ctx);
++[mlname(inconsistent)]
++int yices_inconsistent(context ctx);
+ 
+ /**
+    \brief Check if the logical context is satisfiable. 
+@@ -224,7 +235,8 @@
+ 
+    \warning This method ignore the weights associated with the constraints.  
+  */
+-lbool yices_check(yices_context ctx);
++[mlname(check)]
++enum lbool yices_check(context ctx);
+ 
+ 
+ /**
+@@ -249,7 +261,8 @@
+   formulas for which yices is incomplete (e.g., quantifiers). Do not
+   use the model in this case.
+ */
+-lbool yices_find_weighted_model(yices_context ctx, int random);
++[mlname(find_weighted_model)]
++enum lbool yices_find_weighted_model(context ctx, int random);
+ 
+ 
+ /**
+@@ -264,7 +277,8 @@
+         typically this is due to a function application, e.g., 
+ 	the model defines (f 1) and (f 2), but the formula references (f 3)
+ */
+-lbool yices_evaluate_in_model(yices_model m, yices_expr e);  
++[mlname(evaluate_in_model)]
++enum lbool yices_evaluate_in_model(model m, expr e);  
+ 
+ 
+ /**
+@@ -279,7 +293,8 @@
+ 			 
+    \sa yices_assert_weighted
+ */
+-lbool yices_max_sat(yices_context ctx);
++[mlname(max_sat)]
++enum lbool yices_max_sat(context ctx);
+ 
+ /**
+    \brief Similar to yices_max_sat, but start looking for models with cost
+@@ -287,7 +302,8 @@
+ 
+    \return l_false if such a model doesn't exist.
+  */
+-lbool yices_max_sat_cost_leq(yices_context c, long long max_cost);
++[mlname(max_sat_cost_leq)]
++enum lbool yices_max_sat_cost_leq(context c, long long max_cost);
+ 
+ 
+ 
+@@ -300,44 +316,19 @@
+    Return 0 if a model is not available.
+    Calls to functions which modify the context invalidate the model.
+  */
+-yices_model yices_get_model(yices_context ctx);
+-
+-
+-
+-/**
+-   \brief Get the size of the unsat core
+-
+-   The unsat core is constructed after a call to #yices_check 
+-   if the context is found unsatisfiable. It's an unsatisfiable 
+-   subset of the retractable assertions (represented as an array
+-   of \c assertion_ids). This function returns the size of that 
+-   set.
+-
+-   Return 0 if there's no unsat core.
+-
+-   \sa yices_get_unsat_core
+-**/
+-unsigned yices_get_unsat_core_size(yices_context ctx);
++[mlname(get_model)]
++model yices_get_model(context ctx);
+ 
+ 
+ 
+ /**
+-   \brief Copy the unsat core into array a
+-
+-   \warning a must be large enough to store the core 
+-   (check the size first using #yices_get_unsat_core_size)
+-
+-   Each element in a is the id of a retractable assertion 
+-
+-   Return the number of elements copied into a (which is 
+-   equal to the unsat core size as returned by 
+-   #yices_get_unsat_core_size)
+-
+-   \sa yices_assert_retractable
+-   \sa yices_get_unsat_core_size
++   Get the unsat core.
++	Each element a is the id of a retractable assertion 
++ */
++// Get the unsat core
++struct unsat_core { int length; [size_is(length)] assertion_id *array; };
+ 
+-**/
+-unsigned yices_get_unsat_core(yices_context ctx, assertion_id a[]);    
++struct unsat_core get_unsat_core(context ctx) quote(dealloc,"free(_res.array);");
+ 
+ 
+ 
+@@ -352,8 +343,8 @@
+    \sa yices_get_arith_value
+    \sa yices_get_double_value
+  */
+-lbool yices_get_value(yices_model m, yices_var_decl v);
+-
++[mlname(get_value)]
++enum lbool yices_get_value(model m, var_decl v);
+ 
+ /**
+    \brief Get the integer value assigned to variable \c v in model \c m
+@@ -371,7 +362,8 @@
+    \sa yices_get_arith_value
+    \sa yices_get_double_value
+ */
+-int yices_get_int_value(yices_model m, yices_var_decl d, long *value);
++[mlname(get_int_value)]
++value_error yices_get_int_value(model m, var_decl d, [out] long* v);
+ 
+ 
+ /**
+@@ -391,7 +383,8 @@
+    \sa yices_get_int_value
+    \sa yices_get_double_value
+ */
+-int yices_get_arith_value(yices_model m, yices_var_decl d, long *num, long *den);
++[mlname(get_arith_value)]
++value_error yices_get_arith_value(model m, var_decl d, [out] long *num, [out] long *den);
+ 
+ 
+ /**
+@@ -409,55 +402,8 @@
+    \sa yices_get_int_value
+    \sa yices_get_arith_value
+ */
+-int yices_get_double_value(yices_model m, yices_var_decl d, double *value);
+-
+-
+-/**
+-   \brief Convert the value assigned to variable \c v in model \c m to a GMP rational (\c mpq_t)  
+-
+-   Return 1 on success.
+-
+-   A return code of 0 indicates one of the following errors:
+-   - \c v is not a proper declaration or not the declaration of a numerical variable
+-   - \c v has no value assigned in model m (typically, this means that v does not 
+-   occur in the asserted constraints)
+-
+-   \warning 
+-   - For this function to be declared properly, put \#include <gmp.h>
+-   before \#include <yices_c.h> in your code. If you don't need GMP numbers, don't include <gmp.h>.
+-   - The \c mpq_t object \c value must be initialized first, by calling GMP's <tt>mpq_init</tt> function.
+-   (Check the GNU MP documentation).
+-  
+-
+-   \sa yices_get_mpz_value.
+-*/
+-#ifdef __GMP_H__
+-int yices_get_mpq_value(yices_model m, yices_var_decl d, mpq_t value);
+-#endif
+-
+-/**
+-   \brief Convert the value assigned to variable \c v in model \c m to a GMP integer (\c mpz_t)
+-
+-   Return 1 on success
+-
+-   A return code of 0 indicates one of the following errors:
+-   - \c v is not a proper declaration or not the declaration of a numerical variable
+-   - \c v has no value assigned in model m (typically, this means that v does not 
+-   occur in the asserted constraints)
+-   - \c the value assigned to v is not an integer.
+-
+-   \warning 
+-   - For this function to be declared properly, put <tt>\#include <gmp.h></tt>
+-   before <tt>\#include <yices_c.h></tt> in your code. If you don't need GMP numbers, don't include <gmp.h>.
+-   - The \c mpz_t object \c value must be initialized first, by calling GMP's <tt>mpz_init</tt> function
+-   or its variants. (Check the GNU MP documentation).
+-
+-   \sa yices_get_mpq_value.
+-*/
+-#ifdef __GMP_H__
+-int yices_get_mpz_value(yices_model m, yices_var_decl d, mpz_t value);
+-#endif
+-
++[mlname(get_double_value)]
++value_error yices_get_double_value(model m, var_decl d, [out] double *v);
+ 
+ 
+ /**
+@@ -476,7 +422,20 @@
+    - \c d is not assigned a value in model m   
+    
+ */
+-int yices_get_bitvector_value(yices_model m, yices_var_decl d, unsigned n, int bv[]);
++[mlname(get_bitvector_value)]
++int yices_get_bitvector_value(model m, var_decl d, unsigned int n, [size_is(n)] int bv[]);
++
++
++[string] char* get_rational_value_as_string(model m, var_decl d) quote(dealloc,"if (_res) free(_res);");
++[string] char* get_integer_value_as_string(model m, var_decl d) quote(dealloc,"if (_res) free(_res);");
++
++quote(ml,"let get_ratio_value m d =\
++  Ratio.ratio_of_string (get_rational_value_as_string m d);;\n\n\
++let get_big_int_value m d =\
++  Big_int.big_int_of_string (get_integer_value_as_string m d);;\n")
++quote(mli,"val get_ratio_value : model -> var_decl -> Ratio.ratio\n\n\
++val get_big_int_value : model -> var_decl -> Big_int.big_int\n")
++
+ 
+ 
+ /**
+@@ -487,13 +446,15 @@
+    and #yices_max_sat was used to build the model. That is the only scenario where an
+    assertion may not be satisfied in a model produced by yices.
+  */
+-int yices_get_assertion_value(yices_model m, assertion_id id);
++[mlname(get_assertion_value)]
++int yices_get_assertion_value(model m, assertion_id id);
+ 
+ 
+ /**
+    \brief Display the given model in the standard output.
+  */
+-void yices_display_model(yices_model m);
++[mlname(get_display_model)]
++void yices_display_model(model m);
+ 
+ 
+ /**
+@@ -505,26 +466,30 @@
+    not by #yices_check. If #yices_check returns \c l_true (or \c l_undef),
+    you can call #yices_compute_model_cost to compute the cost explicitly.
+  */
+-long long yices_get_cost(yices_model m);
++[mlname(get_cost)]
++long long yices_get_cost(model m);
+ 
+ 
+ /**
+    \brief Return the cost of the model m, converted to a double-precision 
+    floating point number.
+ */
+-double yices_get_cost_as_double(yices_model m);
++[mlname(get_cost_as_double)]
++double yices_get_cost_as_double(model m);
+ 
+ 
+ /**
+    \brief Return an expression representing \c true.
+  */
+-yices_expr yices_mk_true(yices_context ctx);
++[mlname(mk_true)]
++expr yices_mk_true(context ctx);
+ 
+ 
+ /**
+    \brief Return an expression representing \c false.
+  */
+-yices_expr yices_mk_false(yices_context ctx);
++[mlname(mk_false)]
++expr yices_mk_false(context ctx);
+ 
+ 
+ /**
+@@ -536,13 +501,15 @@
+    \sa yices_mk_fresh_bool_var
+    \sa yices_mk_bool_var_from_decl
+  */
+-yices_expr yices_mk_bool_var(yices_context ctx, char * name);
++[mlname(mk_bool_var)]
++expr yices_mk_bool_var(context ctx, [string] char * name);
+ 
+ 
+ /**
+    \brief Return a fresh boolean variable.
+  */
+-yices_expr yices_mk_fresh_bool_var(yices_context ctx);
++[mlname(mk_fresh_bool_var)]
++expr yices_mk_fresh_bool_var(context ctx);
+ 
+ 
+ /**
+@@ -551,24 +518,29 @@
+    \warning \c e must be a name expression created using methods such
+    as: #yices_mk_bool_var, #yices_mk_fresh_bool_var, or #yices_mk_bool_var_from_decl.
+  */
+-yices_var_decl yices_get_var_decl(yices_expr e);
++[mlname(get_var_decl)]
++var_decl yices_get_var_decl(expr e);
+ 
+ /**
+    \brief Return a new boolean variable declaration. 
+    
+    It is an error to create two variables with the same name.
+  */
+-yices_var_decl yices_mk_bool_var_decl(yices_context ctx, char * name);
++[mlname(mk_bool_var_decl)]
++var_decl yices_mk_bool_var_decl(context ctx, [string] char * name);
++
+ 
+ /**
+    \brief Return a name of a variable declaration.
+  */
+-char * yices_get_var_decl_name(yices_var_decl d);
++[mlname(get_var_decl_name),string]
++char * yices_get_var_decl_name(var_decl d);
+ 
+ /**
+    \brief Return a name expression (instance) using the given variable declaration.
+  */
+-yices_expr yices_mk_bool_var_from_decl(yices_context ctx, yices_var_decl d);
++[mlname(mk_bool_var_from_decl)]
++expr yices_mk_bool_var_from_decl(context ctx, var_decl d);
+ 
+ /**
+    \brief Return an expression representing the \c or of the given arguments.
+@@ -577,7 +549,8 @@
+ 	 
+    \warning \c n must be greater than zero.
+  */
+-yices_expr yices_mk_or(yices_context ctx, yices_expr args[], unsigned n);
++[mlname(mk_or)]
++expr yices_mk_or(context ctx, [size_is(n)] expr args[], unsigned int n);
+ 
+ /**
+    \brief Return an expression representing the \c and of the given arguments.
+@@ -586,27 +559,35 @@
+ 
+    \warning \c n must be greater than zero.
+  */
+-yices_expr yices_mk_and(yices_context ctx, yices_expr args[], unsigned n);
++[mlname(mk_and)]
++expr yices_mk_and(context ctx, [size_is(n)] expr args[], unsigned int n);
+ 
+ /**
+-   \brief Return an expression representing <tt>a1 = a2</tt>.
++   \brief Return an expression representing <tt>a1 /= a2</tt>.
+  */
+-yices_expr yices_mk_eq(yices_context ctx, yices_expr a1, yices_expr a2);
++[mlname(mk_eq)]
++expr yices_mk_eq(context ctx, expr a1, expr a2);
+ 
+ /**
+    \brief Return an expression representing <tt>a1 /= a2</tt>.
+  */
+-yices_expr yices_mk_diseq(yices_context ctx, yices_expr a1, yices_expr a2);
++[mlname(mk_diseq)]
++expr yices_mk_diseq(context ctx, expr a1, expr a2);
+ 
+ /**
+    \brief Return an expression representing <tt>(if c t e)</tt>.
+  */
+-yices_expr yices_mk_ite(yices_context ctx, yices_expr c, yices_expr t, yices_expr e);
++[mlname(mk_ite)]
++expr yices_mk_ite(context ctx, expr c, expr t, expr e);
+ 
+ /**
+    \brief Return an expression representing <tt>(not a)</tt>.
+  */
+-yices_expr yices_mk_not(yices_context ctx, yices_expr a);
++[mlname(mk_not)]
++expr yices_mk_not(context ctx, expr a);
++
++// Don't export the operations on var_decl_iterator
++quote(mli,"(*");
+ 
+ /**
+    \brief Create an iterator that can be used to traverse the boolean variables (var_decl objects) in the 
+@@ -646,7 +627,7 @@
+    \sa yices_iterator_next
+    \sa yices_iterator_reset
+  */
+-yices_var_decl_iterator yices_create_var_decl_iterator(yices_context c);
++var_decl_iterator yices_create_var_decl_iterator(context c);
+ 
+ /**
+    \brief Return 1 if the iterator \c it still has elements to be iterated.
+@@ -655,7 +636,7 @@
+    \sa yices_iterator_next
+    \sa yices_create_var_decl_iterator
+  */
+-int yices_iterator_has_next(yices_var_decl_iterator it);
++boolean yices_iterator_has_next(var_decl_iterator it);
+ 
+ /**
+    \brief Return the next variable, and move the iterator.
+@@ -663,17 +644,30 @@
+    \sa yices_iterator_has_next
+    \sa yices_create_var_decl_iterator
+  */
+-yices_var_decl yices_iterator_next(yices_var_decl_iterator it);
++var_decl yices_iterator_next(var_decl_iterator it);
+ 
+-/**
+-   \brief Reset the given iterator, that is, move it back to the first element.
+- */
+-void yices_iterator_reset(yices_var_decl_iterator it);
++// Not used
++///**
++//   \brief Reset the given iterator, that is, move it back to the first element.
++// */
++//void yices_iterator_reset(var_decl_iterator it);
+ 
+ /**
+    \brief Delete an iterator created with #yices_create_var_decl_iterator.
+  */
+-void yices_del_iterator(yices_var_decl_iterator it);
++void yices_del_iterator(var_decl_iterator it);
++
++quote(mli,"*)");
++
++// MLize the iterator
++quote(ml,"let iter_bool_var_decl f ctx = \n\
++  let it = yices_create_var_decl_iterator ctx in\n\
++    while yices_iterator_has_next it do\n\
++      f (yices_iterator_next it);\n\
++    done;\n\
++    yices_del_iterator it;;\n");
++
++quote(mli,"val iter_bool_var_decl: (var_decl -> unit) -> context -> unit;;\n");
+ 
+ /**
+    \brief Return the type associated with the given name. If the type
+@@ -681,14 +675,29 @@
+ 
+    \remark number, real, int, nat, bool, any are builtin types.
+  */
+-yices_type yices_mk_type(yices_context ctx, char * name);
++[mlname(mk_type)]
++typ yices_mk_type(context ctx, [string] char * name);
++
++// built-in types: number, real, int, nat, bool, any
++quote(ml,"let number_type_name = \"number\";;\n\
++let real_type_name = \"real\";;\n\
++let int_type_name = \"int\";;\n\
++let nat_type_name = \"nat\";;\n\
++let bool_type_name = \"bool\";;\n\
++let any_type_name = \"any\";;\n")
++quote(mli,"val number_type_name : string\n\
++val real_type_name : string\n\
++val int_type_name : string\n\
++val nat_type_name : string\n\
++val bool_type_name : string\n\
++val any_type_name : string\n")
+ 
+ /**
+    \brief Return a function type <tt>(-> d1 ... dn r)</tt>.
+  */
+-yices_type yices_mk_function_type(yices_context ctx, yices_type domain[], 
+-				  unsigned domain_size, yices_type range);
+-
++[mlname(mk_function_type)]
++typ yices_mk_function_type(context ctx, [size_is(domain_size)] typ domain[], 
++  unsigned int domain_size, typ range);
+ 
+ 
+ /**
+@@ -696,32 +705,38 @@
+    
+    Size must be positive.
+ */
+-yices_type yices_mk_bitvector_type(yices_context ctx, unsigned size);
++[mlname(mk_bitvector_type)]
++typ yices_mk_bitvector_type(context ctx, unsigned int size);
+ 
+ 
+ /**
+   \brief Constructs the tuple type (arg[0], ..., arg[size-1]).
+ */
+-yices_type yices_mk_tuple_type(yices_context ctx, yices_type * args[], unsigned size);
++[mlname(mk_tuple_type)]
++typ yices_mk_tuple_type(context ctx, [size_is(size)] ptyp args[],
++  unsigned int size);
+ 
+ 
+ /**
+    \brief Return a new (global) variable declaration. It is an error to create two variables
+    with the same name.
+ */
+-yices_var_decl yices_mk_var_decl(yices_context ctx, char * name, yices_type ty);
++[mlname(mk_var_decl)]
++var_decl yices_mk_var_decl(context ctx, [string] char * name, typ ty);
+ 
+ /**
+    \brief Return a variable declaration associated with the given name. 
+ 
+    Return 0 if there is no variable declaration associated with the given name.
+ */
+-yices_var_decl yices_get_var_decl_from_name(yices_context ctx, char * name);
++[mlname(get_var_decl_from_name)]
++var_decl yices_get_var_decl_from_name(context ctx, [string] char * name);
+ 
+ /**
+    \brief Return a name expression (instance) using the given variable declaration.
+ */
+-yices_expr yices_mk_var_from_decl(yices_context ctx, yices_var_decl d);
++[mlname(mk_var_from_decl)]
++expr yices_mk_var_from_decl(context ctx, var_decl d);
+ 
+ /**
+    \brief Return a function application term <tt>(f t1 ... tn)</tt>.
+@@ -729,48 +744,53 @@
+    The type of \c f must be a function-type, and its arity must
+    be equal to the number of arguments.
+  */
+-yices_expr yices_mk_app(yices_context ctx, yices_expr f, yices_expr args[], unsigned n);
++[mlname(mk_app)]
++expr yices_mk_app(context ctx, expr f, [size_is(n)] expr args[], unsigned int n);
+ 
+ 
+ /**
+    \brief Return an expression representing the given integer.
+  */
+-yices_expr yices_mk_num(yices_context ctx, int n);
++[mlname(mk_num)]
++expr yices_mk_num(context ctx, int n);
+ 
+ /**
+    \brief Return an expression representing the number provided in ASCII format.
+  */
+-yices_expr yices_mk_num_from_string(yices_context ctx, char * n);
++[mlname(mk_num_from_string)]
++expr yices_mk_num_from_string(context ctx, [string] char * n);
+ 
+ 
+-/**
+-  \brief Construct a numerical expression form a GMP integer
++// Use yices_mk_num_from_string instead
++///**
++//  \brief Construct a numerical expression form a GMP integer
++//
++//  \warning
++//  - You must include <gmp.h> before <yices_c.h> for this function to be available.
++//  - If you don't need GMP numbers, don't include <gmp.h>
++//
++//  \sa yices_mk_num_from_mpq
++//*/
++//#ifdef __GMP_H__
++//expr yices_mk_num_from_mpz(context ctx, const mpz_t z);
++//#endif
++
++
++///**
++//  \brief Construct a numerical expression form a GMP rational
++//
++//  q must be canonicalized (see GMP documentation).
++//
++//  \warning
++//  - You must include <gmp.h> before <yices_c.h> for this function to be available.
++//  - If you don't need GMP numbers, don't include <gmp.h>
++//
++//  \sa yices_mk_num_from_mpq
++//*/
++//#ifdef __GMP_H__
++//expr yices_mk_num_from_mpq(context ctx, const mpq_t q);
++//#endif
+ 
+-  \warning
+-  - You must include <gmp.h> before <yices_c.h> for this function to be available.
+-  - If you don't need GMP numbers, don't include <gmp.h>
+-
+-  \sa yices_mk_num_from_mpq
+-*/
+-#ifdef __GMP_H__
+-yices_expr yices_mk_num_from_mpz(yices_context ctx, const mpz_t z);
+-#endif
+-
+-
+-/**
+-  \brief Construct a numerical expression form a GMP rational
+-
+-  q must be canonicalized (see GMP documentation).
+-
+-  \warning
+-  - You must include <gmp.h> before <yices_c.h> for this function to be available.
+-  - If you don't need GMP numbers, don't include <gmp.h>
+-
+-  \sa yices_mk_num_from_mpq
+-*/
+-#ifdef __GMP_H__
+-yices_expr yices_mk_num_from_mpq(yices_context ctx, const mpq_t q);
+-#endif
+ 
+ 
+ /**
+@@ -780,7 +800,8 @@
+ 	 
+    \warning \c n must be greater than zero.
+  */
+-yices_expr yices_mk_sum(yices_context ctx, yices_expr args[], unsigned n);
++[mlname(mk_sum)]
++expr yices_mk_sum(context ctx, [size_is(n)] expr args[], unsigned int n);
+ 
+ /**
+    \brief Return an expression representing <tt>args[0] - ... - args[n-1]</tt>.
+@@ -789,7 +810,8 @@
+ 	 
+    \warning \c n must be greater than zero.
+  */
+-yices_expr yices_mk_sub(yices_context ctx, yices_expr args[], unsigned n);
++[mlname(mk_sub)]
++expr yices_mk_sub(context ctx, [size_is(n)] expr args[], unsigned int n);
+ 
+ /**
+    \brief Return an expression representing <tt>args[0] * ... * args[n-1]</tt>.
+@@ -798,27 +820,32 @@
+ 	 
+    \warning \c n must be greater than zero.
+  */
+-yices_expr yices_mk_mul(yices_context ctx, yices_expr args[], unsigned n);
++[mlname(mk_mul)]
++expr yices_mk_mul(context ctx, [size_is(n)] expr args[], unsigned int n);
+ 
+ /**
+    \brief Return an expression representing <tt>a1 < a2</tt>.
+  */
+-yices_expr yices_mk_lt(yices_context ctx, yices_expr a1, yices_expr a2);
++[mlname(mk_lt)]
++expr yices_mk_lt(context ctx, expr a1, expr a2);
+ 
+ /**
+    \brief Return an expression representing <tt>a1 <= a2</tt>.
+  */
+-yices_expr yices_mk_le(yices_context ctx, yices_expr a1, yices_expr a2);
++[mlname(mk_le)]
++expr yices_mk_le(context ctx, expr a1, expr a2);
+ 
+ /**
+    \brief Return an expression representing <tt>a1 > a2</tt>.
+  */
+-yices_expr yices_mk_gt(yices_context ctx, yices_expr a1, yices_expr a2);
++[mlname(mk_gt)]
++expr yices_mk_gt(context ctx, expr a1, expr a2);
+ 
+ /**
+    \brief Return an expression representing <tt>a1 >= a2</tt>.
+  */
+-yices_expr yices_mk_ge(yices_context ctx, yices_expr a1, yices_expr a2);
++[mlname(mk_ge)]
++expr yices_mk_ge(context ctx, expr a1, expr a2);
+ 
+ 
+ 
+@@ -828,7 +855,8 @@
+ 
+    \c size must be positive
+ */
+-yices_expr yices_mk_bv_constant(yices_context ctx, unsigned size, unsigned long value);
++[mlname(mk_bv_constant)]
++expr yices_mk_bv_constant(context ctx, unsigned int size, unsigned long val);
+ 
+ 
+ /**
+@@ -839,7 +867,8 @@
+ 
+    bit \c i of the bitvector is set to 0 if <tt>bv[i] = 0</tt> and to 1 if <tt>bv[i] != 0</tt>
+ */
+-yices_expr yices_mk_bv_constant_from_array(yices_context ctx, unsigned size, int bv[]);
++[mlname(mk_bv_constant_from_array)]
++expr yices_mk_bv_constant_from_array(context ctx, unsigned int size, [size_is(size)] boolean bv[]);
+ 
+ 
+ /**
+@@ -847,14 +876,16 @@
+ 
+    \c a1 and \c a2 must be bitvector expression of same size.
+ */
+-yices_expr yices_mk_bv_add(yices_context ctx, yices_expr a1, yices_expr a2);
++[mlname(mk_bv_add)]
++expr yices_mk_bv_add(context ctx, expr a1, expr a2);
+ 
+ /**
+    \brief Bitvector subtraction
+ 
+    \c a1 and \c a2 must be bitvector expression of same size.
+ */
+-yices_expr yices_mk_bv_sub(yices_context ctx, yices_expr a1, yices_expr a2);
++[mlname(mk_bv_sub)]
++expr yices_mk_bv_sub(context ctx, expr a1, expr a2);
+ 
+ /**
+    \brief Bitvector multiplication
+@@ -863,14 +894,16 @@
+    truncated to that size too. E.g., multiplication of two 8-bit vectors
+    gives an 8-bit result.
+ */
+-yices_expr yices_mk_bv_mul(yices_context ctx, yices_expr a1, yices_expr a2);
++[mlname(mk_bv_mul)]
++expr yices_mk_bv_mul(context ctx, expr a1, expr a2);
+ 
+ /**
+    \brief Bitvector opposite
+ 
+    \c a1 must be bitvector expression. The result is (- \c a1). 
+ */
+-yices_expr yices_mk_bv_minus(yices_context ctx, yices_expr a1);
++[mlname(mk_bv_minus)]
++expr yices_mk_bv_minus(context ctx, expr a1);
+ 
+ /**
+   \brief Bitvector concatenation 
+@@ -883,7 +916,8 @@
+   0 of \c concat is bit 0 of \c a2 and bit \c n2 of \c concat is bit 0
+   of \c a1.
+ */
+-yices_expr yices_mk_bv_concat(yices_context ctx, yices_expr a1, yices_expr a2);
++[mlname(mk_bv_concat)]
++expr yices_mk_bv_concat(context ctx, expr a1, expr a2);
+ 
+ 
+ /**
+@@ -891,26 +925,30 @@
+ 
+   \c a1 and \c a2 must be bitvector expression of same size.
+ */
+-yices_expr yices_mk_bv_and(yices_context ctx, yices_expr a1, yices_expr a2);
++[mlname(mk_bv_and)]
++expr yices_mk_bv_and(context ctx, expr a1, expr a2);
+ 
+ /**
+   \brief Bitwise or
+ 
+   \c a1 and \c a2 must be bitvector expression of same size.
+ */
+-yices_expr yices_mk_bv_or(yices_context ctx, yices_expr a1, yices_expr a2);
++[mlname(mk_bv_or)]
++expr yices_mk_bv_or(context ctx, expr a1, expr a2);
+ 
+ /**
+   \brief Bitwise exclusive or
+ 
+   \c a1 and \c a2 must be bitvector expression of same size.
+ */
+-yices_expr yices_mk_bv_xor(yices_context ctx, yices_expr a1, yices_expr a2);
++[mlname(mk_bv_xor)]
++expr yices_mk_bv_xor(context ctx, expr a1, expr a2);
+ 
+ /**
+   \brief Bitwise negation
+ */
+-yices_expr yices_mk_bv_not(yices_context ctx, yices_expr a1);
++[mlname(mk_bv_not)]
++expr yices_mk_bv_not(context ctx, expr a1);
+ 
+ 
+ /** 
+@@ -919,37 +957,43 @@
+   \c a must a bitvector expression of size \c n with \c begin < \c end < \c n.
+   The result is the subvector \c a[begin .. end]
+ */ 
+-yices_expr yices_mk_bv_extract(yices_context ctx, unsigned end, unsigned begin, yices_expr a);
++[mlname(mk_bv_extract)]
++expr yices_mk_bv_extract(context ctx, unsigned int end, unsigned int begin, expr a);
+ 
+ /**
+   \brief Sign extension
+ 
+   Append \c n times the most-significant bit of \a to the left of \c a
+ */
+-yices_expr yices_mk_bv_sign_extend(yices_context ctx, yices_expr a, unsigned n);
++[mlname(mk_bv_sign_extend)]
++expr yices_mk_bv_sign_extend(context ctx, expr a, unsigned int n);
+ 
+ 
+ /** 
+   \brief Left shift by \c n bits, padding with zeros
+ */
+-yices_expr yices_mk_bv_shift_left0(yices_context ctx, yices_expr a, unsigned n);
++[mlname(mk_bv_shift_left0)]
++expr yices_mk_bv_shift_left0(context ctx, expr a, unsigned int n);
+ 
+ 
+ /** 
+   \brief Left shift by \c n bits, padding with ones
+ */
+-yices_expr yices_mk_bv_shift_left1(yices_context ctx, yices_expr a, unsigned n);
++[mlname(mk_bv_shift_left1)]
++expr yices_mk_bv_shift_left1(context ctx, expr a, unsigned int n);
+ 
+ /** 
+   \brief Right shift by \c n bits, padding with zeros
+ */
+-yices_expr yices_mk_bv_shift_right0(yices_context ctx, yices_expr a, unsigned n);
++[mlname(mk_bv_shift_right0)]
++expr yices_mk_bv_shift_right0(context ctx, expr a, unsigned int n);
+ 
+ 
+ /** 
+   \brief Right shift by \c n bits, padding with ones
+ */
+-yices_expr yices_mk_bv_shift_right1(yices_context ctx, yices_expr a, unsigned n);
++[mlname(mk_bv_shift_right1)]
++expr yices_mk_bv_shift_right1(context ctx, expr a, unsigned int n);
+ 
+ 
+ /**
+@@ -957,14 +1001,16 @@
+ 
+   \c a1 and \c a2 must be bitvector expression of same size.
+ */
+-yices_expr yices_mk_bv_lt(yices_context ctx, yices_expr a1, yices_expr a2);
++[mlname(mk_bv_lt)]
++expr yices_mk_bv_lt(context ctx, expr a1, expr a2);
+ 
+ /**
+   \brief Unsigned comparison: (\c a1 <= \c a2)
+ 
+   \c a1 and \c a2 must be bitvector expression of same size.
+ */
+-yices_expr yices_mk_bv_le(yices_context ctx, yices_expr a1, yices_expr a2);
++[mlname(mk_bv_le)]
++expr yices_mk_bv_le(context ctx, expr a1, expr a2);
+ 
+ 
+ /**
+@@ -972,7 +1018,8 @@
+ 
+   \c a1 and \c a2 must be bitvector expression of same size.
+ */
+-yices_expr yices_mk_bv_gt(yices_context ctx, yices_expr a1, yices_expr a2);
++[mlname(mk_bv_gt)]
++expr yices_mk_bv_gt(context ctx, expr a1, expr a2);
+ 
+ 
+ /**
+@@ -980,7 +1027,8 @@
+ 
+   \c a1 and \c a2 must be bitvector expression of same size.
+ */
+-yices_expr yices_mk_bv_ge(yices_context ctx, yices_expr a1, yices_expr a2);
++[mlname(mk_bv_ge)]
++expr yices_mk_bv_ge(context ctx, expr a1, expr a2);
+ 
+ 
+ /**
+@@ -988,14 +1036,16 @@
+ 
+   \c a1 and \c a2 must be bitvector expression of same size.
+ */
+-yices_expr yices_mk_bv_slt(yices_context ctx, yices_expr a1, yices_expr a2);
++[mlname(mk_bv_slt)]
++expr yices_mk_bv_slt(context ctx, expr a1, expr a2);
+ 
+ /**
+   \brief Signed comparison: (\c a1 <= \c a2)
+ 
+   \c a1 and \c a2 must be bitvector expression of same size.
+ */
+-yices_expr yices_mk_bv_sle(yices_context ctx, yices_expr a1, yices_expr a2);
++[mlname(mk_bv_sle)]
++expr yices_mk_bv_sle(context ctx, expr a1, expr a2);
+ 
+ 
+ /**
+@@ -1003,7 +1053,8 @@
+ 
+   \c a1 and \c a2 must be bitvector expression of same size.
+ */
+-yices_expr yices_mk_bv_sgt(yices_context ctx, yices_expr a1, yices_expr a2);
++[mlname(mk_bv_sgt)]
++expr yices_mk_bv_sgt(context ctx, expr a1, expr a2);
+ 
+ 
+ /**
+@@ -1011,18 +1062,29 @@
+ 
+   \c a1 and \c a2 must be bitvector expression of same size.
+ */
+-yices_expr yices_mk_bv_sge(yices_context ctx, yices_expr a1, yices_expr a2);
++[mlname(mk_bv_sge)]
++expr yices_mk_bv_sge(context ctx, expr a1, expr a2);
+ 
+ 
+ /**
+    \brief Pretty print the given expression in the standard output.
+ */
+-void yices_pp_expr(yices_expr e);
++[mlname(pp_expr)]
++void yices_pp_expr(expr e);
++
+ 
+-#ifdef __cplusplus
+-} /* end of extern "C" */
+-#endif
++/*
++   Given on yices-help by Bruno Dutertre (2009-12-16)
++ */
++[mlname(interrupt)]
++void yices_interrupt(context ctx);
+ 
++/*
++   Given on yices-help by Bruno Dutertre (2010-06-01)
++   Be aware to close the context only once!
++ */
++typedef [mltype("Yicesl.context"),abstract] void* yicesl;
++[mlname(get_lite_context)]
++yicesl yices_get_lite_context(context ctx);
+ 
+-/*@}*/
+-#endif /* YICES_C_H */
++} /* interface */

@@ -25,6 +25,11 @@ exec_prefix = @exec_prefix@
 libdir = @libdir@
 sharedstatedir = @sharedstatedir@
 
+YICES_C_H = $(prefix)/include/yices_c.h
+YICESL_C_H = $(prefix)/include/yicesl_c.h
+DIFF = diff -bu
+PATCH = patch
+
 OCAMLLIB = @OCAMLLIB@
 OCAMLDESTDIR = @OCAMLDESTDIR@
 OCAMLYICES_LIB_DIR = $(OCAMLDESTDIR)/ocamlyices
@@ -105,7 +110,7 @@ CAMLIDL_CMX = $(CAMLIDL_ML:.ml=.cmx)
 
 ################################################################################
 
-.PHONY: clean all install camlidl byte native
+.PHONY: clean all install camlidl byte native make-patch
 
 all: camlidl byte native
 
@@ -115,10 +120,23 @@ native: $(CAMLIDL_CMI) $(OUTPUT_NATIVE)
 
 camlidl : $(CAMLIDL_ML) $(CAMLIDL_MLI) $(CAMLIDL_STUBS_C)
 
+# Patching #####################################################################
+
+yices.idl: yices.patch
+	$(PATCH) $(YICES_C_H) -i $< -o $@
+
+yicesl.idl: yicesl.patch
+	$(PATCH) $(YICESL_C_H) -i $< -o $@
+
+make-patch: yices.idl
+	$(DIFF) --label yices_c.h $(YICES_C_H) --label yices.idl yices.idl > yices.patch; true
+	$(DIFF) --label yicesl_c.h $(YICESL_C_H) --label yicesl.idl yicesl.idl > yicesl.patch; true
+
 # Generic compilation ##########################################################
 
 %.ml %.mli %_stubs.c : %.idl
 	$(CAMLIDL) $<
+
 
 %.cmi: %.mli
 	$(OCAMLC) -c $< -o $@
@@ -132,6 +150,14 @@ camlidl : $(CAMLIDL_ML) $(CAMLIDL_MLI) $(CAMLIDL_STUBS_C)
 $(CAMLIDL_CMO): %.cmo: %.cmi
 $(CAMLIDL_CMX): %.cmx: %.cmi
 %_stubs.o : %.h
+
+# Other dependencies ###########################################################
+
+yices.cmi: yicesl.cmi
+yicesl.cmo: yicesl.cmi 
+yicesl.cmx: yicesl.cmi 
+yices.cmo: yicesl.cmi yices.cmi 
+yices.cmx: yicesl.cmx yices.cmi 
 
 # C compilation and linking ####################################################
 
