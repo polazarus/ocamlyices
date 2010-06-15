@@ -60,9 +60,23 @@ if test "$OCAMLOPT" != no ; then
 	fi
 fi
 
+AC_CHECK_PROG(OCAMLDOC,ocamldoc,ocamldoc,no)
+if test "$OCAMLDOC" = no ; then
+	AC_MSG_ERROR(Cannot find ocamldoc.)
+fi
+
+AC_CHECK_PROG(OCAMLDOCDOTOPT,ocamldoc.opt,ocamldoc.opt,no)
+if test "$OCAMLDOCDOTOPT" != no ; then
+  OCAMLDOC=$OCAMLDOCDOTOPT
+fi
+
 AC_CHECK_PROG(OCAMLDEP,ocamldep,ocamldep,no)
 if test "$OCAMLDEP" = no ; then
 	AC_MSG_ERROR(Cannot find ocamldep.)
+fi
+AC_CHECK_PROG(OCAMLDEPDOTOPT,ocamldep.opt,ocamldep.opt,no)
+if test "$OCAMLDEPDOTOPT" = no ; then
+	OCAMLDEP=$OCAMLDEPDOTOPT
 fi
 
 AC_CHECK_PROG(CAMLIDL,camlidl,camlidl,no)
@@ -95,6 +109,7 @@ AC_SUBST(YICES_SHARED_LIB)
 AC_SUBST(OCAMLC)
 AC_SUBST(CAMLIDL)
 AC_SUBST(OCAMLOPT)
+AC_SUBST(OCAMLDOC)
 AC_SUBST(OCAMLDEP)
 AC_SUBST(OCAMLBEST)
 AC_SUBST(OCAMLVERSION)

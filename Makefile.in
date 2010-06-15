@@ -55,6 +55,7 @@ OUTPUT_DLL = dll$(OUTPUT).so
 CAMLIDL = @CAMLIDL@
 OCAMLC = @OCAMLC@
 OCAMLOPT = @OCAMLOPT@
+OCAMLDOC = @OCAMLDOC@
 CC = @CC@
 CFLAGS = -O2
 AR = ar
@@ -183,6 +184,15 @@ endif
 
 $(OUTPUT_NATIVE): $(CAMLIDL_CMX) $(OUTPUT_LIB)
 	$(OCAMLOPT) -a -o $@ -cclib -l$(OUTPUT_LIB:lib%.a=%) $(CCLIBS:%=-cclib -l%) $(CAMLIDL_CMX)
+
+# Doc ##########################################################################
+
+doc: doc/html/.done
+
+doc/html/.done: *.mli
+	@mkdir -p $(dir $@)
+	ocamldoc -html $^ -d $(dir $@)
+	@touch $@
 
 # Cleaning #####################################################################
 

@@ -25,6 +25,10 @@ typedef void* yicesl_context;
 // Given on yices-help by Bruno Dutertre (2010-06-01)
 extern yicesl_context yices_get_lite_context(yices_context ctx);
 
+// Guessed from nm
+extern yices_expr yices_mk_function_update(yices_context ctx, yices_expr f, yices_expr args[], unsigned int n, yices_expr val);
+extern yices_expr yices_mk_tuple_literal(yices_context ctx, yices_expr args[], unsigned int n);
+
 
 #define yicesl yicesl_context
 #define expr yices_expr
