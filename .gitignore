@@ -20,7 +20,8 @@
 /yicesl.ml
 /yicesl.mli
 /yicesl_stubs.c
-
+#
+/META
 #
 .depend
 /Makefile

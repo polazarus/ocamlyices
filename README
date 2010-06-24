@@ -1,7 +1,7 @@
-Ocamlyices: An Ocaml binding for Yices 1, version 0.2
+Ocamlyices: An Ocaml binding for Yices 1, version 0.3
 Mickaël Delahaye
 
-* Requirement
+** Requirements **
 
 - Yices >= 1.0.26 < 2 <http://yices.csl.sri.com>
   with or without GMP statically linked
@@ -14,47 +14,77 @@ Mickaël Delahaye
 
 - Camlidl
 
-- For deveoppers, to use the latest version from the repository: autoconf
+- For developers, to use the latest version from the repository: autoconf
 
-* Install
+
+** WARNING **
+
+Hardly tested! and only under Linux, but reported to work under MacOS X...
+
+
+** Setup **
 
 $ autoconf # Only if there is no configure
 $ ./configure
-
 $ make
 
 Build the Ocamlyices library (for ocamlopt and ocamlc).
-
-Part of the linking is done by an incremental, partial, linking, the rest is
+Part of the linking is done by an incremental, aka partial, linking, the rest is
 done by ocamlc or ocamlopt when you use the Ocamlyices library.
-
-Not-so-hidden make options you should not normally use:
-
-CUSTOM=y
-  Use a "custom" bytecode compilation (see Ocamlc manual).
-FORCE_STATIC=y
-  Force the use of libyices.a instead of libyices.so (must be use in combination
-  with CUSTOM for bytecode).
-NO_PARTIAL_LINKING=y
-  Do not use partial linking, not compatible with FORCE_STATIC (to obtain this
-  behavior just delete libyices.so).
 
 $ sudo make install
 
-Install the library in `ocamlc -where`/ocamlyices
+Install the library in `ocamlc -where`/ocamlyices and possibly a DLL in
+`ocamlc -where`/stublibs.
 
-* Usage
+
+* Configure options *
+
+./configure [OPTIONS]
+
+--enable-custom
+--disable-custom [DEFAULT]
+
+  Build the Ocamlyices for custom bytecode compilation (see ocamlc manual for
+  more information), rather than using a shared library. As a result, every
+  program using such a version of ocamlyices will be compilated with the
+  option -custom.
+
+--enable-force-static
+--disable-force-static [DEFAULT]
+
+  Embed the static version of the Yices library into the ocamlyices library.
+  Force --enable-partial-linking
+
+--enable-partial-linking [DEFAULT]
+--disbable-partial-linking
+
+  Partial linking is mostly needed to the second option (force static). Also,
+  with this option the ocamlyices.cma/.cmxa does not depend on camlidl.
+
+
+** Usage **
+
+With Ocamlfind:
+
+ocamlfind ocamlc/ocamlopt -package ocamlyices
+
+Or without:
 
 ocamlc -I +ocamlyices nums.cma ocamlyices.cma ...
 ocamlopt -I +ocamlyices nums.cmxa ocamlyices.cmxa ...
 
 nums is required in order to handle GMP big integers as big_int.
 
-* WARNING
 
-Hardly tested! and only under Linux, but reported to work under MacOS X...
+** Uninstall **
 
-* License *
+$ sudo make uninstall
+
+Uninstall the library
+
+
+** License **
 
 Copyright (c) 2010, Mickaël Delahaye <mickael.delahaye@gmail.com>
 

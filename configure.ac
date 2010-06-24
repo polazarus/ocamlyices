@@ -1,4 +1,4 @@
-AC_INIT(ocamlyices,0.2)
+AC_INIT(ocamlyices,0.3)
 
 AC_PROG_CC
 AC_PROG_RANLIB
@@ -95,15 +95,47 @@ else
 	EXEEXT=
 fi
 
-AC_MSG_CHECKING(yices shared library)
-if ldconfig -p | grep -q libyices.so; then
-	YICES_SHARED_LIB=yes
-else
-	YICES_SHARED_LIB=no
-fi
+
+
+################################################################################
+
+AC_ARG_ENABLE(custom,
+  [AS_HELP_STRING([--enable-custom], [Custom compilation (ocamlc option)])],
+  [CUSTOM=${enableval}],
+  [CUSTOM=no])
+
+AC_ARG_ENABLE(partial-linking,
+  [AS_HELP_STRING([--enable-partial-linking], [Incremental compilation])],
+  [PARTIAL_LINKING=${enableval}],
+  [PARTIAL_LINKING=yes])
+  
+AC_ARG_ENABLE(force-static,
+  [AS_HELP_STRING([--enable-force-static], [Force static linking of Yices (implies --enable-partial-linking)])],
+  [FORCE_STATIC=${enableval}],
+  [FORCE_STATIC=no; PARTIAL_LINKING=yes])
+
+AS_IF([test "x$PARTIAL_LINKING" != xno], [PARTIAL_LINKING=yes])
+AS_IF([test "x$CUSTOM" != xno], [CUSTOM=yes])
+AS_IF([test "x$FORCE_STATIC" != xno], [FORCE_STATIC=yes])
+
+AC_MSG_CHECKING(for Yices shared library)
+AS_IF([ldconfig -p | grep -q libyices.so],[YICES_SHARED_LIB=yes],[YICES_SHARED_LIB=no])
 AC_MSG_RESULT($YICES_SHARED_LIB)
+AS_IF([test "$YICES_SHARED_LIB" = no],[
+  AC_MSG_WARN(Cannot find the shared library of Yices, forcing static linking)
+  FORCE_STATIC=yes
+])
 
+AS_IF([test "$FORCE_STATIC" = yes -a "$PARTIAL_LINKING" = no],[
+  AC_MSG_WARN(Partial linking disabling overriden by forcing static)
+  PARTIAL_LINKING=yes
+])
 
+################################################################################
+
+AC_SUBST(PARTIAL_LINKING)
+AC_SUBST(CUSTOM)
+AC_SUBST(FORCE_STATIC)
 
 AC_SUBST(YICES_SHARED_LIB)
 AC_SUBST(OCAMLC)

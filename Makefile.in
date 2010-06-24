@@ -50,6 +50,8 @@ OUTPUT_O = $(OUTPUT).o
 OUTPUT_LIB = lib$(OUTPUT).a
 OUTPUT_DLL = dll$(OUTPUT).so
 
+META = META
+
 # Tools
 
 CAMLIDL = @CAMLIDL@
@@ -64,36 +66,43 @@ MKDIR_P = mkdir -p
 INCREMENTAL_LINKER = $(CC) -r -nostdlib -L/usr/local/lib -L/usr/lib
 #INCREMENTAL_LINKER = ld -r -L/usr/local/lib -L/usr/lib
 
+# Parameters: PARTIAL_LINKING and CUSTOM (for using custom bytecode compilation)
+
+CUSTOM = @CUSTOM@
+PARTIAL_LINKING = @PARTIAL_LINKING@
+FORCE_STATIC = @FORCE_STATIC@
+
 # Is libyices.so present?
 ifeq (@YICES_SHARED_LIB@,no)
-FORCE_YICES_STATIC = yes
+FORCE_STATIC = yes
 endif
 
-# Parameters: NO_PARTIAL_LINKING and CUSTOM (for using custom bytecode compilation)
 
 # Library dependencies #########################################################
 
-# CCLIBS
-#   Libraries to build a static library lib*.a, to use for native compilation
-#   or custom bytecode compilation
-# DLLIBS
-#   Librares to build a shared library dll*.so
-# PLLIBS (for partial linking)
-#   Librares to use in the step of partial linking
-DLLIBS = yices stdc++ gmp camlidl
-PLLIBS = camlidl
+# Libraries to use with 'ocamlopt' or 'ocamlc -custom'
 CCLIBS = stdc++ gmp
-# -lgmp is ignored if not needed by the linker (that is if Yices is compiled
-#   with GMP) , but it's required otherwise
-
-ifdef NO_PARTIAL_LINKING
-CCLIBS += camlidl yices
-else
-ifdef FORCE_YICES_STATIC
-PLLIBS += yices
-else
+ifeq ($(PARTIAL_LINKING),yes)
+ifeq ($(FORCE_STATIC),no)
 CCLIBS += yices
 endif
+else
+CCLIBS += camlidl yices
+endif
+
+# Partial linking library
+PLLIBS = camlidl # no dependency to camlidl for Ocamlyices users
+ifeq ($(FORCE_STATIC),yes)
+PLLIBS += yices
+endif
+
+# Libraries to build the shared library dll*.so (used only when CUSTOM=no)
+ifeq ($(FORCE_STATIC),yes)
+DL_SHARED_LIBS = stdc++ gmp
+DL_STATIC_LIBS = yices camlidl
+else
+DL_SHARED_LIBS = yices stdc++ gmp
+DL_STATIC_LIBS = camlidl
 endif
 
 # Names of Camlidl-related files ###############################################
@@ -111,9 +120,9 @@ CAMLIDL_CMX = $(CAMLIDL_ML:.ml=.cmx)
 
 ################################################################################
 
-.PHONY: clean all install camlidl byte native make-patch
+.PHONY: all byte native camlidl make-patch clean distclean mrproper install uninstall
 
-all: camlidl byte native
+all: camlidl byte native $(META)
 
 byte: $(CAMLIDL_CMI) $(OUTPUT_BYTECODE)
 
@@ -163,7 +172,7 @@ yices.cmx: yicesl.cmx yices.cmi
 # C compilation and linking ####################################################
 
 $(OUTPUT_LIB): $(CAMLIDL_STUBS_O) yices_extra.o
-ifdef NO_PARTIAL_LINKING
+ifeq ($(PARTIAL_LINKING),no)
 	$(AR) crs $@ $^
 else
 # Partial linking for efficiency
@@ -172,18 +181,25 @@ else
 	$(AR) crs $@ $(OUTPUT_O)
 endif
 
-ifdef CUSTOM
+ifeq ($(CUSTOM),yes)
 $(OUTPUT_BYTECODE): $(CAMLIDL_CMO) $(OUTPUT_LIB)
 	$(OCAMLC) -a -custom -o $@ -cclib -l$(OUTPUT_LIB:lib%.a=%) $(CCLIBS:%=-cclib -l%) $(CAMLIDL_CMO)
 else
 $(OUTPUT_DLL): $(CAMLIDL_STUBS_O) yices_extra.o
-	$(CC) -shared -o $@ $^ -L$(OCAMLLIB) $(DLLIBS:%=-l%)
+	$(CC) -shared -o $@ $^ -L$(OCAMLLIB) -Wl,-Bstatic $(DL_STATIC_LIBS:%=-l%) -Wl,-Bdynamic $(DL_SHARED_LIBS:%=-l%)
 $(OUTPUT_BYTECODE): $(CAMLIDL_CMO) $(OUTPUT_DLL)
 	$(OCAMLC) -a -o $@ -dllib -l$(OUTPUT_DLL:dll%.so=%) $(CAMLIDL_CMO)
 endif
 
 $(OUTPUT_NATIVE): $(CAMLIDL_CMX) $(OUTPUT_LIB)
 	$(OCAMLOPT) -a -o $@ -cclib -l$(OUTPUT_LIB:lib%.a=%) $(CCLIBS:%=-cclib -l%) $(CAMLIDL_CMX)
+
+# Meta #########################################################################
+
+$(META): $(META).in
+	@$(RM) $@
+	sed -e 's|__NATIVE__|$(OUTPUT_NATIVE)|g' -e 's|__BYTECODE__|$(OUTPUT_BYTECODE)|g' -e 's|__VERSION__|$(PACKAGE_VERSION)|g' $< > $@
+	@chmod -f a-w $@
 
 # Doc ##########################################################################
 
@@ -200,14 +216,16 @@ clean:
 	$(RM) *.cmo *.cmi *.cmx *.a *.o $(CAMLIDL_GENERATED)
 
 distclean mrproper: clean
-	$(RM) *.cma *.cmxa *.a *.dll
+	$(RM) *.cma *.cmxa *.a *.so $(META)
 
 # Install ######################################################################
 
 install:
 	install -d $(OCAMLYICES_LIB_DIR)
-	install -t $(OCAMLYICES_LIB_DIR) $(CAMLIDL_CMI) $(OUTPUT_LIB) $(OUTPUT_NATIVE_LIB) $(OUTPUT_BYTECODE) $(OUTPUT_NATIVE)
+	install -t $(OCAMLYICES_LIB_DIR) $(CAMLIDL_CMI) $(OUTPUT_LIB) $(OUTPUT_NATIVE_LIB) $(OUTPUT_BYTECODE) $(OUTPUT_NATIVE) $(META)
+ifeq ($(CUSTOM),no)
 	install -t $(OCAML_STUBLIBS) $(OUTPUT_DLL)
+endif
 
 uninstall:
 	$(RM) -r $(OCAMLYICES_LIB_DIR)

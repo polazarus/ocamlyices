@@ -1,0 +1,5 @@
+version = "__VERSION__"
+description = "Ocamlyices: Yices STM solver binding for OCaml"
+requires = "num"
+archive(byte) = "__BYTECODE__"
+archive(native) = "__NATIVE__"

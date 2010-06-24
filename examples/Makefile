@@ -1,4 +1,4 @@
-TEST = one mixed
+TEST = one two future
 
 all: native byte
 
@@ -7,15 +7,15 @@ byte: $(TEST:=.byte)
 native: $(TEST:=.opt)
 
 %.byte: %.ml
-	ocamlc -I +ocamlyices nums.cma ocamlyices.cma $< -o $@
+	#ocamlc -I +ocamlyices nums.cma ocamlyices.cma $< -o $@
+	ocamlfind ocamlc -package ocamlyices -linkpkg $< -o $@
 
 %.opt: %.ml
-	ocamlopt -I +ocamlyices nums.cmxa ocamlyices.cmxa $< -o $@
+	#ocamlopt -I +ocamlyices nums.cmxa ocamlyices.cmxa $< -o $@
+	ocamlfind ocamlopt -package ocamlyices -linkpkg $< -o $@
 
 clean:
-	rm -rf *.cmi *.cmo *.cmx *.o
+	$(RM) *.cmi *.cmo *.cmx *.o
+	$(RM) *.byte *.opt
 
-distclean mrproper: clean
-	rm -rf *.byte *.opt
-
-.PHONY: all native byte clean
+.PHONY: all native byte clean distclean mrproper
