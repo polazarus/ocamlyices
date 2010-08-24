@@ -114,7 +114,7 @@ CAMLIDL_CMX = $(CAMLIDL_ML:.ml=.cmx)
 
 ################################################################################
 
-.PHONY: all byte native camlidl make-patch clean distclean mrproper install uninstall
+.PHONY: all byte native camlidl patches clean distclean mrproper install uninstall
 
 all: camlidl byte native $(META)
 
@@ -132,7 +132,7 @@ yices.idl: yices.patch
 yicesl.idl: yicesl.patch
 	$(PATCH) $(YICESL_C_H) -i $< -o $@
 
-make-patch: yices.idl
+patches: yices.idl
 	$(DIFF) --label yices_c.h $(YICES_C_H) --label yices.idl yices.idl > yices.patch; true
 	$(DIFF) --label yicesl_c.h $(YICESL_C_H) --label yicesl.idl yicesl.idl > yicesl.patch; true
 
@@ -140,7 +140,12 @@ make-patch: yices.idl
 
 %.ml %.mli %_stubs.c : %.idl
 	$(CAMLIDL) $<
-
+	sed -e '/\<error_value/ { N; s/\<error_value\>.*\n\s*and\s\+// }' \
+	 -e '/yices_type_ptr = yices_type/ d' \
+	 -e 's/yices_type_ptr/yices_type/g' \
+	 -e 's/\<yices_type\>/typ/g' \
+	 -e 's/\<yicesl\?_//g' -i $(<:.idl=.mli) -i $(<:.idl=.ml)
+	sed -e '/^and var_decl_iterator$$/ d' -i $(<:.idl=.mli)
 
 %.cmi: %.mli
 	$(OCAMLC) -c $< -o $@

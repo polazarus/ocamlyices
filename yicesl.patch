@@ -1,6 +1,6 @@
 --- yicesl_c.h
 +++ yicesl.idl
-@@ -1,43 +1,52 @@
+@@ -1,42 +1,47 @@
  // Copyright (c) SRI International 2006.
  // Author: Leonardo de Moura
 -#ifndef YICESL_C_H
@@ -13,8 +13,8 @@
 -#endif
 -
 -typedef void * yicesl_context;
-+typedef [abstract, errorcode, errorcheck(checkerror)] int error_code;
-+typedef [abstract] void * context;
++typedef [abstract, errorcode, errorcheck(checkerror)] int error_value;
++typedef [abstract] void * yicesl_context;
  
  /**
     \defgroup capil C API Lite
@@ -25,14 +25,13 @@
     \brief Set the verbosity level. 
   */
 +quote(mli,"(** Set the verbosity level *)")
-+[mlname(set_verbosity)]
  void yicesl_set_verbosity(int l);
  
  /**
     \brief Return the yices version number.
   */
 +quote(mli,"(** Return the yices version number *)")
-+[mlname(version), string]
++[string]
  char * yicesl_version();
  
  /**
@@ -40,7 +39,6 @@
   */
 -void yicesl_enable_type_checker(int flag);
 +quote(mli,"(** Force Yices to type check expressions when they are asserted (default = false) *)")
-+[mlname(enable_type_checker)]
 +void yicesl_enable_type_checker(boolean flag);
  
  /**
@@ -50,38 +48,31 @@
 -void yicesl_enable_log_file(char * file_name);
 +quote(mli,"(** Enable a log file that will store the assertions, checks, decls, etc.\n\
 +  If the log file is already open, then nothing happens. *)")
-+[mlname(enable_log_file)]
 +void yicesl_enable_log_file([string] char * file_name);
  
  /**
     \brief Create a logical context.
   */
--yicesl_context yicesl_mk_context();
 +quote(mli,"(** Create a logical context. *)")
-+[mlname(mk_context)]
-+context yicesl_mk_context();
+ yicesl_context yicesl_mk_context();
  
  
- /**
-@@ -45,7 +54,9 @@
+@@ -45,6 +50,7 @@
     
     \sa yicesl_mk_context
   */
--void yicesl_del_context(yicesl_context ctx);
 +quote(mli,"(** Delete the given logical context. *)")
-+[mlname(del_context)]
-+void yicesl_del_context(context ctx);
+ void yicesl_del_context(yicesl_context ctx);
  
  /**
-    \brief Process the given command in the given logical context.
-@@ -55,28 +66,29 @@
+@@ -55,28 +61,28 @@
     Commands yicesl_get_last_error_message can be used to retrieve
     the error message.
   */
 -int yicesl_read(yicesl_context ctx, char * cmd);
 +quote(mli,"(** Process the given command in the given logical context. The command must use Yices input language. *)")
-+[mlname(read), blocking]
-+error_code yicesl_read(context ctx,[string] char * cmd) ;
++[blocking]
++error_value yicesl_read(yicesl_context  ctx,[string] char * cmd) ;
  
  /**
     \brief Return true if the given logical context is inconsistent.
@@ -93,14 +84,14 @@
 - */
 -char * yicesl_get_last_error_message();
 +quote(mli, "(** Return true if the given logical context is inconsistent. *)")
-+[mlname(inconsitent)]
-+boolean yicesl_inconsistent(context ctx);
++[]
++boolean yicesl_inconsistent(yicesl_context  ctx);
 +
 +///**
 +//   \brief Return the last error message produced by the logical context.
 +//*/
 +//char * yicesl_get_last_error_message();
-+// -> Used in the error check of error_code
++// -> Used in the error check of lerror
  
  /**
     \brief Set the file that will store the output produced by yices (e.g., models).
@@ -108,7 +99,6 @@
   */
 -void yicesl_set_output_file(char * file_name);
 +quote(mli,"(** Set the file that will store the output produced by yices (e.g., models). The default behavior is to send the output to standard output. *)")
-+[mlname(set_output_file)]
 +void yicesl_set_output_file([string] char * file_name);
  
  /*@}*/

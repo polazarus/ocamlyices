@@ -45,7 +45,7 @@ char* get_rational_value_as_string(yices_model m, yices_var_decl d) {
   mpq_init(q);
   int base = 10;
   char* res;
-  check_value_error(yices_get_mpq_value(m,d,q));
+  check_error_value(yices_get_mpq_value(m,d,q));
   res = malloc(sizeof(char[mpz_sizeinbase (mpq_numref(q), base) + mpz_sizeinbase (mpq_denref(q), base) + 3]));
   if (res) {
     char* rres = mpq_get_str(res,base,q);
@@ -62,7 +62,7 @@ char* get_integer_value_as_string(yices_model m, yices_var_decl d) {
   mpz_init(z);
   int base = 10;
   char* res;
-  check_value_error(yices_get_mpz_value(m,d,z));
+  check_error_value(yices_get_mpz_value(m,d,z));
   res = malloc(sizeof(char[mpz_sizeinbase (z, base) + 2]));
   if (res) {
     char* rres = mpz_get_str(res,base,z);
