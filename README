@@ -4,11 +4,13 @@ Mickaël Delahaye
 ** Requirements **
 
 - Yices >= 1.0.26 < 2 <http://yices.csl.sri.com>
-  with or without GMP statically linked
+  preferably without GMP statically linked
   libyices.a or libyices.a must be installed on the system
   
   You can use './install-yices.sh yices.tar.gz' to install yices in /usr/local
-  and register the DLL
+  and register the DLL. If a warning appears about the absence of libyices.so,
+  you may have to --enable-custom. You can change destination directory with
+  './install-yices yices.tar.gz /usr/local /usr/local/lib64'
 
 - GMP and GMP header <gmp.h>
 

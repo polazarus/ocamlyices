@@ -72,12 +72,6 @@ CUSTOM = @CUSTOM@
 PARTIAL_LINKING = @PARTIAL_LINKING@
 FORCE_STATIC = @FORCE_STATIC@
 
-# Is libyices.so present?
-ifeq (@YICES_SHARED_LIB@,no)
-FORCE_STATIC = yes
-endif
-
-
 # Library dependencies #########################################################
 
 # Libraries to use with 'ocamlopt' or 'ocamlc -custom'
@@ -185,8 +179,8 @@ ifeq ($(CUSTOM),yes)
 $(OUTPUT_BYTECODE): $(CAMLIDL_CMO) $(OUTPUT_LIB)
 	$(OCAMLC) -a -custom -o $@ -cclib -l$(OUTPUT_LIB:lib%.a=%) $(CCLIBS:%=-cclib -l%) $(CAMLIDL_CMO)
 else
-$(OUTPUT_DLL): $(CAMLIDL_STUBS_O) yices_extra.o
-	$(CC) -shared -o $@ $^ -L$(OCAMLLIB) -Wl,-Bstatic $(DL_STATIC_LIBS:%=-l%) -Wl,-Bdynamic $(DL_SHARED_LIBS:%=-l%)
+$(OUTPUT_DLL): $(CAMLIDL_STUBS_C) yices_extra.c
+	$(CC) $(CFLAGS) -fPIC -shared -o $@ $^ -L$(OCAMLLIB) -Wl,-Bstatic $(DL_STATIC_LIBS:%=-l%) -Wl,-Bdynamic $(DL_SHARED_LIBS:%=-l%)
 $(OUTPUT_BYTECODE): $(CAMLIDL_CMO) $(OUTPUT_DLL)
 	$(OCAMLC) -a -o $@ -dllib -l$(OUTPUT_DLL:dll%.so=%) $(CAMLIDL_CMO)
 endif

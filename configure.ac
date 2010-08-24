@@ -118,13 +118,13 @@ AS_IF([test "x$PARTIAL_LINKING" != xno], [PARTIAL_LINKING=yes])
 AS_IF([test "x$CUSTOM" != xno], [CUSTOM=yes])
 AS_IF([test "x$FORCE_STATIC" != xno], [FORCE_STATIC=yes])
 
-AC_MSG_CHECKING(for Yices shared library)
-AS_IF([ldconfig -p | grep -q libyices.so],[YICES_SHARED_LIB=yes],[YICES_SHARED_LIB=no])
-AC_MSG_RESULT($YICES_SHARED_LIB)
-AS_IF([test "$YICES_SHARED_LIB" = no],[
-  AC_MSG_WARN(Cannot find the shared library of Yices, forcing static linking)
-  FORCE_STATIC=yes
-])
+#AC_MSG_CHECKING(for Yices shared library)
+#AS_IF([ldconfig -p | grep -q libyices.so],[YICES_SHARED_LIB=yes],[YICES_SHARED_LIB=no])
+#AC_MSG_RESULT($YICES_SHARED_LIB)
+#AS_IF([test "$YICES_SHARED_LIB" = no],[
+#  AC_MSG_WARN(Cannot find the shared library of Yices, forcing static linking)
+#  FORCE_STATIC=yes
+#])
 
 AS_IF([test "$FORCE_STATIC" = yes -a "$PARTIAL_LINKING" = no],[
   AC_MSG_WARN(Partial linking disabling overriden by forcing static)
@@ -137,7 +137,6 @@ AC_SUBST(PARTIAL_LINKING)
 AC_SUBST(CUSTOM)
 AC_SUBST(FORCE_STATIC)
 
-AC_SUBST(YICES_SHARED_LIB)
 AC_SUBST(OCAMLC)
 AC_SUBST(CAMLIDL)
 AC_SUBST(OCAMLOPT)
