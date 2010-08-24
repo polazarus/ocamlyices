@@ -20,8 +20,11 @@ failwith() {
   exit 1
 }
 
-if [[ $# -ne 1 ]]; then
-  echo usage: $0 yices.tar.gz
+if [[ $# -lt 1 ]]; then
+  echo usage: $0 yices.tar.gz '[PREFIX [LIBDIR]]'
+
+  echo   PREFIX /usr/local by default
+  echo   LIBDIR ${PREFIX}/lib by default
   exit 1
 fi
 
@@ -30,9 +33,10 @@ if [[ "$(id -u)" -ne 0 ]]; then
   exit 1
 fi
 
-ARCHIVE="$1"
+ARCHIVE="$(readlink -f "$1")"
 TEMPDIR="/tmp/yices-install"
-INSTALL="/usr/local"
+INSTALL="${2:-/usr/local}"
+LIBDIR="${3:-${INSTALL}/lib}"
 
 mkdir -p "$TEMPDIR"
 cd "$TEMPDIR"
@@ -41,9 +45,13 @@ tar -xzf "$ARCHIVE" || failwith cannot untar $ARCHIVE
 
 cd yices*
 
+if [[ ! -e lib/libyices.so ]]; then
+  echo "WARNING No shared libary present"
+fi
+
 echo Install libraries...
-install lib/* "$INSTALL"/lib || failwith "cannot install libraries"
-ldconfig -n "$INSTALL"/lib || failwith "ldconfig failed"
+install lib/* "$LIBDIR" || failwith "cannot install libraries"
+ldconfig || failwith "ldconfig failed"
 
 echo Install headers...
 install -m 'a=r,u+w' include/*.h "$INSTALL"/include || failwith "cannot install headers"
