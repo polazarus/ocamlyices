@@ -140,11 +140,11 @@ patches: yices.idl
 
 %.ml %.mli %_stubs.c : %.idl
 	$(CAMLIDL) $<
-	sed -e '/\<error_value/ { N; s/\<error_value\>.*\n\s*and\s\+// }' \
-	 -e '/yices_type_ptr = yices_type/ d' \
+	sed -e '/^and error_value/ d' \
+	 -e '/^and\s\+yices_type_ptr = yices_type$$/ d' \
 	 -e 's/yices_type_ptr/yices_type/g' \
-	 -e 's/\<yices_type\>/typ/g' \
-	 -e 's/\<yicesl\?_//g' -i $(<:.idl=.mli) -i $(<:.idl=.ml)
+	 -e 's/ yices_type/ typ/g' \
+	 -e 's/\([ (.]\)yicesl\?_/\1/g' -i $(<:.idl=.mli) -i $(<:.idl=.ml)
 	sed -e '/^and var_decl_iterator$$/ d' -i $(<:.idl=.mli)
 
 %.cmi: %.mli
@@ -162,6 +162,7 @@ $(CAMLIDL_CMX): %.cmx: %.cmi
 
 # Other dependencies ###########################################################
 
+yices.ml: yicesl.ml
 yices.cmi: yicesl.cmi
 yicesl.cmo: yicesl.cmi 
 yicesl.cmx: yicesl.cmi 

@@ -13,8 +13,8 @@
 -#endif
 -
 -typedef void * yicesl_context;
-+typedef [abstract, errorcode, errorcheck(checkerror)] int error_value;
 +typedef [abstract] void * yicesl_context;
++typedef [abstract, errorcode, errorcheck(checkerror)] int error_value;
  
  /**
     \defgroup capil C API Lite
@@ -65,28 +65,26 @@
  void yicesl_del_context(yicesl_context ctx);
  
  /**
-@@ -55,28 +61,28 @@
+@@ -55,28 +61,27 @@
     Commands yicesl_get_last_error_message can be used to retrieve
     the error message.
   */
 -int yicesl_read(yicesl_context ctx, char * cmd);
 +quote(mli,"(** Process the given command in the given logical context. The command must use Yices input language. *)")
 +[blocking]
-+error_value yicesl_read(yicesl_context  ctx,[string] char * cmd) ;
++error_value yicesl_read(yicesl_context ctx,[string] char * cmd) ;
  
  /**
     \brief Return true if the given logical context is inconsistent.
   */
 -int yicesl_inconsistent(yicesl_context ctx);
--
++quote(mli, "(** Return true if the given logical context is inconsistent. *)")
++boolean yicesl_inconsistent(yicesl_context ctx);
+ 
 -/**
 -   \brief Return the last error message produced by the logical context.
 - */
 -char * yicesl_get_last_error_message();
-+quote(mli, "(** Return true if the given logical context is inconsistent. *)")
-+[]
-+boolean yicesl_inconsistent(yicesl_context  ctx);
-+
 +///**
 +//   \brief Return the last error message produced by the logical context.
 +//*/

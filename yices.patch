@@ -31,12 +31,9 @@
  /**
     The current C API is not yet complete, but the basic Yices functionalities can be used.
     Dependent types, quantifiers, lambda expressions are not supported by this API right now
-@@ -24,11 +24,14 @@
-  */
+@@ -25,10 +25,11 @@
  
  
-+typedef [abstract, errorcode,errorcheck(check_error_value)] int error_value;
-+
  /** \brief Yices expressions (abstract syntax tree) */
 -typedef void * yices_expr;
 +typedef [abstract,errorcheck(check_expr)] void * yices_expr;
@@ -48,7 +45,7 @@
  
  /** 
     \brief Variable declaration 
-@@ -39,7 +42,7 @@
+@@ -39,7 +40,7 @@
     expressions. Instances can be created using
     #yices_mk_bool_var_from_decl or #yices_mk_var_from_decl.
  */
@@ -57,7 +54,7 @@
  
  /** 
     \brief Yices context.
-@@ -47,7 +50,7 @@
+@@ -47,13 +48,15 @@
     A context stores a collection of declarations and assertions.
  
   */
@@ -66,7 +63,15 @@
  
  /**
     \brief Assertion index, to identify retractable assertions.  
-@@ -62,20 +65,17 @@
+  */
+ typedef int assertion_id;
+ 
++typedef [abstract, errorcode,errorcheck(check_error_value)] int error_value;
++
+ /**
+   \brief Model.
+ 
+@@ -62,18 +65,18 @@
    The model is constructed by calling #yices_check (or its relatives) then
    #yices_get_model.
  */
@@ -77,20 +82,18 @@
     \brief Iterator for scanning the boolean variables.
  */
 -typedef void * yices_var_decl_iterator;
--
 +typedef [abstract,errorcheck(check_var_decl_iterator)] void * yices_var_decl_iterator;
+ 
  
  /** 
    \brief Extended booleans: to represent the value of literals in the context 
  */
 -typedef enum { l_false=-1, l_undef, l_true } lbool;
--
--
 +enum lbool { False=-1, Undef, True };
  
- /**
-    \brief Set the verbosity level. 
-@@ -85,6 +85,7 @@
+ 
+ 
+@@ -85,6 +88,7 @@
  /**
     \brief Return the yices version number.
  */
@@ -98,7 +101,7 @@
  char * yices_version();
  
  /**
-@@ -93,19 +94,19 @@
+@@ -93,19 +97,19 @@
  
     If the maximum is reached, then "unknown" (i.e., l_undef) is returned by maxsat.
   */
@@ -121,7 +124,7 @@
  
  /**
     \brief Set the initial cost for a maxsat problem.
-@@ -117,14 +118,14 @@
+@@ -117,14 +121,14 @@
  
     This flag usually improves performance (default = false).
   */
@@ -138,7 +141,7 @@
  
  /**
     \brief Create a logical context.
-@@ -178,6 +179,7 @@
+@@ -178,6 +182,7 @@
     After one assertion, the logical context may become inconsistent.
     The method #yices_inconsistent may be used to check that.       
   */
@@ -146,7 +149,7 @@
  void yices_assert(yices_context ctx, yices_expr expr);
  
  /**
-@@ -224,7 +226,8 @@
+@@ -224,7 +229,8 @@
  
     \warning This method ignore the weights associated with the constraints.  
   */
@@ -156,7 +159,7 @@
  
  
  /**
-@@ -249,7 +252,8 @@
+@@ -249,7 +255,8 @@
    formulas for which yices is incomplete (e.g., quantifiers). Do not
    use the model in this case.
  */
@@ -166,7 +169,7 @@
  
  
  /**
-@@ -264,7 +268,7 @@
+@@ -264,7 +271,7 @@
          typically this is due to a function application, e.g., 
  	the model defines (f 1) and (f 2), but the formula references (f 3)
  */
@@ -175,7 +178,7 @@
  
  
  /**
-@@ -279,7 +283,8 @@
+@@ -279,7 +286,8 @@
  			 
     \sa yices_assert_weighted
  */
@@ -185,7 +188,7 @@
  
  /**
     \brief Similar to yices_max_sat, but start looking for models with cost
-@@ -287,7 +292,8 @@
+@@ -287,7 +295,8 @@
  
     \return l_false if such a model doesn't exist.
   */
@@ -195,7 +198,7 @@
  
  
  
-@@ -303,43 +309,12 @@
+@@ -303,43 +312,12 @@
  yices_model yices_get_model(yices_context ctx);
  
  
@@ -243,7 +246,7 @@
  
  /**
     \brief Return the assignment for the variable \c v. 
-@@ -352,8 +327,7 @@
+@@ -352,8 +330,7 @@
     \sa yices_get_arith_value
     \sa yices_get_double_value
   */
@@ -253,7 +256,7 @@
  
  /**
     \brief Get the integer value assigned to variable \c v in model \c m
-@@ -371,7 +345,7 @@
+@@ -371,7 +348,7 @@
     \sa yices_get_arith_value
     \sa yices_get_double_value
  */
@@ -262,7 +265,7 @@
  
  
  /**
-@@ -391,7 +365,7 @@
+@@ -391,7 +368,7 @@
     \sa yices_get_int_value
     \sa yices_get_double_value
  */
@@ -271,7 +274,7 @@
  
  
  /**
-@@ -409,55 +383,7 @@
+@@ -409,55 +386,7 @@
     \sa yices_get_int_value
     \sa yices_get_arith_value
  */
@@ -328,7 +331,7 @@
  
  
  /**
-@@ -476,7 +402,19 @@
+@@ -476,7 +405,19 @@
     - \c d is not assigned a value in model m   
     
  */
@@ -349,7 +352,7 @@
  
  
  /**
-@@ -536,7 +474,7 @@
+@@ -536,7 +477,7 @@
     \sa yices_mk_fresh_bool_var
     \sa yices_mk_bool_var_from_decl
   */
@@ -358,7 +361,7 @@
  
  
  /**
-@@ -558,11 +496,12 @@
+@@ -558,11 +499,12 @@
     
     It is an error to create two variables with the same name.
   */
@@ -372,7 +375,7 @@
  char * yices_get_var_decl_name(yices_var_decl d);
  
  /**
-@@ -577,7 +516,7 @@
+@@ -577,7 +519,7 @@
  	 
     \warning \c n must be greater than zero.
   */
@@ -381,7 +384,7 @@
  
  /**
     \brief Return an expression representing the \c and of the given arguments.
-@@ -586,7 +525,7 @@
+@@ -586,7 +528,7 @@
  
     \warning \c n must be greater than zero.
   */
@@ -390,7 +393,7 @@
  
  /**
     \brief Return an expression representing <tt>a1 = a2</tt>.
-@@ -608,6 +547,9 @@
+@@ -608,6 +550,9 @@
   */
  yices_expr yices_mk_not(yices_context ctx, yices_expr a);
  
@@ -400,7 +403,7 @@
  /**
     \brief Create an iterator that can be used to traverse the boolean variables (var_decl objects) in the 
     given logical context. 
-@@ -655,7 +597,7 @@
+@@ -655,7 +600,7 @@
     \sa yices_iterator_next
     \sa yices_create_var_decl_iterator
   */
@@ -409,7 +412,7 @@
  
  /**
     \brief Return the next variable, and move the iterator.
-@@ -675,20 +617,47 @@
+@@ -675,20 +620,47 @@
   */
  void yices_del_iterator(yices_var_decl_iterator it);
  
@@ -457,11 +460,11 @@
 -				  unsigned domain_size, yices_type range);
 -
 +yices_type yices_mk_function_type(yices_context ctx, [size_is(domain_size)] yices_type domain[], 
-+  unsigned int domain_size, yices_type range);
++				  unsigned int domain_size, yices_type range);
  
  
  /**
-@@ -696,27 +665,28 @@
+@@ -696,27 +668,27 @@
     
     Size must be positive.
  */
@@ -473,8 +476,7 @@
    \brief Constructs the tuple type (arg[0], ..., arg[size-1]).
  */
 -yices_type yices_mk_tuple_type(yices_context ctx, yices_type * args[], unsigned size);
-+yices_type yices_mk_tuple_type(yices_context ctx, [size_is(size)] yices_type_ptr args[],
-+  unsigned int size);
++yices_type yices_mk_tuple_type(yices_context ctx, [size_is(size)] yices_type_ptr args[], unsigned int size);
  
  
  /**
@@ -494,7 +496,7 @@
  
  /**
     \brief Return a name expression (instance) using the given variable declaration.
-@@ -729,7 +699,7 @@
+@@ -729,7 +701,7 @@
     The type of \c f must be a function-type, and its arity must
     be equal to the number of arguments.
   */
@@ -503,20 +505,30 @@
  
  
  /**
-@@ -740,37 +710,39 @@
+@@ -740,37 +712,39 @@
  /**
     \brief Return an expression representing the number provided in ASCII format.
   */
 -yices_expr yices_mk_num_from_string(yices_context ctx, char * n);
 -
-+yices_expr yices_mk_num_from_string(yices_context ctx, [string] char * n);
- 
+-
 -/**
 -  \brief Construct a numerical expression form a GMP integer
++yices_expr yices_mk_num_from_string(yices_context ctx, [string] char * n);
  
 -  \warning
 -  - You must include <gmp.h> before <yices_c.h> for this function to be available.
 -  - If you don't need GMP numbers, don't include <gmp.h>
+ 
+-  \sa yices_mk_num_from_mpq
+-*/
+-#ifdef __GMP_H__
+-yices_expr yices_mk_num_from_mpz(yices_context ctx, const mpz_t z);
+-#endif
+-
+-
+-/**
+-  \brief Construct a numerical expression form a GMP rational
 +// Use yices_mk_num_from_string instead
 +///**
 +//  \brief Construct a numerical expression form a GMP integer
@@ -547,16 +559,6 @@
 +//yices_expr yices_mk_num_from_mpq(yices_context ctx, const mpq_t q);
 +//#endif
  
--  \sa yices_mk_num_from_mpq
--*/
--#ifdef __GMP_H__
--yices_expr yices_mk_num_from_mpz(yices_context ctx, const mpz_t z);
--#endif
--
--
--/**
--  \brief Construct a numerical expression form a GMP rational
--
 -  q must be canonicalized (see GMP documentation).
 -
 -  \warning
@@ -571,7 +573,7 @@
  
  
  /**
-@@ -780,7 +752,7 @@
+@@ -780,7 +754,7 @@
  	 
     \warning \c n must be greater than zero.
   */
@@ -580,7 +582,7 @@
  
  /**
     \brief Return an expression representing <tt>args[0] - ... - args[n-1]</tt>.
-@@ -789,7 +761,7 @@
+@@ -789,7 +763,7 @@
  	 
     \warning \c n must be greater than zero.
   */
@@ -589,7 +591,7 @@
  
  /**
     \brief Return an expression representing <tt>args[0] * ... * args[n-1]</tt>.
-@@ -798,7 +770,7 @@
+@@ -798,7 +772,7 @@
  	 
     \warning \c n must be greater than zero.
   */
@@ -598,7 +600,7 @@
  
  /**
     \brief Return an expression representing <tt>a1 < a2</tt>.
-@@ -828,7 +800,7 @@
+@@ -828,7 +802,7 @@
  
     \c size must be positive
  */
@@ -607,7 +609,7 @@
  
  
  /**
-@@ -839,7 +811,7 @@
+@@ -839,7 +813,7 @@
  
     bit \c i of the bitvector is set to 0 if <tt>bv[i] = 0</tt> and to 1 if <tt>bv[i] != 0</tt>
  */
@@ -616,7 +618,7 @@
  
  
  /**
-@@ -919,37 +891,37 @@
+@@ -919,37 +893,37 @@
    \c a must a bitvector expression of size \c n with \c begin < \c end < \c n.
    The result is the subvector \c a[begin .. end]
  */ 
@@ -660,7 +662,7 @@
  
  
  /**
-@@ -1019,10 +991,29 @@
+@@ -1019,10 +993,29 @@
  */
  void yices_pp_expr(yices_expr e);
  
