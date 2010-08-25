@@ -13,8 +13,8 @@
 -#endif
 -
 -typedef void * yicesl_context;
-+typedef [abstract] void * yicesl_context;
-+typedef [abstract, errorcode, errorcheck(checkerror)] int error_value;
++typedef [abstract, errorcheck(check_yicesl_context)] void * yicesl_context;
++typedef [abstract, errorcode, errorcheck(check_yicesl_error)] int yicesl_error;
  
  /**
     \defgroup capil C API Lite
@@ -72,7 +72,7 @@
 -int yicesl_read(yicesl_context ctx, char * cmd);
 +quote(mli,"(** Process the given command in the given logical context. The command must use Yices input language. *)")
 +[blocking]
-+error_value yicesl_read(yicesl_context ctx,[string] char * cmd) ;
++yicesl_error yicesl_read(yicesl_context ctx,[string] char * cmd) ;
  
  /**
     \brief Return true if the given logical context is inconsistent.

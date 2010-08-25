@@ -140,7 +140,7 @@ patches: yices.idl
 
 %.ml %.mli %_stubs.c : %.idl
 	$(CAMLIDL) $<
-	sed -e '/^and error_value/ d' \
+	sed -e '/^and yicesl\?_error/ d' \
 	 -e '/^and\s\+yices_type_ptr = yices_type$$/ d' \
 	 -e 's/yices_type_ptr/yices_type/g' \
 	 -e 's/ yices_type/ typ/g' \

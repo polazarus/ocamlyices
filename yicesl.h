@@ -16,5 +16,6 @@ THIS SOFTWARE.
 
 #include <yicesl_c.h>
 
-#define error_value int
-#define checkerror(res) if (!res) caml_failwith(yicesl_get_last_error_message())
+#define yicesl_error int
+#define check_yicesl_error(res) if (res == 0) caml_failwith(yicesl_get_last_error_message())
+#define check_yicesl_context(res) if (res == (void*)0) caml_failwith("null return value (Yicesl context)")

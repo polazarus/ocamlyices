@@ -66,7 +66,7 @@
   */
  typedef int assertion_id;
  
-+typedef [abstract, errorcode,errorcheck(check_error_value)] int error_value;
++typedef [abstract, errorcode,errorcheck(check_yices_error)] int yices_error;
 +
  /**
    \brief Model.
@@ -261,7 +261,7 @@
     \sa yices_get_double_value
  */
 -int yices_get_int_value(yices_model m, yices_var_decl d, long *value);
-+error_value yices_get_int_value(yices_model m, yices_var_decl d, [out] long* v);
++yices_error yices_get_int_value(yices_model m, yices_var_decl d, [out] long* v);
  
  
  /**
@@ -270,7 +270,7 @@
     \sa yices_get_double_value
  */
 -int yices_get_arith_value(yices_model m, yices_var_decl d, long *num, long *den);
-+error_value yices_get_arith_value(yices_model m, yices_var_decl d, [out] long *num, [out] long *den);
++yices_error yices_get_arith_value(yices_model m, yices_var_decl d, [out] long *num, [out] long *den);
  
  
  /**
@@ -327,7 +327,7 @@
 -int yices_get_mpz_value(yices_model m, yices_var_decl d, mpz_t value);
 -#endif
 -
-+error_value yices_get_double_value(yices_model m, yices_var_decl d, [out] double *v);
++yices_error yices_get_double_value(yices_model m, yices_var_decl d, [out] double *v);
  
  
  /**
