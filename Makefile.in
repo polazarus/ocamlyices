@@ -30,11 +30,11 @@ YICESL_C_H = $(prefix)/include/yicesl_c.h
 DIFF = diff -bu
 PATCH = patch
 
+# Ocaml library directories for linking
 OCAMLLIB = @OCAMLLIB@
-OCAMLDESTDIR = @OCAMLDESTDIR@
-OCAMLYICES_LIB_DIR = $(OCAMLDESTDIR)/ocamlyices
 
-OCAML_STUBLIBS = $(OCAMLDESTDIR)/stublibs
+# Ocaml library directory where to install this package
+OCAMLDESTDIR = @OCAMLDESTDIR@
 
 # Input
 
@@ -42,10 +42,10 @@ CAMLIDL_SOURCE = yices yicesl
 
 # Output
 
-OUTPUT = ocamlyices
+OUTPUT = $(PACKAGE_NAME)
 OUTPUT_BYTECODE = $(OUTPUT).cma
 OUTPUT_NATIVE = $(OUTPUT).cmxa
-OUTPUT_NATIVE_LIB = $(OUTPUT_NATIVE:.cmxa=.a)
+OUTPUT_NATIVE_LIB = $(OUTPUT).a
 OUTPUT_O = $(OUTPUT).o
 OUTPUT_LIB = lib$(OUTPUT).a
 OUTPUT_DLL = dll$(OUTPUT).so
@@ -58,6 +58,7 @@ CAMLIDL = @CAMLIDL@
 OCAMLC = @OCAMLC@
 OCAMLOPT = @OCAMLOPT@
 OCAMLDOC = @OCAMLDOC@
+OCAMLFIND = @OCAMLFIND@
 CC = @CC@
 CFLAGS = -O2
 AR = ar
@@ -177,7 +178,7 @@ ifeq ($(PARTIAL_LINKING),no)
 else
 # Partial linking for efficiency
 # For ld, libraries must be after last
-	$(INCREMENTAL_LINKER) -L$(OCAMLLIB) -o $(OUTPUT_O) $^ $(PLLIBS:%=-l%) 
+	$(INCREMENTAL_LINKER) $(OCAMLLIB:%=-L%) -o $(OUTPUT_O) $^ $(PLLIBS:%=-l%) 
 	$(AR) crs $@ $(OUTPUT_O)
 endif
 
@@ -186,7 +187,7 @@ $(OUTPUT_BYTECODE): $(CAMLIDL_CMO) $(OUTPUT_LIB)
 	$(OCAMLC) -a -custom -o $@ -cclib -l$(OUTPUT_LIB:lib%.a=%) $(CCLIBS:%=-cclib -l%) $(CAMLIDL_CMO)
 else
 $(OUTPUT_DLL): $(CAMLIDL_STUBS_C) yices_extra.c
-	$(CC) $(CFLAGS) -fPIC -shared -o $@ $^ -L$(OCAMLLIB) -Wl,-Bstatic $(DL_STATIC_LIBS:%=-l%) -Wl,-Bdynamic $(DL_SHARED_LIBS:%=-l%)
+	$(CC) $(CFLAGS) -fPIC -shared -o $@ $^ $(OCAMLLIB:%=-L%) -Wl,-Bstatic $(DL_STATIC_LIBS:%=-l%) -Wl,-Bdynamic $(DL_SHARED_LIBS:%=-l%)
 $(OUTPUT_BYTECODE): $(CAMLIDL_CMO) $(OUTPUT_DLL)
 	$(OCAMLC) -a -o $@ -dllib -l$(OUTPUT_DLL:dll%.so=%) $(CAMLIDL_CMO)
 endif
@@ -216,20 +217,33 @@ clean:
 	$(RM) *.cmo *.cmi *.cmx *.a *.o $(CAMLIDL_GENERATED)
 
 distclean mrproper: clean
-	$(RM) *.cma *.cmxa *.a *.so $(META)
+	$(RM) *.cma *.cmxa *.a *.so $(META) *.idl
 
 # Install ######################################################################
 
-install:
-	install -d $(OCAMLYICES_LIB_DIR)
-	install -t $(OCAMLYICES_LIB_DIR) $(CAMLIDL_CMI) $(OUTPUT_LIB) $(OUTPUT_NATIVE_LIB) $(OUTPUT_BYTECODE) $(OUTPUT_NATIVE) $(META)
+INSTALLABLE = $(CAMLIDL_CMI) $(OUTPUT_LIB) $(OUTPUT_NATIVE_LIB) $(OUTPUT_BYTECODE) $(OUTPUT_NATIVE) $(META)
 ifeq ($(CUSTOM),no)
-	install -t $(OCAML_STUBLIBS) $(OUTPUT_DLL)
+INSTALLABLE_DLL = $(OUTPUT_DLL)
+endif
+
+install:
+ifdef OCAMLFIND
+	$(OCAMLFIND) install ocamlyices $(INSTALLABLE) -dll $(INSTALLABLE_DLL)
+else
+	install -d $(OCAMLDESTDIR)/$(PACKAGE_NAME)
+	install -t $(OCAMLDESTDIR)/$(PACKAGE_NAME) $(INSTALLABLE)
+ifdef INSTALLABLE_DLL
+	install -t $(OCAMLDESTDIR)/stublibs $(OUTPUT_DLL)
+endif
 endif
 
 uninstall:
-	$(RM) -r $(OCAMLYICES_LIB_DIR)
-	$(RM) $(OCAML_STUBLIBS)/$(OUTPUT_DLL)
+ifdef OCAMLFIND
+	$(OCAMLFIND) remove ocamlyices
+else
+	$(RM) -r $(OCAMLDESTDIR)/$(PACKAGE_NAME)
+	$(RM) $(INSTALLABLE_DLL:%=$(OCAMLDESTDIR)/stublibs/%)
+endif
 
 # Makefile and configure #######################################################
 Makefile: Makefile.in config.status

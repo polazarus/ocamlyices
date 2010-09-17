@@ -1,4 +1,4 @@
-AC_INIT(ocamlyices,0.3)
+AC_INIT(ocamlyices,0.4)
 
 AC_PROG_CC
 AC_PROG_RANLIB
@@ -13,7 +13,17 @@ echo "ocaml version is $OCAMLVERSION"
 OCAMLLIB=`$OCAMLC -where`
 echo "ocaml library path is $OCAMLLIB"
 
-OCAMLDESTDIR=$OCAMLLIB
+
+AC_CHECK_PROG(OCAMLFIND,ocamlfind,ocamlfind,)
+if test "x$OCAMLFIND" = "x" ; then
+  AC_MSG_WARN(Cannot find ocamlfind. Use only the standard Ocaml library directory.)
+  OCAMLDESTDIR=$OCAMLLIB
+else
+  OCAMLDESTDIR=`$OCAMLFIND printconf destdir`
+  if test "$OCAMLDESTDIR" != "$OCAMLLIB"; then
+    OCAMLLIB="$OCAMLLIB $OCAMLDESTDIR"
+  fi
+fi
 AC_ARG_WITH(destdir,[AS_HELP_STRING([--with-destdir=destdir],[force a dest dir])],[OCAMLDESTDIR=$with_destdir],[])
 
 
@@ -142,6 +152,8 @@ AC_SUBST(CAMLIDL)
 AC_SUBST(OCAMLOPT)
 AC_SUBST(OCAMLDOC)
 AC_SUBST(OCAMLDEP)
+AC_SUBST(OCAMLFIND)
+
 AC_SUBST(OCAMLBEST)
 AC_SUBST(OCAMLVERSION)
 AC_SUBST(OCAMLLIB)

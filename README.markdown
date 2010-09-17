@@ -1,4 +1,4 @@
-Ocamlyices: An Ocaml binding for Yices 1, version 0.3
+Ocamlyices: An Ocaml binding for Yices 1, version 0.4
 
 Mickaël Delahaye
 
@@ -30,6 +30,8 @@ Hardly tested! and only under Linux, but reported to work under MacOS X...
 
 Setup
 =====
+
+Warning! Please make sure to uninstall any previous version beforehand.
 
 	$ autoconf # Only if there is no configure
 	$ ./configure
@@ -81,8 +83,19 @@ Or without:
     ocamlc -I +ocamlyices nums.cma ocamlyices.cma ...
     ocamlopt -I +ocamlyices nums.cmxa ocamlyices.cmxa ...
 
-nums is required in order to handle GMP big integers as big_int.
+_nums_ is required in order to handle GMP big integers as big_int.
 
+Doc
+-------
+
+A very limited ocamldoc is avalaible in `doc/` provided you run this command:
+
+    $ make doc
+
+For the rest, see the official documentation at
+http://yices.csl.sri.com/capi.shtml
+
+Also, three examples are also avalaible in `examples/`.
 
 Uninstall
 =========
