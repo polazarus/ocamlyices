@@ -336,7 +336,7 @@
     
  */
 -int yices_get_bitvector_value(yices_model m, yices_var_decl d, unsigned n, int bv[]);
-+int yices_get_bitvector_value(yices_model m, yices_var_decl d, unsigned int n, [size_is(n)] int bv[]);
++  int yices_get_bitvector_value(yices_model m, yices_var_decl d, unsigned int n, [size_is(n), out] int bv[]);
 +
 +
 +[string] char* get_rational_value_as_string(yices_model m, yices_var_decl d) quote(dealloc,"if (_res) free(_res);");
@@ -514,11 +514,11 @@
 -
 -/**
 -  \brief Construct a numerical expression form a GMP integer
-+yices_expr yices_mk_num_from_string(yices_context ctx, [string] char * n);
- 
+-
 -  \warning
 -  - You must include <gmp.h> before <yices_c.h> for this function to be available.
 -  - If you don't need GMP numbers, don't include <gmp.h>
++yices_expr yices_mk_num_from_string(yices_context ctx, [string] char * n);
  
 -  \sa yices_mk_num_from_mpq
 -*/
@@ -529,6 +529,8 @@
 -
 -/**
 -  \brief Construct a numerical expression form a GMP rational
+ 
+-  q must be canonicalized (see GMP documentation).
 +// Use yices_mk_num_from_string instead
 +///**
 +//  \brief Construct a numerical expression form a GMP integer
@@ -559,8 +561,6 @@
 +//yices_expr yices_mk_num_from_mpq(yices_context ctx, const mpq_t q);
 +//#endif
  
--  q must be canonicalized (see GMP documentation).
--
 -  \warning
 -  - You must include <gmp.h> before <yices_c.h> for this function to be available.
 -  - If you don't need GMP numbers, don't include <gmp.h>
@@ -600,15 +600,17 @@
  
  /**
     \brief Return an expression representing <tt>a1 < a2</tt>.
-@@ -828,7 +802,7 @@
+@@ -828,8 +802,8 @@
  
     \c size must be positive
  */
 -yices_expr yices_mk_bv_constant(yices_context ctx, unsigned size, unsigned long value);
-+yices_expr yices_mk_bv_constant(yices_context ctx, unsigned int size, unsigned long val);
- 
+-
++yices_expr yices_mk_bv_constant(yices_context ctx, unsigned int size, long val);
++// In C, val is an unsigned long, but Nativeint (signed) seems the best match...
  
  /**
+    \brief Create a bit vector constant from an array
 @@ -839,7 +813,7 @@
  
     bit \c i of the bitvector is set to 0 if <tt>bv[i] = 0</tt> and to 1 if <tt>bv[i] != 0</tt>
