@@ -16,6 +16,9 @@ PACKAGE_NAME = @PACKAGE_NAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 
+
+SHELL = /bin/sh
+
 prefix = @prefix@
 bindir = @bindir@
 datarootdir = @datarootdir@
@@ -27,8 +30,6 @@ sharedstatedir = @sharedstatedir@
 
 YICES_C_H = $(prefix)/include/yices_c.h
 YICESL_C_H = $(prefix)/include/yicesl_c.h
-DIFF = diff -bu
-PATCH = patch
 
 # Ocaml library directories for linking
 OCAMLLIB = @OCAMLLIB@
@@ -60,12 +61,16 @@ OCAMLOPT = @OCAMLOPT@
 OCAMLDOC = @OCAMLDOC@
 OCAMLFIND = @OCAMLFIND@
 CC = @CC@
-CFLAGS = -O2
+CFLAGS = -O2 -fPIC
 AR = ar
-MKDIR_P = mkdir -p
+INSTALL = install
+INSTALL_PROGRAM = $(INSTALL)
+INSTALL_DATA = $(INSTALL) -m 644
 
-INCREMENTAL_LINKER = $(CC) -r -nostdlib -L/usr/local/lib -L/usr/lib
-#INCREMENTAL_LINKER = ld -r -L/usr/local/lib -L/usr/lib
+GMP = @GMP@
+
+INCREMENTAL_LINKER = $(CC) $(CFLAGS) -r -nostdlib
+#INCREMENTAL_LINKER = $(LD) -r
 
 # Parameters: PARTIAL_LINKING and CUSTOM (for using custom bytecode compilation)
 
@@ -76,10 +81,10 @@ FORCE_STATIC = @FORCE_STATIC@
 # Library dependencies #########################################################
 
 # Libraries to use with 'ocamlopt' or 'ocamlc -custom'
-CCLIBS = stdc++ gmp
+CCLIBS = stdc++
 ifeq ($(PARTIAL_LINKING),yes)
 ifeq ($(FORCE_STATIC),no)
-CCLIBS += yices
+CCLIBS += yices $(GMP)
 endif
 else
 CCLIBS += camlidl yices
@@ -93,10 +98,10 @@ endif
 
 # Libraries to build the shared library dll*.so (used only when CUSTOM=no)
 ifeq ($(FORCE_STATIC),yes)
-DL_SHARED_LIBS = stdc++ gmp
+DL_SHARED_LIBS = stdc++ $(GMP)
 DL_STATIC_LIBS = yices camlidl
 else
-DL_SHARED_LIBS = yices stdc++ gmp
+DL_SHARED_LIBS = yices stdc++ $(GMP)
 DL_STATIC_LIBS = camlidl
 endif
 
@@ -115,6 +120,8 @@ CAMLIDL_CMX = $(CAMLIDL_ML:.ml=.cmx)
 
 ################################################################################
 
+prefix_lib = $(filter /%,$(1)) $(patsubst %,-l%,$(filter-out /%,$(1)))
+
 .PHONY: all byte native camlidl patches clean distclean mrproper install uninstall
 
 all: camlidl byte native $(META)
@@ -125,21 +132,9 @@ native: $(CAMLIDL_CMI) $(OUTPUT_NATIVE)
 
 camlidl : $(CAMLIDL_ML) $(CAMLIDL_MLI) $(CAMLIDL_STUBS_C)
 
-# Patching #####################################################################
-
-yices.idl: yices.patch
-	$(PATCH) $(YICES_C_H) -i $< -o $@
-
-yicesl.idl: yicesl.patch
-	$(PATCH) $(YICESL_C_H) -i $< -o $@
-
-patches: yices.idl
-	$(DIFF) --label yices_c.h $(YICES_C_H) --label yices.idl yices.idl > yices.patch; true
-	$(DIFF) --label yicesl_c.h $(YICESL_C_H) --label yicesl.idl yicesl.idl > yicesl.patch; true
-
 # Generic compilation ##########################################################
 
-%.ml %.mli %_stubs.c : %.idl
+%.ml %.mli %_stubs.c : %.idl %.hdr
 	$(CAMLIDL) $<
 	sed -e '/^and yicesl\?_error/ d' \
 	 -e '/^and\s\+yices_type_ptr = yices_type$$/ d' \
@@ -147,6 +142,7 @@ patches: yices.idl
 	 -e 's/ yices_type/ typ/g' \
 	 -e 's/\([ (.]\)yicesl\?_/\1/g' -i $(<:.idl=.mli) -i $(<:.idl=.ml)
 	sed -e '/^and var_decl_iterator$$/ d' -i $(<:.idl=.mli)
+	sed '1r $(<:.idl=.hdr)' -i $(<:.idl=.mli)
 
 %.cmi: %.mli
 	$(OCAMLC) -c $< -o $@
@@ -165,12 +161,15 @@ $(CAMLIDL_CMX): %.cmx: %.cmi
 
 yices.ml: yicesl.ml
 yices.cmi: yicesl.cmi
-yicesl.cmo: yicesl.cmi 
-yicesl.cmx: yicesl.cmi 
-yices.cmo: yicesl.cmi yices.cmi 
-yices.cmx: yicesl.cmx yices.cmi 
+yicesl.cmo: yicesl.cmi
+yicesl.cmx: yicesl.cmi
+yices.cmo: yicesl.cmi yices.cmi
+yices.cmx: yicesl.cmx yices.cmi
 
 # C compilation and linking ####################################################
+
+.SUFFIXES:
+.SUFFIXES: .c .o
 
 $(OUTPUT_LIB): $(CAMLIDL_STUBS_O) yices_extra.o
 ifeq ($(PARTIAL_LINKING),no)
@@ -178,22 +177,32 @@ ifeq ($(PARTIAL_LINKING),no)
 else
 # Partial linking for efficiency
 # For ld, libraries must be after last
-	$(INCREMENTAL_LINKER) $(OCAMLLIB:%=-L%) -o $(OUTPUT_O) $^ $(PLLIBS:%=-l%) 
+	$(INCREMENTAL_LINKER) $(OCAMLLIB:%=-L%) $^ $(call prefix_lib,$(PLLIBS)) -o $(OUTPUT_O)
 	$(AR) crs $@ $(OUTPUT_O)
 endif
 
 ifeq ($(CUSTOM),yes)
 $(OUTPUT_BYTECODE): $(CAMLIDL_CMO) $(OUTPUT_LIB)
-	$(OCAMLC) -a -custom -o $@ -cclib -l$(OUTPUT_LIB:lib%.a=%) $(CCLIBS:%=-cclib -l%) $(CAMLIDL_CMO)
+	$(OCAMLC) -a -custom -o $@ -cclib -l$(OUTPUT_LIB:lib%.a=%) $(addprefix -cclib ,$(call prefix_lib, $(CCLIBS))) $(CAMLIDL_CMO)
 else
-$(OUTPUT_DLL): $(CAMLIDL_STUBS_C) yices_extra.c
-	$(CC) $(CFLAGS) -fPIC -shared -o $@ $^ $(OCAMLLIB:%=-L%) -Wl,-Bstatic $(DL_STATIC_LIBS:%=-l%) -Wl,-Bdynamic $(DL_SHARED_LIBS:%=-l%)
+
+$(OUTPUT_DLL): $(CAMLIDL_STUBS_O) yices_extra.o
+	$(CC) $(CFLAGS) -fPIC -shared $(OCAMLLIB:%=-L%) $^ \
+	-Wl,-Bstatic $(call prefix_lib,$(DL_STATIC_LIBS)) \
+	-Wl,-Bdynamic $(call prefix_lib,$(DL_SHARED_LIBS)) \
+	-o $@
+#$(OUTPUT_DLL): $(CAMLIDL_STUBS_C) yices_extra.c
+#	$(CC) $(CFLAGS) -fPIC -shared -o $@ $^ $(OCAMLLIB:%=-L%) -Wl,-Bstatic $(DL_STATIC_LIBS:%=-l%) -Wl,-Bdynamic $(DL_SHARED_LIBS:%=-l%)
+
 $(OUTPUT_BYTECODE): $(CAMLIDL_CMO) $(OUTPUT_DLL)
 	$(OCAMLC) -a -o $@ -dllib -l$(OUTPUT_DLL:dll%.so=%) $(CAMLIDL_CMO)
+
 endif
 
 $(OUTPUT_NATIVE): $(CAMLIDL_CMX) $(OUTPUT_LIB)
-	$(OCAMLOPT) -a -o $@ -cclib -l$(OUTPUT_LIB:lib%.a=%) $(CCLIBS:%=-cclib -l%) $(CAMLIDL_CMX)
+	$(OCAMLOPT) -a -o $@ $(CAMLIDL_CMX) -cclib $(OUTPUT_LIB:lib%.a=-l%) \
+	$(addprefix -cclib ,$(call prefix_lib, $(CCLIBS)))
+
 
 # Meta #########################################################################
 
@@ -204,12 +213,16 @@ $(META): $(META).in
 
 # Doc ##########################################################################
 
-doc: doc/html/.done
+ifneq ($(OCAMLDOC),)
 
-doc/html/.done: *.mli
+doc: doc/html/index.html
+
+doc/html/index.html: *.mli
 	@mkdir -p $(dir $@)
-	ocamldoc -html $^ -d $(dir $@)
+	$(OCAMLDOC) -html $^ -d $(dir $@)
 	@touch $@
+
+endif
 
 # Cleaning #####################################################################
 
@@ -217,7 +230,7 @@ clean:
 	$(RM) *.cmo *.cmi *.cmx *.a *.o $(CAMLIDL_GENERATED)
 
 distclean mrproper: clean
-	$(RM) *.cma *.cmxa *.a *.so $(META) *.idl
+	$(RM) *.cma *.cmxa *.a *.so $(META)
 
 # Install ######################################################################
 
@@ -226,24 +239,29 @@ ifeq ($(CUSTOM),no)
 INSTALLABLE_DLL = $(OUTPUT_DLL)
 endif
 
+ifneq ($(OCAMLFIND),)
+
 install:
-ifdef OCAMLFIND
-	$(OCAMLFIND) install ocamlyices $(INSTALLABLE) -dll $(INSTALLABLE_DLL)
+	$(OCAMLFIND) install $(PACKAGE_NAME) $(INSTALLABLE) -dll $(INSTALLABLE_DLL)
+
+uninstall:
+	$(OCAMLFIND) remove $(PACKAGE_NAME)
+
 else
-	install -d $(OCAMLDESTDIR)/$(PACKAGE_NAME)
-	install -t $(OCAMLDESTDIR)/$(PACKAGE_NAME) $(INSTALLABLE)
-ifdef INSTALLABLE_DLL
-	install -t $(OCAMLDESTDIR)/stublibs $(OUTPUT_DLL)
-endif
+
+install:
+	$(INSTALL_DATA) -d $(OCAMLDESTDIR)/$(PACKAGE_NAME)
+	$(INSTALL_DATA) -t $(OCAMLDESTDIR)/$(PACKAGE_NAME) $(INSTALLABLE)
+ifneq ($(strip $(INSTALLABLE_DLL)),)
+	$(INSTALL_DATA) -t $(OCAMLDESTDIR)/stublibs $(INSTALLABLE_DLL)
 endif
 
 uninstall:
-ifdef OCAMLFIND
-	$(OCAMLFIND) remove ocamlyices
-else
-	$(RM) -r $(OCAMLDESTDIR)/$(PACKAGE_NAME)
-	$(RM) $(INSTALLABLE_DLL:%=$(OCAMLDESTDIR)/stublibs/%)
+	$(RM) -r $(OCAMLDESTDIR)/$(PACKAGE_NAME) $(INSTALLABLE_DLL:%=$(OCAMLDESTDIR)/stublibs/%)
+
 endif
+
+
 
 # Makefile and configure #######################################################
 Makefile: Makefile.in config.status

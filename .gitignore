@@ -11,9 +11,6 @@
 *.opt
 *.byte
 #
-/yices.idl
-/yicesl.idl
-#
 /yices.mli
 /yices.ml
 /yices_stubs.c

@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 
-# Copyright (c) 2010, Mickaël Delahaye <mickael.delahaye@gmail.com>
+# Copyright (c) 2011, Mickaël Delahaye <mickael.delahaye@gmail.com>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -14,57 +14,58 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-
 failwith() {
-  echo ERROR: "$*"
+  echo [YI] Fatal error! "$*"
   exit 1
 }
 
-if [[ $# -lt 1 ]]; then
-  echo usage: $0 yices.tar.gz '[PREFIX [LIBDIR]]'
-
-  echo   PREFIX /usr/local by default
-  echo   LIBDIR ${PREFIX}/lib by default
-  exit 1
+if [ $# -lt 1 -o "x$1" = "x--help" -o "x$1" = "x-h" ]; then
+	echo "Usage: $0 yices.tar.gz '[PREFIX [LIB]]"
+	echo 'Install Yices binary and DLL, given a tarball'
+	echo
+	echo 'Options:'
+	echo '  PREFIX  Installation prefix, /usr/local by default'
+	echo '  LIB     Library installation, $PREFIX/lib by default'
+	echo '          (useful on some 64-bit platform)'
+	exit 1
 fi
 
-if [[ "$(id -u)" -ne 0 ]]; then
-  echo ERROR: $0 must be ran as root
-  exit 1
+if [ `id -u` -ne 0 ]; then
+	echo '[YI] Need super-user rights to install Yices, try sudo'
+	exec sudo $0 "$@"
 fi
 
-ARCHIVE="$(readlink -f "$1")"
-TEMPDIR="/tmp/yices-install"
+ARCHIVE="`readlink -f "$1"`"
+TEMPDIR=`mktemp -dt yices-install.XXXXXX`
 INSTALL="${2:-/usr/local}"
 LIBDIR="${3:-${INSTALL}/lib}"
 
 mkdir -p "$TEMPDIR"
 cd "$TEMPDIR"
-echo tar xzf "$ARCHIVE"
-tar -xzf "$ARCHIVE" || failwith cannot untar $ARCHIVE
+echo tar -xzf "$ARCHIVE"
+tar -xzf "$ARCHIVE" || failwith "cannot untar $ARCHIVE"
 
 cd yices*
 
-if [[ ! -e lib/libyices.so ]]; then
-  echo "WARNING No shared libary present"
+if [ ! -f lib/libyices.so ]; then
+	echo "[YI] Warning! No shared libary present"
 fi
 
-echo Install libraries...
+echo '[YI] Install libraries'
 install lib/* "$LIBDIR" || failwith "cannot install libraries"
 ldconfig || failwith "ldconfig failed"
 
-echo Install headers...
-install -m 'a=r,u+w' include/*.h "$INSTALL"/include || failwith "cannot install headers"
+echo '[YI] Install headers'
+install -m 'a=r,u+w' include/*.h "$INSTALL/include" || failwith "cannot install headers"
 
-echo Install executable...
-install bin/yices "$INSTALL"/bin/ || failwith "cannot install executable"
+echo '[YI] Install executable'
+install bin/yices "$INSTALL/bin" || failwith "cannot install executable"
 
-cd /tmp
-
-echo cleaning...
+cd
+echo '[YI] Cleaning up'
 rm -rf "$TEMPDIR"
 
-echo done
+echo '[YI] Done'
 
 
 

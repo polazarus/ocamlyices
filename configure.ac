@@ -1,111 +1,115 @@
-AC_INIT(ocamlyices,0.4)
+AC_INIT(ocamlyices,0.5)
 
 AC_PROG_CC
 AC_PROG_RANLIB
 
-AC_CHECK_PROG(OCAMLC,ocamlc,ocamlc,no)
-if test "$OCAMLC" = no ; then
+AC_CHECK_PROG(OCAMLC,ocamlc,ocamlc)
+AS_IF([test "x$OCAMLC" = x],[
 	AC_MSG_ERROR(Cannot find ocamlc.)
-fi
+])
 
 OCAMLVERSION=`$OCAMLC -version`
-echo "ocaml version is $OCAMLVERSION"
+AC_MSG_NOTICE([ocaml version is $OCAMLVERSION])
 OCAMLLIB=`$OCAMLC -where`
-echo "ocaml library path is $OCAMLLIB"
+AC_MSG_NOTICE([ocaml library path is $OCAMLLIB])
 
 
-AC_CHECK_PROG(OCAMLFIND,ocamlfind,ocamlfind,)
-if test "x$OCAMLFIND" = "x" ; then
+AC_CHECK_PROG(OCAMLFIND,ocamlfind,ocamlfind)
+AS_IF([test "x$OCAMLFIND" = x], [
   AC_MSG_WARN(Cannot find ocamlfind. Use only the standard Ocaml library directory.)
   OCAMLDESTDIR=$OCAMLLIB
-else
+], [
   OCAMLDESTDIR=`$OCAMLFIND printconf destdir`
-  if test "$OCAMLDESTDIR" != "$OCAMLLIB"; then
+  AS_IF([test "x$OCAMLDESTDIR" != "x$OCAMLLIB"],[
     OCAMLLIB="$OCAMLLIB $OCAMLDESTDIR"
-  fi
-fi
-AC_ARG_WITH(destdir,[AS_HELP_STRING([--with-destdir=destdir],[force a dest dir])],[OCAMLDESTDIR=$with_destdir],[])
+  ])
+])
 
-
-AC_CHECK_PROG(OCAMLOPT,ocamlopt,ocamlopt,no)
+AC_CHECK_PROG(OCAMLOPT,ocamlopt,ocamlopt)
 OCAMLBEST=byte
-if test "$OCAMLOPT" = no ; then
-	AC_MSG_WARN(Cannot find ocamlopt; bytecode compilation only.)
-else
-	AC_MSG_CHECKING(ocamlopt version)
-	TMPVERSION=`$OCAMLOPT -version`
-	if test "$TMPVERSION" != "$OCAMLVERSION" ; then
-		AC_MSG_RESULT(differs from ocamlc; ocamlopt discarded.)
-		OCAMLOPT=no
-	else
-		AC_MSG_RESULT(ok)
-		OCAMLBEST=opt
-	fi
-fi
+AS_IF([test "x$OCAMLOPT" = x], [
+  AC_MSG_WARN(Cannot find ocamlopt; bytecode compilation only.)
+], [
+  AC_MSG_CHECKING(ocamlopt version)
+  TMPVERSION=`$OCAMLOPT -version`
 
-AC_CHECK_PROG(OCAMLCDOTOPT,ocamlc.opt,ocamlc.opt,no)
-if test "$OCAMLCDOTOPT" != no ; then
-	AC_MSG_CHECKING(ocamlc.opt version)
-	TMPVERSION=`$OCAMLCDOTOPT -version`
-	if test "$TMPVERSION" != "$OCAMLVERSION" ; then
-		AC_MSG_RESULT(differs from ocamlc; ocamlc.opt discarded.)
-	else
-		AC_MSG_RESULT(ok)
-		OCAMLC=$OCAMLCDOTOPT
-	fi
-fi
+  AS_IF([test "$TMPVERSION" != "$OCAMLVERSION"],[
+    AC_MSG_RESULT(differs from ocamlc; ocamlopt discarded.)
+    OCAMLOPT=no
+  ],[
+    AC_MSG_RESULT(ok)
+    OCAMLBEST=opt
+  ])
+])
 
-# checking for ocamlopt.opt
-if test "$OCAMLOPT" != no ; then
-	AC_CHECK_PROG(OCAMLOPTDOTOPT,ocamlopt.opt,ocamlopt.opt,no)
-	if test "$OCAMLOPTDOTOPT" != no ; then
-	AC_MSG_CHECKING(ocamlc.opt version)
-	TMPVER=`$OCAMLOPTDOTOPT -version`
-	if test "$TMPVER" != "$OCAMLVERSION" ; then
-		AC_MSG_RESULT(differs from ocamlc; ocamlopt.opt discarded.)
-	else
-		AC_MSG_RESULT(ok)
-		OCAMLOPT=$OCAMLOPTDOTOPT
-	fi
-	fi
-fi
-
-AC_CHECK_PROG(OCAMLDOC,ocamldoc,ocamldoc,no)
-if test "$OCAMLDOC" = no ; then
+AC_CHECK_PROG(OCAMLDOC,ocamldoc,ocamldoc)
+AS_IF([test "x$OCAMLDOC" = x],[
 	AC_MSG_ERROR(Cannot find ocamldoc.)
-fi
+])
 
-AC_CHECK_PROG(OCAMLDOCDOTOPT,ocamldoc.opt,ocamldoc.opt,no)
-if test "$OCAMLDOCDOTOPT" != no ; then
-  OCAMLDOC=$OCAMLDOCDOTOPT
-fi
+#AC_CHECK_PROG(OCAMLDEP,ocamldep,ocamldep)
+#AS_IF([test "x$OCAMLDEP" != x], [
+#	AC_MSG_ERROR(Cannot find ocamldep.)
+#])
 
-AC_CHECK_PROG(OCAMLDEP,ocamldep,ocamldep,no)
-if test "$OCAMLDEP" = no ; then
-	AC_MSG_ERROR(Cannot find ocamldep.)
-fi
-AC_CHECK_PROG(OCAMLDEPDOTOPT,ocamldep.opt,ocamldep.opt,no)
-if test "$OCAMLDEPDOTOPT" = no ; then
-	OCAMLDEP=$OCAMLDEPDOTOPT
-fi
-
-AC_CHECK_PROG(CAMLIDL,camlidl,camlidl,no)
-if test "$CAMLIDL" = no ; then
+AC_CHECK_PROG(CAMLIDL,camlidl,camlidl)
+AS_IF([test "x$CAMLIDL" = x], [
 	AC_MSG_ERROR(Cannot find camlidl.)
-fi
+])
 
 AC_MSG_CHECKING(platform)
-if echo "let _ = Sys.os_type" | ocaml | grep -q Win32; then
+AS_IF([echo "let _ = Sys.os_type" | ocaml | grep -q Win32 > /dev/null], [
 	AC_MSG_RESULT(Win32)
 	OCAMLWIN32=yes
 	EXEEXT=.exe
-else
+], [
   AC_MSG_RESULT(*nix)
 	OCAMLWIN32=no
 	EXEEXT=
-fi
+])
 
+################################################################################
 
+AS_IF([test -f /usr/local/lib/libyices.so], [LIBYICES=/usr/local/lib/libyices.so],
+  [test -f /opt/lib/libyices.so], [LIBYICES=/opt/lib/libyices.so],
+  [test -f /usr/lib/libyices.so], [LIBYICES=/usr/lib/libyices.so],
+  [])
+
+GMP_DEFAULT=`gcc -print-file-name=libgmp.so.3`
+AS_CASE([$GMP_DEFAULT], [/*], [GMP_DEFAULT=`readlink -f $GMP_DEFAULT`], [GMP_DEFAULT=gmp])
+# Cheating is bad...
+
+AS_IF([test "x$LIBYICES" != x],[
+  AC_MSG_CHECKING(GMP dependency for libyices)
+  AS_IF([ldd $LIBYICES | grep libgmp > /dev/null],[
+    GMP=`ldd $LIBYICES | grep libgmp | head -1 | cut -d' ' -f3`
+    AS_CASE([$GMP], [/*], [AC_MSG_RESULT($GMP)],[
+      need=`ldd $LIBYICES | grep libgmp | head -1 | cut -d' ' -f1`
+      need=`echo $need`
+      AC_MSG_ERROR(no suitable GMP found for $need)
+    ])
+  ],[
+    GMP=$GMP_DEFAULT
+    AC_MSG_RESULT([unknwon, fallback to best guess: $GMP])
+  ])
+],[
+  GMP=$GMP_DEFAULT
+  AC_MSG_WARN([libyices not found! fallback to best guess: $GMP])
+])
+
+################################################################################
+
+AC_ARG_WITH(destdir,
+  [AS_HELP_STRING([--with-destdir=destdir],[force a dest dir])],
+  [OCAMLDESTDIR=$with_destdir],
+  [])
+
+AC_ARG_WITH(gmp,
+  [AS_HELP_STRING([--with-gmp], [Dynamically link GMP (you may precise the full path to the correct version of the shared library)])],
+  [AS_IF([test "x$with_gmp" = xno],[GMP=''],
+    [test "x$with_gmp" = xyes],[],
+    [GMP="$with_gmp"])],
+  [])
 
 ################################################################################
 
@@ -160,6 +164,7 @@ AC_SUBST(OCAMLLIB)
 AC_SUBST(OCAMLDESTDIR)
 AC_SUBST(OCAMLWIN32)
 AC_SUBST(EXEEXT)
+AC_SUBST(GMP)
 
 AC_CONFIG_FILES([Makefile],[chmod a-w Makefile])
 AC_OUTPUT
