@@ -2,13 +2,13 @@ Ocamlyices: An Ocaml binding for Yices 1, version 0.5
 =====================================================
 Mickaël Delahaye, 2009-2011
 
-[Yices][1] is an efficient SMT solver developed at SRI International. This
-piece of software lets you use this SMT solver inside your own program in OCaml.
+[Yices][1] is an efficient SMT solver developed at SRI International. Ocamlyices
+lets you use this SMT solver inside your own program in OCaml.
 
 Requirements
 ------------
 
-* Yices >= 1.0.29 < 2, http://yices.csl.sri.com,
+* Yices >= 1.0.26 < 2,
   preferably without GMP statically linked.
   libyices.a or libyices.a must be installed on the system.
 
@@ -79,8 +79,8 @@ with this option the `ocamlyices.cma/.cmxa` does not depend on camlidl.
 ### GMP
 
 Yices uses a library for arbitrary precision arithmetic, called GMP. Like any
-other dependency, this dependency may leads to version incompatibilities.
-You may believe the "GMP statically linked" version of Yices answer this
+other dependency, this dependency may lead to version incompatibilities.
+You may believe the "GMP statically linked" version of Yices answers this
 problem. But, for our purpose, it does not (it could but it is another story).
 Although the executable is statically linked to GMP, it is not the same for the
 shared library or the static library (you can see it with `nm`).
@@ -107,12 +107,12 @@ Usage
 
 With Ocamlfind:
 
-	ocamlfind ocamlc/ocamlopt -package ocamlyices ...
+    ocamlfind ocamlc/ocamlopt -package ocamlyices ...
 
 Or without:
 
-	ocamlc -I +ocamlyices nums.cma ocamlyices.cma ...
-	ocamlopt -I +ocamlyices nums.cmxa ocamlyices.cmxa ...
+    ocamlc -I +ocamlyices nums.cma ocamlyices.cma ...
+    ocamlopt -I +ocamlyices nums.cmxa ocamlyices.cmxa ...
 
 _nums_ is required in order to handle GMP big integers as big_int.
 
@@ -122,7 +122,7 @@ Documentation
 A documentation of the OCaml APIs is available in `doc/` provided you run this
 command:
 
-	make doc
+    make doc
 
 For the rest, see the [official website][1].
 
@@ -132,7 +132,7 @@ Also, three examples are also available in `examples/`.
 Uninstall
 ---------
 
-	sudo make uninstall
+    sudo make uninstall
 
 Uninstall the library
 
