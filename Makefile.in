@@ -48,6 +48,7 @@ OUTPUT_BYTECODE = $(OUTPUT).cma
 OUTPUT_NATIVE = $(OUTPUT).cmxa
 OUTPUT_NATIVE_LIB = $(OUTPUT).a
 OUTPUT_O = $(OUTPUT).o
+OUTPUT_LIB_NAME = $(OUTPUT)
 OUTPUT_LIB = lib$(OUTPUT).a
 OUTPUT_DLL = dll$(OUTPUT).so
 
@@ -171,6 +172,8 @@ yices.cmx: yicesl.cmx yices.cmi
 .SUFFIXES:
 .SUFFIXES: .c .o
 
+
+
 $(OUTPUT_LIB): $(CAMLIDL_STUBS_O) yices_extra.o
 ifeq ($(PARTIAL_LINKING),no)
 	$(AR) crs $@ $^
@@ -187,12 +190,12 @@ $(OUTPUT_BYTECODE): $(CAMLIDL_CMO) $(OUTPUT_LIB)
 else
 
 $(OUTPUT_DLL): $(CAMLIDL_STUBS_O) yices_extra.o
-	$(CC) $(CFLAGS) -fPIC -shared $(OCAMLLIB:%=-L%) $^ \
+	$(CC) $(CFLAGS) -shared $(OCAMLLIB:%=-L%) $^ \
 	-Wl,-Bstatic $(call prefix_lib,$(DL_STATIC_LIBS)) \
 	-Wl,-Bdynamic $(call prefix_lib,$(DL_SHARED_LIBS)) \
 	-o $@
 #$(OUTPUT_DLL): $(CAMLIDL_STUBS_C) yices_extra.c
-#	$(CC) $(CFLAGS) -fPIC -shared -o $@ $^ $(OCAMLLIB:%=-L%) -Wl,-Bstatic $(DL_STATIC_LIBS:%=-l%) -Wl,-Bdynamic $(DL_SHARED_LIBS:%=-l%)
+#	$(CC) $(CFLAGS) -shared -o $@ $^ $(OCAMLLIB:%=-L%) -Wl,-Bstatic $(DL_STATIC_LIBS:%=-l%) -Wl,-Bdynamic $(DL_SHARED_LIBS:%=-l%)
 
 $(OUTPUT_BYTECODE): $(CAMLIDL_CMO) $(OUTPUT_DLL)
 	$(OCAMLC) -a -o $@ -dllib -l$(OUTPUT_DLL:dll%.so=%) $(CAMLIDL_CMO)
@@ -200,9 +203,9 @@ $(OUTPUT_BYTECODE): $(CAMLIDL_CMO) $(OUTPUT_DLL)
 endif
 
 $(OUTPUT_NATIVE): $(CAMLIDL_CMX) $(OUTPUT_LIB)
-	$(OCAMLOPT) -a -o $@ $(CAMLIDL_CMX) -cclib $(OUTPUT_LIB:lib%.a=-l%) \
+	$(OCAMLOPT) -a -o $@ $(CAMLIDL_CMX) -cclib -l$(OUTPUT_LIB_NAME) \
 	$(addprefix -cclib ,$(call prefix_lib, $(CCLIBS)))
-
+#	$(OCAMLOPT) -a -o $@ $(CAMLIDL_CMX) -cclib $(OUTPUT_LIB:lib%.a=-l%) \
 
 # Meta #########################################################################
 

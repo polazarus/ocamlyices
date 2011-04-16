@@ -48,7 +48,7 @@ tar -xzf "$ARCHIVE" || failwith "cannot untar $ARCHIVE"
 cd yices*
 
 if [ ! -f lib/libyices.so ]; then
-	echo "[YI] Warning! No shared libary present"
+	echo "[YI] Warning! No shared libary present -> libgmp not needed"
 fi
 
 echo '[YI] Install libraries'

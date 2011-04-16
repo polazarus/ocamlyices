@@ -14,16 +14,15 @@ Requirements
 
   After downloading the tarball from their website,
   You can use `./install-yices.sh yicesXYZ.tar.gz` to install yices in
-  `/usr/local` and register the DLL. If a warning appears about the
-  absence of `libyices.so`, you may have to use configure with
-  `--enable-custom`. You can change destination directories with
+  `/usr/local` and register the DLL. You can change destination directories with
   `./install-yices yices.tar.gz /usr/local /usr/local/lib64`
 
 * GCC, Ocaml
 * Findlib (optional)
 * [Camlidl][2]
 
-* GMP shared library and header <gmp.h>
+* GMP shared library (only for Yices without GMP statically linked) and
+  header `<gmp.h>` (for both)
 
 
 * For developers, to use the latest version from the repository: autoconf
@@ -80,27 +79,43 @@ with this option the `ocamlyices.cma/.cmxa` does not depend on camlidl.
 
 Yices uses a library for arbitrary precision arithmetic, called GMP. Like any
 other dependency, this dependency may lead to version incompatibilities.
-You may believe the "GMP statically linked" version of Yices answers this
-problem. But, for our purpose, it does not (it could but it is another story).
-Although the executable is statically linked to GMP, it is not the same for the
-shared library or the static library (you can see it with `nm`).
+Yices' website propose a special version cooked with "GMP statically linked".
+This version contains only a static library `libyices.a`, which includes GMP.
+However, using a static library leads to larger binaries and in case of
+multi-process programs to larger memory footprint.
 
-At the moment (1.0.29), `libyices.so` is dependent on `libgmp.so.3`. If you
-have a more recent system, `libgmp.so` may actually point to a newer version
-(e.g. libgmp.so.10). However, the older version is usually kept for
-compatibility you just need its full path to link with it. If you do not have
-the correct version, you can always compile yourself GMP, but it will not be my
-first choice.
+That is why I prefer to stick with Yices without GMP. At the moment (1.0.29),
+`libyices.so` is dependent on `libgmp.so.3`. If you have a more recent system,
+`libgmp.so` may actually point to a newer version (e.g. libgmp.so.10). However,
+the older version is usually kept for compatibility you just need its full path
+to link with it. If you do not have the correct version, you can always compile
+yourself GMP, but it will not be my first choice.
 
-The solution adopted in the configure:
-- First, it tries to guess what `libyices.so` needs with `ldd`. If it's
-  available (it is `ldd` job after all), it selects this version of GMP.
-- Second, it tries to select `libgmp.so.3` (you cheat!) if it's available.
-- Third, it fallbacks to the default `libgmp.so`.
+The solution adopted in `./configure`. First, it searches for `libyices.so`
+(using `ldconfig` if possible and then in some standard directories):
 
-You can also force a particular version with:
+- If it does not find it, it assumes that Yices with GMP statically linked is
+installed and that `libyices.a` already includes GMP's functions.
+
+- Otherwise, it tries to guess which version of GMP is needed with `ldd`:
+
+    * If `ldd` indicates no correct version exists on your system, `configure` fails
+    with a message that indicates the version of `libgmp` needed.
+
+    * If `ldd` indicates a correct version exists, it uses it.
+
+    * But, if `ldd` does not know of a dependency towards `libgmp`, that is,
+    Yices was not compiled with an explicit dependency towards GMP (for
+    instance, 1.0.27 and 1.0.28 on Linux), or if `ldd` fails for any other
+    reason:
+
+        - If `libgmp.so.3` is available, it use it (you cheat!).
+        - Otherwise, it fallbacks to the default `libgmp`.
+
+Because you may know better, you can also force a particular version with:
 
     --with-gmp=/usr/local/lib/libgmp.so.3
+    --without-gmp # GMP statically linked in libyices.a
 
 Usage
 -----
