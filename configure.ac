@@ -109,7 +109,7 @@ AS_IF([test "x$LIBYICES" != x],[
     # OK let's try with the version of GMP used in 1.0.29 and which works pretty well with 1.0.28
     AS_IF(
       [test "x$LDCONFIG" != x && ($LDCONFIG -p | grep libgmp.so.3 > /dev/null)], [
-        GMP_DEFAULT=`$LDCONFIG -p | grep libgmp.so.3 | sed -n 's/^.* =>\s*\(.*\)$/\1/p`
+        GMP_DEFAULT=`$LDCONFIG -p | grep libgmp.so.3 | sed -n 's/^.* =>\s*\(.*\)$/\1/p'`
       ],
       [test `gcc -print-file-name=libgmp.so.3` != libgmp.so.3], [
         GMP_DEFAULT=`gcc -print-file-name=libgmp.so.3`
