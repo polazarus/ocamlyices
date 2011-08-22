@@ -70,6 +70,10 @@ AS_IF([echo "let _ = Sys.os_type" | ocaml | grep -q Win32 > /dev/null], [
 
 ################################################################################
 
+# Another option?
+# AC_CHECK_LIB(gmp, __gmpz_init, , [AC_MSG_ERROR([GMP not found])])
+# AC_CHECK_LIB(yices, yices_version, , [AC_MSG_ERROR([Yices library not found])])
+
 AS_IF(
   [which ldconfig > /dev/null], [LDCONFIG=ldconfig],
   [which /sbin/ldconfig > /dev/null], [LDCONFIG=/sbin/ldconfig]
