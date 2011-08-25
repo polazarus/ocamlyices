@@ -70,11 +70,11 @@ AS_IF([echo "let _ = Sys.os_type" | ocaml | grep -q Win32 > /dev/null], [
 
 ################################################################################
 
+AC_CHECK_FUNC(__gmpz_init, [NEED_GMP=false], [NEED_GMP=true; GMP_SWITCH=-lgmp])
 
 AC_CHECK_LIB(yices,yices_version,[],[
-	AC_MSG_ERROR(Cannot find yices.)
-])
-AC_CHECK_FUNC(__gmpz_init, [NEED_GMP=false], [NEED_GMP=true])
+  AC_MSG_ERROR(Cannot find yices.)
+], [$GMP_SWITCH])
 
 AS_IF([$NEED_GMP], [
   AC_MSG_NOTICE([GMP needed: try to detect best version])
@@ -151,6 +151,7 @@ AS_IF([$NEED_GMP], [
   LIBS="$LIBS $GMP"
   AC_CHECK_FUNC(__gmpq_init, [],[ AC_MSG_ERROR(Cannot find gmp.) ])
 ])
+
 
 ################################################################################
 
