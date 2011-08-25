@@ -30,15 +30,17 @@ if [ $# -lt 1 -o "x$1" = "x--help" -o "x$1" = "x-h" ]; then
 	exit 1
 fi
 
-if [ `id -u` -ne 0 ]; then
-	echo '[YI] Need super-user rights to install Yices, try sudo'
-	exec sudo $0 "$@"
-fi
+## Not compatible with Cygwin
+#if [ `id -u` -ne 0 ]; then
+#	echo '[YI] Need super-user rights to install Yices, try sudo'
+#	exec sudo $0 "$@"
+#fi
 
 ARCHIVE="`readlink -f "$1"`"
 TEMPDIR=`mktemp -dt yices-install.XXXXXX`
 INSTALL="${2:-/usr/local}"
 LIBDIR="${3:-${INSTALL}/lib}"
+BINDIR="${INSTALL}/bin"
 
 mkdir -p "$TEMPDIR"
 cd "$TEMPDIR"
@@ -51,15 +53,25 @@ if [ ! -f lib/libyices.so ]; then
 	echo "[YI] Warning! No shared libary present -> libgmp not needed"
 fi
 
+LIBS=`find lib/ \( -name '*.a' -o -name '*.so' \) -not -name 'cyg*.dll'`
+LIBS_CYG=`find lib/ -name 'cyg*.dll'`
+
 echo '[YI] Install libraries'
-install lib/* "$LIBDIR" || failwith "cannot install libraries"
-ldconfig || failwith "ldconfig failed"
+install -t "$LIBDIR" $LIBS || failwith "cannot install libraries"
+if [ -n "$LIBS_CYG" ]; then
+  install -t "$BINDIR" $LIBS_CYG || failwith "cannot install libraries"
+fi
+if which ldconfig > /dev/null; then
+  ldconfig || failwith "ldconfig failed"
+else
+  echo "[YI] ldconfig not found"
+fi
 
 echo '[YI] Install headers'
-install -m 'a=r,u+w' include/*.h "$INSTALL/include" || failwith "cannot install headers"
+install -t "$INSTALL/include" -m 'a=r,u+w' include/*.h || failwith "cannot install headers"
 
 echo '[YI] Install executable'
-install bin/yices "$INSTALL/bin" || failwith "cannot install executable"
+install -t "$BINDIR" bin/yices || failwith "cannot install executable"
 
 cd
 echo '[YI] Cleaning up'
