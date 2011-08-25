@@ -3022,6 +3022,13 @@ fi
 ################################################################################
 
 
+ac_fn_c_check_func "$LINENO" "__gmpz_init" "ac_cv_func___gmpz_init"
+if test "x$ac_cv_func___gmpz_init" = xyes; then :
+  NEED_GMP=false
+else
+  NEED_GMP=true; GMP_SWITCH=-lgmp
+fi
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for yices_version in -lyices" >&5
 $as_echo_n "checking for yices_version in -lyices... " >&6; }
@@ -3029,7 +3036,7 @@ if ${ac_cv_lib_yices_yices_version+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lyices  $LIBS"
+LIBS="-lyices $GMP_SWITCH $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -3068,15 +3075,8 @@ _ACEOF
 
 else
   
-	as_fn_error $? "Cannot find yices." "$LINENO" 5
+  as_fn_error $? "Cannot find yices." "$LINENO" 5
 
-fi
-
-ac_fn_c_check_func "$LINENO" "__gmpz_init" "ac_cv_func___gmpz_init"
-if test "x$ac_cv_func___gmpz_init" = xyes; then :
-  NEED_GMP=false
-else
-  NEED_GMP=true
 fi
 
 
@@ -3198,6 +3198,7 @@ fi
 
 
 fi
+
 
 ################################################################################
 
