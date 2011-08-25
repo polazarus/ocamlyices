@@ -70,58 +70,86 @@ AS_IF([echo "let _ = Sys.os_type" | ocaml | grep -q Win32 > /dev/null], [
 
 ################################################################################
 
-AS_IF(
-  [which ldconfig > /dev/null], [LDCONFIG=ldconfig],
-  [which /sbin/ldconfig > /dev/null], [LDCONFIG=/sbin/ldconfig]
-  [])
+AC_CHECK_LIB(yices,yices_version,[],[
+	AC_MSG_ERROR(Cannot find yices.)
+])
+AC_CHECK_FUNC(__gmpz_init, [NEED_GMP=false], [NEED_GMP=true])
 
-AC_MSG_CHECKING(libyices.so)
-AC_ARG_WITH(libyices, [AS_HELP_STRING([--with-libyices=/../libyices.so],[help libyices.so path])],
-  [AS_IF([test "x$with_libyices" = xno],[],
-    [test "x$with_libyices" = xyes],[],
-    [LIBYICES="$with_libyices"])
-  ],[])
-AS_IF(
-  [test "x$LIBYICES" != x], [],
-  [test "x$LDCONFIG" != x && ($LDCONFIG -p | grep libyices > /dev/null)], [
-    LIBYICES=`$LDCONFIG -p | grep libyices | sed -n 's/^.* =>\s*\(.*\)$/\1/p'`
-  ],
-  [test -f /usr/local/lib/libyices.so], [LIBYICES=/usr/local/lib/libyices.so],
-  [test -f /usr/local/lib64/libyices.so], [LIBYICES=/usr/local/lib/libyices.so],
-  [test -f /opt/lib/libyices.so], [LIBYICES=/opt/lib/libyices.so],
-  [test -f /opt/lib64/libyices.so], [LIBYICES=/usr/local/lib/libyices.so],
-  [test -f /usr/lib/libyices.so], [LIBYICES=/usr/lib/libyices.so],
-  [test -f /usr/lib64/libyices.so], [LIBYICES=/usr/lib/libyices.so],
-  [])
-AS_IF([test "x$LIBYICES" = x], [AC_MSG_RESULT(no)], [AC_MSG_RESULT($LIBYICES)])
+AS_IF([$NEED_GMP], [
+  AC_MSG_NOTICE([GMP needed: try to detect best version])
 
+  LDCONFIG=false
+  AS_IF(
+    [(which ldconfig && ldconfig -V) > /dev/null],
+      [LDCONFIG=ldconfig],
+    [(which /sbin/ldconfig && /sbin/ldconfig -V) > /dev/null],
+      [LDCONFIG=/sbin/ldconfig])
 
-AS_IF([test "x$LIBYICES" != x],[
-  AC_MSG_CHECKING(GMP dependency)
-  AS_IF([ldd $LIBYICES | grep libgmp > /dev/null],[
-    GMP=`ldd $LIBYICES | grep libgmp | head -1 | cut -d' ' -f3`
-    AS_CASE([$GMP], [/*], [AC_MSG_RESULT($GMP)],[
-      need=`ldd $LIBYICES | grep libgmp | head -1 | cut -d' ' -f1`
-      need=`echo $need`
-      AC_MSG_ERROR(no suitable GMP found for $need)
+  AC_MSG_CHECKING(for Yices' shared library)
+#  AC_ARG_WITH(libyices, [AS_HELP_STRING([--with-libyices=/../libyices.so],[help libyices.so path])],
+#    [AS_IF([test "x$with_libyices" = xno],[],
+#      [test "x$with_libyices" = xyes],[],
+#      [LIBYICES="$with_libyices"])
+#    ],[])
+  AS_IF(
+    [test "x$LIBYICES" != x], [],
+    [$LDCONFIG -p | grep libyices > /dev/null], [
+      LIBYICES=`$LDCONFIG -p | grep libyices | sed -n 's/^.* =>\s*\(.*\)$/\1/p'`
+    ],
+
+    [test -f /usr/local/lib/libyices.so], [LIBYICES=/usr/local/lib/libyices.so],
+    [test -f /opt/lib/libyices.so], [LIBYICES=/opt/lib/libyices.so],
+    [test -f /usr/lib/libyices.so], [LIBYICES=/usr/lib/libyices.so],
+
+    [test -f /usr/local/lib64/libyices.so], [LIBYICES=/usr/local/lib64/libyices.so],
+    [test -f /opt/lib64/libyices.so], [LIBYICES=/opt/lib64/libyices.so],
+    [test -f /usr/lib64/libyices.so], [LIBYICES=/usr/lib64/libyices.so],
+
+    [test -f /usr/local/bin/cygyices.dll], [LIBYICES=/usr/local/bin/cygyices.dll],
+    [test -f /opt/bin/cygyices.dll], [LIBYICES=/opt/bin/cygyices.dll],
+    [test -f /usr/bin/cygyices.dll], [LIBYICES=/usr/bin/cygyices.dll],
+
+    [])
+  AS_IF(
+    [test "x$LIBYICES" = x],
+      [AC_MSG_RESULT(no)],
+    [AC_MSG_RESULT($LIBYICES)])
+
+  AS_IF(
+    [test "x$LIBYICES" != x],[
+      AC_MSG_CHECKING(GMP dependency of Yices' shared library)
+      AS_IF([ldd $LIBYICES | grep libgmp > /dev/null],[
+        GMP=`ldd $LIBYICES | grep libgmp | head -1 | cut -d' ' -f3`
+        AS_CASE([$GMP], [/*], [AC_MSG_RESULT($GMP)],[
+          need=`ldd $LIBYICES | grep libgmp | head -1 | cut -d' ' -f1`
+          need=`echo $need`
+          AC_MSG_ERROR(no suitable GMP found for $need)
+        ])
+      ],[ldd $LIBYICES | grep cyggmp > /dev/null],[
+        # TODO does it work?
+        GMP=`ldd $LIBYICES | grep libgmp | head -1 | cut -d' ' -f3`
+      ],[
+        AC_MSG_RESULT([unknown, fallback to default])
+      ])
+    ],[
+      AC_MSG_WARN([No dynamic library: cannot detect best GMP version (fallback to default)])
     ])
-  ],[
-    # OK let's try with the version of GMP used in 1.0.29 and which works pretty well with 1.0.28
-    AS_IF(
-      [test "x$LDCONFIG" != x && ($LDCONFIG -p | grep libgmp.so.3 > /dev/null)], [
-        GMP_DEFAULT=`$LDCONFIG -p | grep libgmp.so.3 | sed -n 's/^.* =>\s*\(.*\)$/\1/p'`
-      ],
-      [test `gcc -print-file-name=libgmp.so.3` != libgmp.so.3], [
-        GMP_DEFAULT=`gcc -print-file-name=libgmp.so.3`
-      ],
-      [GMP_DEFAULT=gmp]
-    )
-    GMP=$GMP_DEFAULT
-    AC_MSG_RESULT([unknown, fallback to: $GMP])
-  ])
-],[
-  GMP=
-  AC_MSG_WARN([libyices.so not found! suppose GMP statically linked])
+
+
+# Not found? OK let's try with the version of GMP
+# used in 1.0.29 and which works pretty well with 1.0.28
+  AS_IF(
+    [test "x$GMP" != x],[
+    ], [ $LDCONFIG -p | grep libgmp.so.3 > /dev/null ], [
+      GMP=`$LDCONFIG -p | grep libgmp.so.3 | sed -n 's/^.* =>\s*\(.*\)$/\1/p'`
+    ], [ test `gcc -print-file-name=libgmp.so.3` != libgmp.so.3 ], [
+      GMP=`gcc -print-file-name=libgmp.so.3`
+    ],
+  [ GMP=-lgmp ]
+  )
+
+  LIBS="$LIBS $GMP"
+  AC_CHECK_FUNC(__gmpq_init, [],[ AC_MSG_ERROR(Cannot find gmp.) ])
 ])
 
 ################################################################################

@@ -61,7 +61,7 @@ quote(mli, "(**\n\
    Return the Yices version number.\n\
 *)") 
 [string]
-char * yices_version();
+const char * yices_version();
 
 /******************************************************************************/
 
@@ -109,7 +109,7 @@ quote(mli, "(**\n\
 \n\
    If the log file is already open, then nothing happens.\n\
 *)")
-void yices_enable_log_file([string] char * file_name);
+void yices_enable_log_file([string] const char * file_name);
 
 /******************************************************************************/
 
@@ -445,7 +445,7 @@ quote(mli, "(**\n\
 \n\
    {i Remark:} number, real, int, nat, bool, any are builtin types.\n\
 *)")
-yices_type yices_mk_type(yices_context ctx, [string] char * name);
+yices_type yices_mk_type(yices_context ctx, [string] const char * name);
 
 // built-in types: number, real, int, nat, bool, any
 quote(ml,"let number_type_name = \"number\";;\n\
@@ -506,7 +506,7 @@ quote(mli, "(**\n\
 \n\
    See {!mk_bool_var_decl}, {!mk_fresh_bool_var}, {!mk_bool_var_from_decl}.\n\
 *)")
-yices_expr yices_mk_bool_var(yices_context ctx, [string] char * name);
+yices_expr yices_mk_bool_var(yices_context ctx, [string] const char * name);
 
 
 quote(mli, "(**\n\
@@ -529,13 +529,13 @@ quote(mli, "(**\n\
    \n\
    It is an error to create two variables with the same name.\n\
  *)")
-yices_var_decl yices_mk_bool_var_decl(yices_context ctx, [string] char * name);
+yices_var_decl yices_mk_bool_var_decl(yices_context ctx, [string] const char * name);
 
 quote(mli, "(**\n\
    Return a name of a variable declaration.\n\
  *)")
 [string]
-char * yices_get_var_decl_name(yices_var_decl d);
+const char * yices_get_var_decl_name(yices_var_decl d);
 
 quote(mli, "(**\n\
    Return a name expression (instance) using the given variable declaration.\n\
@@ -665,14 +665,14 @@ quote(mli, "(**\n\
    Return a new (global) variable declaration. It is an error to create two variables\n\
    with the same name.\n\
 *)")
-yices_var_decl yices_mk_var_decl(yices_context ctx, [string] char * name, yices_type ty);
+yices_var_decl yices_mk_var_decl(yices_context ctx, [string] const char * name, yices_type ty);
 
 quote(mli, "(**\n\
    Return a variable declaration associated with the given name.\n\
 \n\
    Return 0 if there is no variable declaration associated with the given name.\n\
 *)")
-yices_var_decl yices_get_var_decl_from_name(yices_context ctx, [string] char * name);
+yices_var_decl yices_get_var_decl_from_name(yices_context ctx, [string] const char * name);
 
 quote(mli, "(**\n\
    Return a name expression (instance) using the given variable declaration.\n\
@@ -698,7 +698,7 @@ yices_expr yices_mk_num(yices_context ctx, int n);
 quote(mli, "(**\n\
    Return an expression representing the number provided in ASCII format.\n\
 *)")
-yices_expr yices_mk_num_from_string(yices_context ctx, [string] char * n);
+yices_expr yices_mk_num_from_string(yices_context ctx, [string] const char * n);
 
 
 // Use yices_mk_num_from_string instead
