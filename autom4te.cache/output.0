@@ -1767,7 +1767,7 @@ $as_echo "$as_me: loading site script $ac_site_file" >&6;}
       || { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "failed to load site script $ac_site_file
-See \`config.log' for more details" "$LINENO" 5; }
+See \`config.log' for more details" "$LINENO" 5 ; }
   fi
 done
 
@@ -1843,7 +1843,7 @@ if $ac_cache_corrupted; then
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
   { $as_echo "$as_me:${as_lineno-$LINENO}: error: changes in the environment can compromise the build" >&5
 $as_echo "$as_me: error: changes in the environment can compromise the build" >&2;}
-  as_fn_error $? "run \`make distclean' and/or \`rm $cache_file' and start over" "$LINENO" 5
+  as_fn_error $? "run \`make distclean' and/or \`rm $cache_file' and start over" "$LINENO" 5 
 fi
 ## -------------------- ##
 ## Main body of script. ##
@@ -2158,7 +2158,7 @@ fi
 test -z "$CC" && { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "no acceptable C compiler found in \$PATH
-See \`config.log' for more details" "$LINENO" 5; }
+See \`config.log' for more details" "$LINENO" 5 ; }
 
 # Provide some information about the compiler.
 $as_echo "$as_me:${as_lineno-$LINENO}: checking for C compiler version" >&5
@@ -2273,7 +2273,7 @@ sed 's/^/| /' conftest.$ac_ext >&5
 { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error 77 "C compiler cannot create executables
-See \`config.log' for more details" "$LINENO" 5; }
+See \`config.log' for more details" "$LINENO" 5 ; }
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
@@ -2316,7 +2316,7 @@ else
   { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "cannot compute suffix of executables: cannot compile and link
-See \`config.log' for more details" "$LINENO" 5; }
+See \`config.log' for more details" "$LINENO" 5 ; }
 fi
 rm -f conftest conftest$ac_cv_exeext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_exeext" >&5
@@ -2375,7 +2375,7 @@ $as_echo "$ac_try_echo"; } >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "cannot run C compiled programs.
 If you meant to cross compile, use \`--host'.
-See \`config.log' for more details" "$LINENO" 5; }
+See \`config.log' for more details" "$LINENO" 5 ; }
     fi
   fi
 fi
@@ -2427,7 +2427,7 @@ sed 's/^/| /' conftest.$ac_ext >&5
 { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "cannot compute suffix of object files: cannot compile
-See \`config.log' for more details" "$LINENO" 5; }
+See \`config.log' for more details" "$LINENO" 5 ; }
 fi
 rm -f conftest.$ac_cv_objext conftest.$ac_ext
 fi
@@ -2779,7 +2779,7 @@ fi
 
 if test "x$OCAMLC" = x; then :
   
-  as_fn_error $? "Cannot find ocamlc." "$LINENO" 5
+  as_fn_error $? "Cannot find ocamlc." "$LINENO" 5 
 
 fi
 
@@ -2949,7 +2949,7 @@ fi
 
 if test "x$OCAMLDOC" = x; then :
   
-	as_fn_error $? "Cannot find ocamldoc." "$LINENO" 5
+	as_fn_error $? "Cannot find ocamldoc." "$LINENO" 5 
 
 fi
 
@@ -2997,7 +2997,7 @@ fi
 
 if test "x$CAMLIDL" = x; then :
   
-	as_fn_error $? "Cannot find camlidl." "$LINENO" 5
+	as_fn_error $? "Cannot find camlidl." "$LINENO" 5 
 
 fi
 
@@ -3026,59 +3026,15 @@ ac_fn_c_check_func "$LINENO" "__gmpz_init" "ac_cv_func___gmpz_init"
 if test "x$ac_cv_func___gmpz_init" = xyes; then :
   NEED_GMP=false
 else
-  NEED_GMP=true; GMP_SWITCH=-lgmp
+  NEED_GMP=true
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for yices_version in -lyices" >&5
-$as_echo_n "checking for yices_version in -lyices... " >&6; }
-if ${ac_cv_lib_yices_yices_version+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lyices $GMP_SWITCH $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char yices_version ();
-int
-main ()
-{
-return yices_version ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_yices_yices_version=yes
-else
-  ac_cv_lib_yices_yices_version=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_yices_yices_version" >&5
-$as_echo "$ac_cv_lib_yices_yices_version" >&6; }
-if test "x$ac_cv_lib_yices_yices_version" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-@%:@define HAVE_LIBYICES 1
-_ACEOF
-
-  LIBS="-lyices $LIBS"
-
-else
-  
-  as_fn_error $? "Cannot find yices." "$LINENO" 5
-
-fi
-
+# This doesn't work as GMP is not in LIBS yet, but I suppose we don't need it
+# if we are doing the manual checks afterwards
+#AC_CHECK_LIB(yices,yices_version,[],[
+#  AC_MSG_ERROR(Cannot find yices.)
+#], [$GMP_SWITCH])
 
 if $NEED_GMP; then :
   
@@ -3147,14 +3103,14 @@ $as_echo "$GMP" >&6; } ;; @%:@(
     
           need=`ldd $LIBYICES | grep libgmp | head -1 | cut -d' ' -f1`
           need=`echo $need`
-          as_fn_error $? "no suitable GMP found for $need" "$LINENO" 5
+          as_fn_error $? "no suitable GMP found for $need" "$LINENO" 5 
          ;;
 esac
       
 elif ldd $LIBYICES | grep cyggmp > /dev/null; then :
   
         # TODO does it work?
-        GMP=`ldd $LIBYICES | grep libgmp | head -1 | cut -d' ' -f3`
+        GMP=`ldd $LIBYICES | grep cyggmp | head -1 | cut -d' ' -f3`
       
 else
   
@@ -3184,6 +3140,7 @@ elif  test `gcc -print-file-name=libgmp.so.3` != libgmp.so.3 ; then :
       GMP=`gcc -print-file-name=libgmp.so.3`
     
 else
+  # This isn't a good thing to forward to the Makefile, I updated prefix_lib accordingly
    GMP=-lgmp 
   
 fi
@@ -3193,7 +3150,7 @@ fi
 if test "x$ac_cv_func___gmpq_init" = xyes; then :
   
 else
-   as_fn_error $? "Cannot find gmp." "$LINENO" 5 
+   as_fn_error $? "Cannot find gmp." "$LINENO" 5  
 fi
 
 
@@ -4016,7 +3973,7 @@ do
   case $ac_config_target in
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
 
-  *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
+  *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5 ;;
   esac
 done
 
@@ -4053,7 +4010,7 @@ $debug ||
 {
   tmp=./conf$$-$RANDOM
   (umask 077 && mkdir "$tmp")
-} || as_fn_error $? "cannot create a temporary directory in ." "$LINENO" 5
+} || as_fn_error $? "cannot create a temporary directory in ." "$LINENO" 5 
 ac_tmp=$tmp
 
 # Set up the scripts for CONFIG_FILES section.
@@ -4085,18 +4042,18 @@ _ACEOF
   echo "$ac_subst_vars" | sed 's/.*/&!$&$ac_delim/' &&
   echo "_ACEOF"
 } >conf$$subs.sh ||
-  as_fn_error $? "could not make $CONFIG_STATUS" "$LINENO" 5
+  as_fn_error $? "could not make $CONFIG_STATUS" "$LINENO" 5 
 ac_delim_num=`echo "$ac_subst_vars" | grep -c '^'`
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   . ./conf$$subs.sh ||
-    as_fn_error $? "could not make $CONFIG_STATUS" "$LINENO" 5
+    as_fn_error $? "could not make $CONFIG_STATUS" "$LINENO" 5 
 
   ac_delim_n=`sed -n "s/.*$ac_delim\$/X/p" conf$$subs.awk | grep -c X`
   if test $ac_delim_n = $ac_delim_num; then
     break
   elif $ac_last_try; then
-    as_fn_error $? "could not make $CONFIG_STATUS" "$LINENO" 5
+    as_fn_error $? "could not make $CONFIG_STATUS" "$LINENO" 5 
   else
     ac_delim="$ac_delim!$ac_delim _$ac_delim!! "
   fi
@@ -4185,7 +4142,7 @@ if sed "s/$ac_cr//" < /dev/null > /dev/null 2>&1; then
 else
   cat
 fi < "$ac_tmp/subs1.awk" > "$ac_tmp/subs.awk" \
-  || as_fn_error $? "could not setup config files machinery" "$LINENO" 5
+  || as_fn_error $? "could not setup config files machinery" "$LINENO" 5 
 _ACEOF
 
 # VPATH may cause trouble with some makes, so we remove sole $(srcdir),
@@ -4224,7 +4181,7 @@ do
   esac
   case $ac_mode$ac_tag in
   :[FHL]*:*);;
-  :L* | :C*:*) as_fn_error $? "invalid tag \`$ac_tag'" "$LINENO" 5;;
+  :L* | :C*:*) as_fn_error $? "invalid tag \`$ac_tag'" "$LINENO" 5 ;;
   :[FH]-) ac_tag=-:-;;
   :[FH]*) ac_tag=$ac_tag:$ac_tag.in;;
   esac
@@ -4252,7 +4209,7 @@ do
 	   [\\/$]*) false;;
 	   *) test -f "$srcdir/$ac_f" && ac_f="$srcdir/$ac_f";;
 	   esac ||
-	   as_fn_error 1 "cannot find input file: \`$ac_f'" "$LINENO" 5;;
+	   as_fn_error 1 "cannot find input file: \`$ac_f'" "$LINENO" 5 ;;
       esac
       case $ac_f in *\'*) ac_f=`$as_echo "$ac_f" | sed "s/'/'\\\\\\\\''/g"`;; esac
       as_fn_append ac_file_inputs " '$ac_f'"
@@ -4279,7 +4236,7 @@ $as_echo "$as_me: creating $ac_file" >&6;}
 
     case $ac_tag in
     *:-:* | *:-) cat >"$ac_tmp/stdin" \
-      || as_fn_error $? "could not create $ac_file" "$LINENO" 5 ;;
+      || as_fn_error $? "could not create $ac_file" "$LINENO" 5  ;;
     esac
     ;;
   esac
@@ -4405,7 +4362,7 @@ s&@abs_top_builddir@&$ac_abs_top_builddir&;t t
 $ac_datarootdir_hack
 "
 eval sed \"\$ac_sed_extra\" "$ac_file_inputs" | $AWK -f "$ac_tmp/subs.awk" \
-  >$ac_tmp/out || as_fn_error $? "could not create $ac_file" "$LINENO" 5
+  >$ac_tmp/out || as_fn_error $? "could not create $ac_file" "$LINENO" 5 
 
 test -z "$ac_datarootdir_hack$ac_datarootdir_seen" &&
   { ac_out=`sed -n '/\${datarootdir}/p' "$ac_tmp/out"`; test -n "$ac_out"; } &&
@@ -4421,7 +4378,7 @@ which seems to be undefined.  Please make sure it is defined" >&2;}
   -) cat "$ac_tmp/out" && rm -f "$ac_tmp/out";;
   *) rm -f "$ac_file" && mv "$ac_tmp/out" "$ac_file";;
   esac \
-  || as_fn_error $? "could not create $ac_file" "$LINENO" 5
+  || as_fn_error $? "could not create $ac_file" "$LINENO" 5 
  ;;
   
   
@@ -4441,7 +4398,7 @@ _ACEOF
 ac_clean_files=$ac_clean_files_save
 
 test $ac_write_fail = 0 ||
-  as_fn_error $? "write failure creating $CONFIG_STATUS" "$LINENO" 5
+  as_fn_error $? "write failure creating $CONFIG_STATUS" "$LINENO" 5 
 
 
 # configure is writing to config.log, and then calls config.status.

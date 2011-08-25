@@ -70,11 +70,13 @@ AS_IF([echo "let _ = Sys.os_type" | ocaml | grep -q Win32 > /dev/null], [
 
 ################################################################################
 
-AC_CHECK_FUNC(__gmpz_init, [NEED_GMP=false], [NEED_GMP=true; GMP_SWITCH=-lgmp])
+AC_CHECK_FUNC(__gmpz_init, [NEED_GMP=false], [NEED_GMP=true])
 
-AC_CHECK_LIB(yices,yices_version,[],[
-  AC_MSG_ERROR(Cannot find yices.)
-], [$GMP_SWITCH])
+# This doesn't work as GMP is not in LIBS yet, but I suppose we don't need it
+# if we are doing the manual checks afterwards
+#AC_CHECK_LIB(yices,yices_version,[],[
+#  AC_MSG_ERROR(Cannot find yices.)
+#], [$GMP_SWITCH])
 
 AS_IF([$NEED_GMP], [
   AC_MSG_NOTICE([GMP needed: try to detect best version])
@@ -128,7 +130,7 @@ AS_IF([$NEED_GMP], [
         ])
       ],[ldd $LIBYICES | grep cyggmp > /dev/null],[
         # TODO does it work?
-        GMP=`ldd $LIBYICES | grep libgmp | head -1 | cut -d' ' -f3`
+        GMP=`ldd $LIBYICES | grep cyggmp | head -1 | cut -d' ' -f3`
       ],[
         AC_MSG_RESULT([unknown, fallback to default])
       ])
@@ -145,6 +147,7 @@ AS_IF([$NEED_GMP], [
     ], [ test `gcc -print-file-name=libgmp.so.3` != libgmp.so.3 ], [
       GMP=`gcc -print-file-name=libgmp.so.3`
     ],
+  # This isn't a good thing to forward to the Makefile, I updated prefix_lib accordingly
   [ GMP=-lgmp ]
   )
 
