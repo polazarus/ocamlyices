@@ -57,8 +57,10 @@ LIBS=`find lib/ \( -name '*.a' -o -name '*.so' \) -not -name 'cyg*.dll'`
 LIBS_CYG=`find lib/ -name 'cyg*.dll'`
 
 echo '[YI] Install libraries'
+mkdir -p "$LIBDIR"
 install -t "$LIBDIR" $LIBS || failwith "cannot install libraries"
 if [ -n "$LIBS_CYG" ]; then
+  mkdir -p "$BINDIR"
   install -t "$BINDIR" $LIBS_CYG || failwith "cannot install libraries"
 fi
 if which ldconfig > /dev/null; then
@@ -68,9 +70,11 @@ else
 fi
 
 echo '[YI] Install headers'
+mkdir -p "$INSTALL/include"
 install -t "$INSTALL/include" -m 'a=r,u+w' include/*.h || failwith "cannot install headers"
 
 echo '[YI] Install executable'
+mkdir -p "$BINDIR"
 install -t "$BINDIR" bin/yices || failwith "cannot install executable"
 
 cd
