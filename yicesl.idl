@@ -17,7 +17,7 @@ quote(mli, "(**\n\
   Return the yices version number\n\
 *)")
 [string]
-char * yicesl_version();
+const char * yicesl_version();
 
 quote(mli, "(**\n\
   Force Yices to type check expressions when they are asserted (default = false)\n\
