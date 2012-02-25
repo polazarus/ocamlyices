@@ -43,15 +43,17 @@ Warning! Please make sure to uninstall any previous version beforehand.
     autoconf # Only if there is no configure
     ./configure
     make
+
+Build the Ocamlyices library (for ocamlopt and ocamlc).
+Part of the linking is done by an incremental, aka partial, linking, the rest is
+done by ocamlc or ocamlopt when you use the Ocamlyices library
+
     sudo make install
 
-Build and install Ocamlyices (native and bytecode libraries).
-
-Part of the linking is done by an incremental linking, a.k.a , aka partial
-linking, the rest is done by ocamlc or ocamlopt when you use Ocamlyices.
-
-Install the library in `` `ocamlc -where`/ocamlyices`` and possibly a DLL in
-`` `ocamlc -where`/stublibs``.
+Install the library in ``DESTDIR/ocamlyices`` and possibly a DLL in
+``DESTDIR/stublibs``. If you have Findlib installed on your system, it uses
+Findlib default destination directory. Otherwise, it calls `ocamlc -where` and
+uses the standard Ocaml directory.
 
 
 ### Configure options: `./configure [OPTIONS]`
@@ -107,13 +109,12 @@ versions of Ocaml does include it automatically.
 Documentation
 -------------
 
-A documentation of the OCaml APIs is available in `doc/` provided you run this
-command:
+A documentation of the OCaml APIs is available [online][3] or locally in
+`doc/` provided you run this command:
 
     make doc
 
-For the rest, see the [official website][1].
-
+For the rest, see the [Yices' official website][1].
 
 Also, three examples are also available in `examples/`.
 
@@ -144,4 +145,4 @@ THIS SOFTWARE.
 
 [1]: http://yices.csl.sri.com/
 [2]: http://caml.inria.fr/pub/old_caml_site/camlidl/
-
+[3]: http://polazarus.github.com/ocamlyices/api
