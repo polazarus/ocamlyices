@@ -127,7 +127,7 @@ camlidl : $(CAMLIDL_ML) $(CAMLIDL_MLI) $(CAMLIDL_STUBS_C)
 
 %.ml %.mli %_stubs.c : %.idl %.hdr
 	$(CAMLIDL) $<
-	sed -e '/^and yicesl\?_error/ d' \
+	sed -e '/^and yicesl\?_\(log_file_\)\?error/ d' \
 		-e '/^and srec_p/ d' \
 		-e '/^and\s\+yices_type_ptr = yices_type$$/ d' \
 		-e 's/yices_type_ptr/yices_type/g' \
@@ -135,7 +135,11 @@ camlidl : $(CAMLIDL_ML) $(CAMLIDL_MLI) $(CAMLIDL_STUBS_C)
 		-e 's/srec_p/string/g' \
 		-e 's/\([ (.]\)yicesl\?_/\1/g' \
 		-i $(<:.idl=.mli) -i $(<:.idl=.ml)
-	sed -e '/^and var_decl_iterator$$/ d' -i $(<:.idl=.mli)
+	sed -e '/^and var_decl_iterator$$/ d' \
+		-e '/^and scalar_\(int\|name\)\b/ d' \
+		-e 's/scalar_name/string/g' \
+		-e 's/scalar_int/int/g' \
+		-i $(<:.idl=.mli)
 	sed '1r $(<:.idl=.hdr)' -i $(<:.idl=.mli)
 
 %.cmi: %.mli

@@ -32,8 +32,11 @@ extern yicesl_context yices_get_lite_context(yices_context ctx);
 
 #define yices_error int
 #define yices_error_with_message int
+#define yices_log_file_error int
 #define yices_type_ptr yices_type*
 #define srec_p srec_t*
+#define yices_scalar_name const char*
+#define yices_scalar_int int
 
 #define True l_true
 #define False l_false
@@ -55,17 +58,23 @@ struct unsat_core {
 
 /* Check macros */
 
-#define check_yices_error(e) if (e == 0) caml_failwith("cannot get a value")
-#define check_yices_error_with_message(e) if (e == 0) \
+#define check_yices_error(e) if ((e) == 0) caml_failwith("cannot get a value")
+#define check_yices_error_with_message(e) if ((e) == 0) \
   caml_failwith(yices_get_last_error_message())
+#define check_yices_log_file_error(e) do { \
+  if ((e) == 0) caml_failwidth("Log file already open"); \
+  else if ((e) == -1) caml_failwidth("Cannot open log file");\
+} while (0)
 
-#define CHECKNOTNULL(p,m) if (p == (void*)0) caml_failwith("null return value (" m ")")
+#define CHECKNOTNULL(p,m) if ((p) == (void*)0) caml_failwith("null return value (" m ")")
 #define check_expr(e) CHECKNOTNULL(e,"expression")
 #define check_type(e) CHECKNOTNULL(e,"type")
 #define check_var_decl(e) CHECKNOTNULL(e,"variable declaration")
 #define check_context(e) CHECKNOTNULL(e,"context")
 #define check_model(e) CHECKNOTNULL(e,"model")
 #define check_var_decl_iterator(e) CHECKNOTNULL(e,"iterator")
+#define check_scalar_int(e) if ((e) < 0) caml_failwith("cannot get scalar value as int")
+#define check_scalar_name(e) CHECKNOTNULL(e,"string")
 
 /* Yicesl macros */
 #define yicesl_error int

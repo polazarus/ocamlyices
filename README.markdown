@@ -1,5 +1,5 @@
-Ocamlyices: An Ocaml binding for Yices 1, version 0.6
-=====================================================
+Ocamlyices: An Ocaml binding for Yices 1, version 0.6.1
+=======================================================
 Mickaël Delahaye, 2009-2012
 
 [Yices][1] is an efficient SMT solver developed at SRI International. Ocamlyices
@@ -8,9 +8,9 @@ lets you use this SMT solver inside your own program in OCaml.
 Requirements
 ------------
 
-* [Yices][1], version 1.0.33 or more recent, but not 2,
+* [Yices][1], version 1.0.34 or more recent, but not 2,
   preferably with GMP statically linked (except on Linux x86_64 for now).
-  After downloading the tarball from their website, you can use
+  After downloading the tarball from their website, you can use:
 
         ./install-yices.sh yicesXYZ.tar.gz
 
@@ -80,16 +80,14 @@ However, using a static library leads to larger binaries and in case of
 multi-process programs to larger memory footprint.
 
 That is why personnaly I prefer to stick with Yices without GMP. At the moment
-(1.0.33), `libyices.so` is dependent on `libgmp.so.3` (that is, a GMP version
-4.x). If you have a more recent system, `libgmp.so` may actually point to a
-newer version (e.g. `libgmp.so.10`, a version 5.x). However, the older version
-is usually available for compatibility (for instance, through the package
-`libgmp3c2` on Debian and Ubuntu).
+(1.0.34), `libyices.so` is dependent on `libgmp.so.10` (that is, a GMP version
+5.x). Most recent systems comes with packages for the version 5.x of GMP, called
+for instance `libgmp10` and `libgmp10-dev` (with headers) on Debian and Ubuntu.
 
-With this version, Ocamlyices does not need to know which one is in use, but
-you need to have on your system. You can know if `libyices.so` has any problem
-with `ldd`. Indeed `ldd /pathto/libyices.so` should notably print the full path
-of the GMP dynamic library used by Yices.
+Since version 0.6, Ocamlyices does not need to know which one is in use, but
+you need to have it on your system. You can know if `libyices.so` has any
+problem with `ldd`. Indeed `ldd /pathto/libyices.so` should notably print the
+full path of the GMP dynamic library used by Yices.
 
 Usage
 -----

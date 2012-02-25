@@ -21,9 +21,12 @@ typedef [abstract,errorcheck(check_model)] void * yices_model;
 
 typedef int assertion_id;
 
+typedef [errorcheck(check_scalar_int)] int yices_scalar_int;
+typedef [string, errorcheck(check_scalar_name)] const char* yices_scalar_name;
+
 typedef [abstract, errorcode,errorcheck(check_yices_error)] int yices_error;
 typedef [abstract, errorcode, errorcheck(check_yices_error_with_message)] int yices_error_with_message;
-
+typedef [abstract, errorcode, errorcheck(check_yices_log_file_error)] int yices_log_file_error;
 
 enum lbool { False=-1, Undef, True };
 
@@ -47,6 +50,8 @@ quote(mli, "(**\n\
 \n\
   [assertion_id] Assertion index, to identify retractable assertions.\n\
 \n\
+  [unsat_core] Arrays of assertion indexes.\n\
+\n\
   [lbool] Extended booleans: to represent the value of literals in the context\n\
 *)\n\n")
 
@@ -57,14 +62,13 @@ typedef [abstract,errorcheck(check_var_decl_iterator)] void * yices_var_decl_ite
 
 typedef [mltype("string"), c2ml(srec2string), ml2c(string2srec)] void* srec_p;
 
+/******************************************************************************/
 
 quote(mli, "(**\n\
    Return the Yices version number.\n\
 *)") 
 [string]
 const char * yices_version();
-
-/******************************************************************************/
 
 quote(mli, "(** {2 Parameters} *)")
 
@@ -73,12 +77,25 @@ quote(mli, "(**\n\
 *)")
 void yices_set_verbosity(int l);
 
+
+quote(mli, "(**\n\
+   Force Yices to type check expressions when they are asserted (default = false).\n\
+*)")
+void yices_enable_type_checker(boolean flag);
+
+
 quote(mli, "(**\n\
    Enable a log file that will store the assertions, checks, decls, etc.\n\
 \n\
    If the log file is already open, then nothing happens.\n\
+\n\
+   @raise Failure if either:\n\
+   - there's already a log file\n\
+   - if the file cannot be opened for write (or some other file error)\n\
 *)")
-void yices_enable_log_file([string] const char * file_name);
+yices_log_file_error yices_enable_log_file([string] const char * file_name);
+
+
 
 quote(mli, "(**\n\
    Inform yices that only arithmetic theory is going to be used.\n\
@@ -86,6 +103,7 @@ quote(mli, "(**\n\
    This flag usually improves performance (default = false).\n\
 *)")
 void yices_set_arith_only(boolean flag);
+
 
 quote(mli, "(**\n\
 \n\
@@ -95,10 +113,6 @@ quote(mli, "(**\n\
 *)")
 void yices_set_max_num_conflicts_in_maxsat_iteration(unsigned int n);
 
-quote(mli, "(**\n\
-   Force Yices to type check expressions when they are asserted (default = false).\n\
-*)")
-void yices_enable_type_checker(boolean flag);
 
 quote(mli, "(**\n\
    Set the maximum number of iterations in the MaxSAT algorithm.\n\
@@ -107,31 +121,34 @@ quote(mli, "(**\n\
 *)")
 void yices_set_max_num_iterations_in_maxsat (unsigned int n);
 
+
 quote(mli, "(**\n\
    Set the initial cost for a maxsat problem.\n\
 *)")
 void yices_set_maxsat_initial_cost(long long c);
 
+
 /******************************************************************************/
-
 quote(mli, "(** {2 Context management} *)")
-
 quote(mli, "(**\n\
-   Create a logical context.\n\
+   [mk_context ()] creates a logical context.\n\
 *)")
 yices_context yices_mk_context();
 
+
 quote(mli, "(**\n\
-   Delete the given logical context.\n\
+   [del_context ctx] deletes the given logical context.\n\
 \n\
    See {!mk_context}.\n\
 *)")
 void yices_del_context(yices_context ctx);
 
+
 quote(mli, "(**\n\
-   Reset the given logical context.\n\
+   [reset ctx] resets the given logical context.\n\
 *)")
 void yices_reset(yices_context ctx);
+
 
 quote(mli, "(**\n\
    Display the internal representation of the given logical context on [stderr]. \n\
@@ -139,6 +156,7 @@ quote(mli, "(**\n\
    This function is mostly for debugging.\n\
 *)")
 void yices_dump_context(yices_context ctx);
+
 
 quote(mli, "(**\n\
    Create a backtracking point in the given logical context.\n\
@@ -148,6 +166,7 @@ quote(mli, "(**\n\
    of contexts is simulated using trail (undo) stacks.\n\
 *)")
 void yices_push(yices_context ctx);
+
 
 quote(mli, "(**\n\
    Backtrack.\n\
@@ -162,8 +181,8 @@ quote(mli, "(**\n\
 *)")
 void yices_pop(yices_context ctx);
 
-quote(mli, "(** {3 Assertions} *)")
-	 
+
+quote(mli, "(** {3 Assertions} *)") 
 quote(mli, "(**\n\
    Assert a constraint in the logical context.\n\
 \n\
@@ -173,6 +192,7 @@ quote(mli, "(**\n\
 [mlname(assert_simple)]
 void yices_assert(yices_context ctx, yices_expr expr);
 
+
 quote(mli, "(**\n\
    Assert a constraint in the logical context with weight [w].\n\
 \n\
@@ -181,6 +201,7 @@ quote(mli, "(**\n\
    See {!retract}.\n\
 *)")
 assertion_id yices_assert_weighted(yices_context ctx, yices_expr expr, long long w);
+
 
 quote(mli, "(**\n\
    Assert a constraint that can be later retracted.\n\
@@ -193,10 +214,12 @@ quote(mli, "(**\n\
 *)")
 assertion_id yices_assert_retractable(yices_context ctx, yices_expr expr);
 
+
 quote(mli, "(**\n\
    Retract a retractable or weighted constraint.\n\
 \n\
-   See {!assert_weighted} and {!assert_retractable}.\n\
+   See {!assert_weighted}\n\
+   and {!assert_retractable}.\n\
 *)")
 void yices_retract(yices_context ctx, assertion_id id);
 
@@ -220,7 +243,7 @@ quote(mli, "(**\n\
 \n\
    If the context is satisfiable, then {!get_model} can be used to obtain a model.\n\
 \n\
-   {i Warning!} This method ignore the weights associated with the constraints.\n\
+   {b Warning!} This method ignore the weights associated with the constraints.\n\
 *)")
 [blocking]
 enum lbool yices_check(yices_context ctx);
@@ -282,11 +305,15 @@ enum lbool yices_find_weighted_model(yices_context ctx, boolean random);
 
 quote(mli, "(** {2 Unsatisifiable core} *)")
 
-// Get the unsat core
-
-quote(mli,"(** {i (OCaml-specific)} Get the unsat core. Each element is the id of a retractable assertion. *)")
 struct unsat_core { int length; [size_is(length)] assertion_id *array; };
 
+quote(mli,"(**\n\
+   Get the unsat core as an array.\n\
+\n\
+   Each element is the id of a retractable assertion.\n\
+\n\
+   See {!assert_retractable}.\n\
+*)")
 struct unsat_core get_unsat_core(yices_context ctx)
 quote(call,"  struct unsat_core res;\n\
   res.length = yices_get_unsat_core_size(ctx);\n\
@@ -306,9 +333,10 @@ quote(mli, "(** {2 Model} *)")
 quote(mli, "(**\n\
    Return a model for a satisfiable logical context.\n\
 \n\
-   {i Warning!} The should be only called if {!check} or {!max_sat} \n\
+   {b Warning!}\n\
+   - The should be only called if {!check} or {!max_sat} \n\
    returned [True] or [Undef].\n\
-   Calls to functions which modify the context invalidate the model.\n\
+   - Calls to functions which modify the context invalidate the model.\n\
 \n\
    @raise Failure if the model is not available\n\
 *)")
@@ -320,7 +348,7 @@ quote(mli, "(**\n\
 \n\
    The result is [Undef] if the value of [v] is a \"don't care\".\n\
 \n\
-   {i Warning!} [v] must be the declaration of a boolean variable.\n\
+   {b Warning!} [v] must be the declaration of a boolean variable.\n\
 \n\
    See {!get_int_value}, {!get_arith_value} and {!get_double_value}.\n\
 *)")
@@ -370,20 +398,10 @@ quote(mli, "(**\n\
 yices_error yices_get_double_value(yices_model m, yices_var_decl d, [out] double *v);
 
 
-/**
-  \brief Convert the value assigned to a  variable \c v in model \c m to a 
-  character string. The string is returned into a record of the previous type.
-
-   If the value of v can't be returned, then 
-     r->flag is set to 0
-     r->str is set to NULL
-   otherwise
-     r->flag is set to 1
-     r->str = v's value converted to a string (decimal format).
-
-   The string r->str is allocated internally by yices. To free it 
-   when it's no longer needed, call yices_free_string(r).
-*/
+quote(mli, "(**\n\
+  [get_arith_value_as_string m d] converts the value assigned to a variable,\n\
+  given its variable declaration [d] in model [m] to a character string.\n\
+*)")
 void yices_get_arith_value_as_string(yices_model m, yices_var_decl d,
   [out] srec_p r)
 quote(call,"srec_t data;\n\
@@ -425,6 +443,43 @@ val get_bv_value : yices_model -> yices_var_decl -> int -> bool array\n")
 quote(ml,"let get_bv_value = yices_get_bitvector_value")
 
 
+quote(mli,"(**\n\
+   [get_scalar_value m d] gets the value assigned to a variable of scalar\n\
+   type in model [m] as an integer index.\n\
+\n\
+   If [d] is a variable declaration of a scalar type [tau], then \n\
+   [tau] must have been defined as [(define-type tau (scalar e_0 ... e_(n-1)))]\n\
+   for some [n>0].\n\
+\n\
+   This function returns the value of variable [d] in model [m] as an index\n\
+   between [0] and [n-1] (i.e., if the function returns [i] then the \n\
+   value of d is [e_i]).\n\
+\n\
+   @raise Failure if one of the following error occurs:\n\
+   - [d] is not the declaration of a scalar variable\n\
+   - [d] is not assigned a value in model [m]\n\
+*)")
+yices_scalar_int yices_get_scalar_value(yices_model m, yices_var_decl d);
+
+
+quote(mli,"(**\n\
+   [get_scalar_value_name m d] gets the value assigned to a variable of\n\
+   scalar type in model [m] as a string.\n\
+\n\
+   If [d] is a variable declaration of a scalar type [tau], then [tau] must\n\
+   have been defined as [(define-type tau (scalar e_0 ... e_(n-1)))]\n\
+   for some [n>0].\n\
+\n\
+   This function returns the value of variable [d] in model [m] as one of the\n\
+   strings [e_i].\n\
+\n\
+   @raise Failure if one of the following error occurs:\n\
+   - [d] is not the declaration of a scalar variable\n\
+   - [d] is not assigned a value in model [m]\n\
+*)")
+yices_scalar_name yices_get_scalar_value_name(yices_model m, yices_var_decl d);
+
+
 quote(mli, "(**\n\
    Return true (false) if the assertion of the given assertion id is satisfied (not\n\
    satisfied) in the model.\n\
@@ -446,7 +501,7 @@ quote(mli, "(**\n\
    - [False] means the formula is false in the model\n\
    - [Undef] means the model does not have enough information.\n\
      typically this is due to a function application, e.g., \n\
-     the model defines (f 1) and (f 2), but the formula references (f 3)\n\
+     the model defines [(f 1)] and [(f 2)], but the formula references [(f 3)]\n\
 *)")
 enum lbool yices_evaluate_in_model(yices_model m, yices_expr e);  
 
@@ -462,7 +517,7 @@ quote(mli, "(**\n\
 \n\
    The cost is the sum of the weights of unsatisfied constraints.\n\
 \n\
-   {i Warning!} The model cost is computed automatically by {!max_sat} but \n\
+   {b Warning!} The model cost is computed automatically by {!max_sat} but \n\
    not by {!check}. If {!check} returns [True] (or [Undef]),\n\
    you can to call [compute_model_cost] to compute the cost explicitly.\n\
    {b But this function does not seem to exist yet... MD}\n\
@@ -535,7 +590,7 @@ yices_error_with_message yices_parse_command(yices_context ctx, [string] const c
 quote(mli, "(** {2 Types} *)")
 
 quote(mli, "(**\n\
-   Return the type associated with the given name. If the type\n\
+   [mk_type ctx name] returns the type associated with the given name. If the type\n\
    does not exist, a new uninterpreted type is created.\n\
 \n\
    {i Remark:} number, real, int, nat, bool, any are builtin types.\n\
@@ -559,7 +614,7 @@ val any_type_name : string\n")
 
 
 quote(mli, "(**\n\
-   Returns the bitvector type of the given size [(bv size)].\n\
+   [mk_bitvector_typ ctx size] returns the bitvector type of the given size [(bv size)].\n\
    \n\
    The size must be positive.\n\
 *)")
@@ -591,24 +646,26 @@ quote(mli, "(** {2 Variable declarations and uses} *)")
 
 
 quote(mli, "(**\n\
-   Return a new boolean variable declaration. \n\
+   [mk_bool_var_decl ctx name] returns a new boolean variable declaration. \n\
    \n\
-   It is an error to create two variables with the same name.\n\
- *)")
+   @raise Failure if a variable already exists with the same name.\n\
+   \n\
+   {i Remark:} Short for [mk_var_decl ctx name (mk_type ctx \"bool\")].\n\
+*)")
 yices_var_decl yices_mk_bool_var_decl(yices_context ctx, [string] const char * name);
 
 
 quote(mli, "(**\n\
-   Return a new (global) variable declaration. It is an error to create two variables\n\
+   [mk_var_decl ctx name type] returns a new (global) variable declaration. It is an error to create two variables\n\
    with the same name.\n\
 *)")
 yices_var_decl yices_mk_var_decl(yices_context ctx, [string] const char * name, yices_type ty);
 
 
 quote(mli, "(**\n\
-   Return a variable declaration associated with the given name.\n\
+   [get_var_decl_from_name ctx name] returns a variable declaration associated with the given name.\n\
 \n\
-   Return 0 if there is no variable declaration associated with the given name.\n\
+   @raise Failure if there is no variable declaration associated with the given name.\n\
 *)")
 yices_var_decl yices_get_var_decl_from_name(yices_context ctx, [string] const char * name);
 
@@ -617,35 +674,35 @@ quote(mli, "(**\n\
    [get_var_decl e] returns the variable declaration object associated with\n\
    the given name expression.\n\
 \n\
-   {i Warning!} [e] must be a name expression created using methods such\n\
+   {b Warning!} [e] must be a name expression created using methods such\n\
    as: {!mk_bool_var}, {!mk_fresh_bool_var}, or {!mk_bool_var_from_decl}.\n\
  *)")
 yices_var_decl yices_get_var_decl(yices_expr e);
 
 
 quote(mli, "(**\n\
-   Return a name of a variable declaration.\n\
+   [get_var_decl_name d] returns a name of a variable declaration.\n\
  *)")
 [string]
 const char * yices_get_var_decl_name(yices_var_decl d);
 
 
 quote(mli, "(**\n\
-   Return a name expression (instance) using the given variable declaration.\n\
+   [mk_var_from_decl ctx d] returns a name expression (instance) using the given variable declaration.\n\
 *)")
 yices_expr yices_mk_var_from_decl(yices_context ctx, yices_var_decl d);
 
 
 quote(mli, "(**\n\
-   Return a name expression (instance) using the given variable declaration.\n\
+   [mk_bool_var_from_decl ctx d] returns a name expression (instance) using the given variable declaration.\n\
  *)")
 yices_expr yices_mk_bool_var_from_decl(yices_context ctx, yices_var_decl d);
 
 
 quote(mli, "(**\n\
-   Return a name expression for the given variable name. \n\
+   [mk_bool_var ctx name] returns a name expression for the given variable name.\n\
 \n\
-   [mk_bool_var c n1 = mk_bool_var c n2] when [n1 = n2].\n\
+   [mk_bool_var ctx n1 = mk_bool_var ctx n2] when [n1 = n2].\n\
 \n\
    See {!mk_bool_var_decl}, {!mk_fresh_bool_var}, {!mk_bool_var_from_decl}.\n\
 *)")
@@ -653,7 +710,7 @@ yices_expr yices_mk_bool_var(yices_context ctx, [string] const char * name);
 
 
 quote(mli, "(**\n\
-   Return a fresh boolean variable.\n\
+   [mk_fresh_bool_var ctx] returns a fresh boolean variable.\n\
  *)")
 yices_expr yices_mk_fresh_bool_var(yices_context ctx);
 
@@ -664,29 +721,29 @@ quote(mli, "(** {2 Expressions}*)")
 
 
 quote(mli, "(**\n\
-   Return an expression representing \c true.\n\
+   [mk_true ctx] returns an expression representing [true].\n\
  *)")
 yices_expr yices_mk_true(yices_context ctx);
 
 
 quote(mli, "(**\n\
-   Return an expression representing \c false.\n\
+   [mk_false ctx] returns an expression representing [false].\n\
  *)")
 yices_expr yices_mk_false(yices_context ctx);
 
 
 quote(mli, "(**\n\
-   Return an expression representing the disjunction [or] of the given arguments.\n\
+   [mk_or ctx args] returns an expression representing the disjunction [or] of the given arguments (as an array).\n\
 \n\
-   {i Warning!} the length of the array must be greater than 0.\n\
+   {b Warning!} the length of the array must be greater than 0.\n\
 *)")
 yices_expr yices_mk_or(yices_context ctx, [size_is(n)] yices_expr args[], unsigned int n);
 
 
 quote(mli, "(**\n\
-   Return an expression representing the conjunction [and] of the given arguments.\n\
+   [mk_and ctx args] returns an expression representing the conjunction [and] of the given arguments (as an array).\n\
 \n\
-   {i Warning!} the length of the array must be greater than 0.\n\
+   {b Warning!} the length of the array must be greater than 0.\n\
 *)")
 yices_expr yices_mk_and(yices_context ctx, [size_is(n)] yices_expr args[], unsigned int n);
 
@@ -756,7 +813,7 @@ yices_expr yices_mk_num(yices_context ctx, int n);
 
 
 quote(mli, "(**\n\
-   Return an expression representing the number provided in ASCII format.\n\
+   [mk_num_from_string ctx n] returns an expression representing the number provided in ASCII format.\n\
 *)")
 yices_expr yices_mk_num_from_string(yices_context ctx, [string] const char * n);
 
@@ -771,7 +828,7 @@ yices_expr yices_mk_num_from_string(yices_context ctx, [string] const char * n);
 quote(mli, "(**\n\
    [mk_sum ctx arr] returns an expression representing [arr.(0) + ... + arr.(n)].\n\
 \n\
-   {i Warning!} [Array.length arr] must be greater than zero.\n\
+   {b Warning!} [Array.length arr] must be greater than zero.\n\
 *)")
 yices_expr yices_mk_sum(yices_context ctx, [size_is(n), in] yices_expr args[],
   unsigned int n);
@@ -780,7 +837,7 @@ yices_expr yices_mk_sum(yices_context ctx, [size_is(n), in] yices_expr args[],
 quote(mli, "(**\n\
    [mk_sub ctx arr] returns an expression representing [arr.(0) - ... - arr.(n)].\n\
 \n\
-   {i Warning!} [Array.length arr] must be greater than zero.\n\
+   {b Warning!} [Array.length arr] must be greater than zero.\n\
  *)")
 yices_expr yices_mk_sub(yices_context ctx, [size_is(n), in] yices_expr args[],
   unsigned int n);
@@ -789,7 +846,7 @@ yices_expr yices_mk_sub(yices_context ctx, [size_is(n), in] yices_expr args[],
 quote(mli, "(**\n\
    [mk_mul ctx arr] returns an expression representing [arr.(0) * ... * arr.(n)].\n\
 \n\
-   {i Warning!} [Array.length arr] must be greater than zero.\n\
+   {b Warning!} [Array.length arr] must be greater than zero.\n\
 *)")
 yices_expr yices_mk_mul(yices_context ctx, [size_is(n), in] yices_expr args[],
   unsigned int n);
