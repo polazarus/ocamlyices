@@ -26,12 +26,8 @@ div.h9 { font-size : 20pt ; border: 1px solid #000000; margin-top: 5px; margin-b
 .typetable { border-style : hidden }
 .indextable { border-style : hidden }
 .paramstable { border-style : hidden ; padding: 5pt 5pt}
-body { background-color : White; }
+body { background-color : White }
 tr { background-color : White }
 td.typefieldcomment { background-color : #FFFFFF ; font-size: smaller ;}
 pre { margin-bottom: 4px }
 div.sig_block {margin-left: 2em}
-
-
-body { font-family: sans-serif }
-h1,h2,h3,h4,h5,h6 { font-family: serif }

@@ -10,8 +10,7 @@
 </head>
 <body>
 <code class="code"><span class="keyword">sig</span><br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;error_code<br>
-&nbsp;&nbsp;<span class="keyword">and</span>&nbsp;context<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;context<br>
 &nbsp;&nbsp;<span class="keyword">external</span>&nbsp;set_verbosity&nbsp;:&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"camlidl_yicesl_yicesl_set_verbosity"</span><br>
 &nbsp;&nbsp;<span class="keyword">external</span>&nbsp;version&nbsp;:&nbsp;unit&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;=&nbsp;<span class="string">"camlidl_yicesl_yicesl_version"</span><br>
@@ -25,7 +24,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"camlidl_yicesl_yicesl_del_context"</span><br>
 &nbsp;&nbsp;<span class="keyword">external</span>&nbsp;read&nbsp;:&nbsp;<span class="constructor">Yicesl</span>.context&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"camlidl_yicesl_yicesl_read"</span><br>
-&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;inconsitent&nbsp;:&nbsp;<span class="constructor">Yicesl</span>.context&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool<br>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;inconsistent&nbsp;:&nbsp;<span class="constructor">Yicesl</span>.context&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool<br>
 &nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"camlidl_yicesl_yicesl_inconsistent"</span><br>
 &nbsp;&nbsp;<span class="keyword">external</span>&nbsp;set_output_file&nbsp;:&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"camlidl_yicesl_yicesl_set_output_file"</span><br>

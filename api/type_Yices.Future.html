@@ -12,12 +12,6 @@
 <code class="code"><span class="keyword">sig</span><br>
 &nbsp;&nbsp;<span class="keyword">external</span>&nbsp;interrupt&nbsp;:&nbsp;<span class="constructor">Yices</span>.context&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit<br>
 &nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"camlidl_yices_yices_interrupt"</span><br>
-&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;get_lite_context&nbsp;:&nbsp;<span class="constructor">Yices</span>.context&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Yices</span>.yicesl<br>
+&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;get_lite_context&nbsp;:&nbsp;<span class="constructor">Yices</span>.context&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Yicesl</span>.context<br>
 &nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"camlidl_yices_yices_get_lite_context"</span><br>
-&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;mk_function_update&nbsp;:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Yices</span>.context&nbsp;<span class="keywordsign">-&gt;</span><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Yices</span>.expr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Yices</span>.expr&nbsp;array&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Yices</span>.expr&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Yices</span>.expr<br>
-&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"camlidl_yices_yices_mk_function_update"</span><br>
-&nbsp;&nbsp;<span class="keyword">external</span>&nbsp;mk_tuple_literal&nbsp;:&nbsp;<span class="constructor">Yices</span>.context&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Yices</span>.expr&nbsp;array&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Yices</span>.expr<br>
-&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;<span class="string">"camlidl_yices_yices_mk_tuple_literal"</span><br>
 <span class="keyword">end</span></code></body></html>

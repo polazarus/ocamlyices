@@ -18,26 +18,14 @@
 <br>
 <pre><span class="keyword">module</span> Future: <code class="code">sig</code> <a href="Yices.Future.html">..</a> <code class="code">end</code></pre>Untested and potentially harmful features<br>
 <hr width="100%">
-<pre><span class="keyword">val</span> <a name="VALinterrupt"></a>interrupt : <code class="type"><a href="Yices.html#TYPEcontext">Yices.context</a> -> unit</code></pre><div class="info">
+<pre><span id="VALinterrupt"><span class="keyword">val</span> interrupt</span> : <code class="type"><a href="Yices.html#TYPEcontext">Yices.context</a> -> unit</code></pre><div class="info">
 Given on yices-help by Bruno Dutertre (2009-12-16)<br>
 </div>
-<pre><span class="keyword">val</span> <a name="VALget_lite_context"></a>get_lite_context : <code class="type"><a href="Yices.html#TYPEcontext">Yices.context</a> -> <a href="Yices.html#TYPEyicesl">Yices.yicesl</a></code></pre><div class="info">
+<pre><span id="VALget_lite_context"><span class="keyword">val</span> get_lite_context</span> : <code class="type"><a href="Yices.html#TYPEcontext">Yices.context</a> -> <a href="Yicesl.html#TYPEcontext">Yicesl.context</a></code></pre><div class="info">
 Get the Lite context out of a Full context.
   Be aware to close only the full context!
 <p>
 
   Given on yices-help by Bruno Dutertre (2010-06-01)<br>
-</div>
-<pre><span class="keyword">val</span> <a name="VALmk_function_update"></a>mk_function_update : <code class="type"><a href="Yices.html#TYPEcontext">Yices.context</a> -> <a href="Yices.html#TYPEexpr">Yices.expr</a> -> <a href="Yices.html#TYPEexpr">Yices.expr</a> array -> <a href="Yices.html#TYPEexpr">Yices.expr</a> -> <a href="Yices.html#TYPEexpr">Yices.expr</a></code></pre><div class="info">
-Make a function update.
-<p>
-
-  Found with 'nm': seems to work pretty well<br>
-</div>
-<pre><span class="keyword">val</span> <a name="VALmk_tuple_literal"></a>mk_tuple_literal : <code class="type"><a href="Yices.html#TYPEcontext">Yices.context</a> -> <a href="Yices.html#TYPEexpr">Yices.expr</a> array -> <a href="Yices.html#TYPEexpr">Yices.expr</a></code></pre><div class="info">
-Make a tuple.
-<p>
-
-  Found with 'nm': seems to work but no really useful without 'select'<br>
 </div>
 </body></html>
