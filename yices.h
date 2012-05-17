@@ -62,8 +62,8 @@ struct unsat_core {
 #define check_yices_error_with_message(e) if ((e) == 0) \
   caml_failwith(yices_get_last_error_message())
 #define check_yices_log_file_error(e) do { \
-  if ((e) == 0) caml_failwidth("Log file already open"); \
-  else if ((e) == -1) caml_failwidth("Cannot open log file");\
+  if ((e) == 0) caml_failwith("Log file already open"); \
+  else if ((e) == -1) caml_failwith("Cannot open log file");\
 } while (0)
 
 #define CHECKNOTNULL(p,m) if ((p) == (void*)0) caml_failwith("null return value (" m ")")

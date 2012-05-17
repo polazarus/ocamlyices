@@ -13,7 +13,7 @@
 # PERFORMANCE OF THIS SOFTWARE.
 
 
-AC_INIT(ocamlyices,0.6.1)
+AC_INIT(ocamlyices,0.6.2)
 
 AC_PROG_CC
 AC_PROG_CXX

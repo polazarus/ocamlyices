@@ -1,4 +1,4 @@
-Ocamlyices: An Ocaml binding for Yices 1, version 0.6.1
+Ocamlyices: An Ocaml binding for Yices 1, version 0.6.2
 =======================================================
 Mickaël Delahaye, 2009-2012
 
