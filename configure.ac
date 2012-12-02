@@ -83,13 +83,6 @@ AS_IF([echo "let _ = Sys.os_type" | ocaml | grep -q Win32 > /dev/null], [
 
 ################################################################################
 
-AC_CHECK_FUNC(__gmpz_init, [NEED_GMP=false], [NEED_GMP=true; GMP_SWITCH=-lgmp])
-
-# Old: This doesn't work as GMP is not in LIBS yet
-AC_CHECK_LIB(yices,yices_version,[],[
-	AC_MSG_ERROR(Cannot find yices.)
-], [$GMP_SWITCH])
-
 AC_CHECK_FUNC(__gmpz_init, [
   AC_MSG_NOTICE([Yices with GMP statically linked])
   AC_MSG_NOTICE([Ocamlyices will be linked with libyices.a])
@@ -98,8 +91,13 @@ AC_CHECK_FUNC(__gmpz_init, [
   AC_MSG_NOTICE([Yices with GMP dynamically linked])
   AC_MSG_NOTICE([Ocamlyices will be linked with libyices.so])
   STATIC_YICES_WITH_GMP=no
+  GMP_SWITCH=-lgmp
 ])
 
+# Old: This doesn't work as GMP is not in LIBS yet
+AC_CHECK_LIB(yices,yices_version,[],[
+	AC_MSG_ERROR(Cannot find yices.)
+], [$GMP_SWITCH])
 
 ################################################################################
 

@@ -3317,9 +3317,22 @@ fi
 
 ac_fn_c_check_func "$LINENO" "__gmpz_init" "ac_cv_func___gmpz_init"
 if test "x$ac_cv_func___gmpz_init" = xyes; then :
-  NEED_GMP=false
+  
+  { $as_echo "$as_me:${as_lineno-$LINENO}: Yices with GMP statically linked" >&5
+$as_echo "$as_me: Yices with GMP statically linked" >&6;}
+  { $as_echo "$as_me:${as_lineno-$LINENO}: Ocamlyices will be linked with libyices.a" >&5
+$as_echo "$as_me: Ocamlyices will be linked with libyices.a" >&6;}
+  STATIC_YICES_WITH_GMP=yes
+
 else
-  NEED_GMP=true; GMP_SWITCH=-lgmp
+  
+  { $as_echo "$as_me:${as_lineno-$LINENO}: Yices with GMP dynamically linked" >&5
+$as_echo "$as_me: Yices with GMP dynamically linked" >&6;}
+  { $as_echo "$as_me:${as_lineno-$LINENO}: Ocamlyices will be linked with libyices.so" >&5
+$as_echo "$as_me: Ocamlyices will be linked with libyices.so" >&6;}
+  STATIC_YICES_WITH_GMP=no
+  GMP_SWITCH=-lgmp
+
 fi
 
 
@@ -3372,27 +3385,6 @@ else
 	as_fn_error $? "Cannot find yices." "$LINENO" 5
 
 fi
-
-
-ac_fn_c_check_func "$LINENO" "__gmpz_init" "ac_cv_func___gmpz_init"
-if test "x$ac_cv_func___gmpz_init" = xyes; then :
-  
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Yices with GMP statically linked" >&5
-$as_echo "$as_me: Yices with GMP statically linked" >&6;}
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Ocamlyices will be linked with libyices.a" >&5
-$as_echo "$as_me: Ocamlyices will be linked with libyices.a" >&6;}
-  STATIC_YICES_WITH_GMP=yes
-
-else
-  
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Yices with GMP dynamically linked" >&5
-$as_echo "$as_me: Yices with GMP dynamically linked" >&6;}
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Ocamlyices will be linked with libyices.so" >&5
-$as_echo "$as_me: Ocamlyices will be linked with libyices.so" >&6;}
-  STATIC_YICES_WITH_GMP=no
-
-fi
-
 
 
 ################################################################################
