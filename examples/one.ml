@@ -24,9 +24,8 @@ let ex1 =
     in iter_bool_var_decl (print_value m) ctx
   | False -> print_endline "false"
   | Undef -> print_endline "undef"
-  end; del_context ctx
-  
-  
+  end; del_context ctx;;
+
 let ex2 =
   let ctx = mk_context () in
   let it = mk_type ctx int_type_name in
@@ -34,6 +33,6 @@ let ex2 =
     assert_simple ctx (mk_eq ctx (mk_var_from_decl ctx dv) (mk_num ctx 1));
     match check ctx with
     | True -> let m = get_model ctx in
-      print_endline (get_integer_value_as_string m dv)
+      print_endline (get_arith_value_as_string m dv)
     |_ -> failwith "bad verdict"
 

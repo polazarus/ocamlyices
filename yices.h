@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2010, Mickaël Delahaye <mickael.delahaye@gmail.com>
+Copyright (c) 2012, Mickaël Delahaye <mickael.delahaye@gmail.com>
 
 Permission to use, copy, modify, and/or distribute this software for any purpose
 with or without fee is hereby granted, provided that the above copyright notice
@@ -14,7 +14,7 @@ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
 THIS SOFTWARE.
 */
 
-#include <gmp.h>
+#include <stdio.h>
 #include <yices_c.h>
 
 /* Yices_c additional functions */
@@ -27,47 +27,57 @@ typedef void* yicesl_context;
 // Given on yices-help by Bruno Dutertre (2010-06-01)
 extern yicesl_context yices_get_lite_context(yices_context ctx);
 
-// Guessed from nm
-extern yices_expr yices_mk_function_update(yices_context ctx, yices_expr f, yices_expr args[], unsigned int n, yices_expr val);
-extern yices_expr yices_mk_tuple_literal(yices_context ctx, yices_expr args[], unsigned int n);
-
 
 /* Virtual types and names*/
 
 #define yices_error int
+#define yices_error_with_message int
+#define yices_log_file_error int
 #define yices_type_ptr yices_type*
+#define srec_p srec_t*
+#define yices_scalar_name const char*
+#define yices_scalar_int int
 
 #define True l_true
 #define False l_false
 #define Undef l_undef
 
-/* Unsat core and string getter */
+
+/* srec handler */
+
+#define srec2string(s) copy_string((*(s))->str)
+
+
+/* Unsat core array */
 
 struct unsat_core {
   int length;
   assertion_id* array;
 };
 
-struct unsat_core get_unsat_core(yices_context ctx);
-
-char* get_rational_value_as_string(yices_model m, yices_var_decl d);
-char* get_integer_value_as_string(yices_model m, yices_var_decl d);
 
 /* Check macros */
 
-#define check_yices_error(e) if (e == 0) caml_failwith("cannot get a value")
+#define check_yices_error(e) if ((e) == 0) caml_failwith("cannot get a value")
+#define check_yices_error_with_message(e) if ((e) == 0) \
+  caml_failwith(yices_get_last_error_message())
+#define check_yices_log_file_error(e) do { \
+  if ((e) == 0) caml_failwith("Log file already open"); \
+  else if ((e) == -1) caml_failwith("Cannot open log file");\
+} while (0)
 
-#define CHECKNOTNULL(p,m) if (p == (void*)0) caml_failwith("null return value (" m ")")
+#define CHECKNOTNULL(p,m) if ((p) == (void*)0) caml_failwith("null return value (" m ")")
 #define check_expr(e) CHECKNOTNULL(e,"expression")
 #define check_type(e) CHECKNOTNULL(e,"type")
 #define check_var_decl(e) CHECKNOTNULL(e,"variable declaration")
 #define check_context(e) CHECKNOTNULL(e,"context")
 #define check_model(e) CHECKNOTNULL(e,"model")
 #define check_var_decl_iterator(e) CHECKNOTNULL(e,"iterator")
+#define check_scalar_int(e) if ((e) < 0) caml_failwith("cannot get scalar value as int")
+#define check_scalar_name(e) CHECKNOTNULL(e,"string")
 
 /* Yicesl macros */
 #define yicesl_error int
 #define check_yicesl_error(res) if (!res) caml_failwith(yicesl_get_last_error_message())
 #define check_yicesl_context(res) if (res == 0) caml_failwith("null return value (Yicesl context)")
-
 
