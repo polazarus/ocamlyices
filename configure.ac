@@ -13,7 +13,7 @@
 # PERFORMANCE OF THIS SOFTWARE.
 
 
-AC_INIT(ocamlyices,0.6.2)
+AC_INIT(ocamlyices,0.6.3)
 
 AC_PROG_CC
 AC_PROG_CXX
@@ -82,16 +82,26 @@ AS_IF([echo "let _ = Sys.os_type" | ocaml | grep -q Win32 > /dev/null], [
 ])
 
 ################################################################################
+
+# Add Yices as a library dependency
 LIBS="$LIBS -lyices"
+
+# Checks if GMP is built in Yices (if it is there)
 AC_CHECK_FUNC(__gmpz_init, [
   STATIC_YICES_WITH_GMP=yes
 ], [
+  # __gmpz_init is not available yet, but for all we know neither is Yices
   STATIC_YICES_WITH_GMP=no
+  # add GMP, needed on some systems (tari3x)
   LIBS="$LIBS -lgmp"
 ])
+
+# Checks if Yices is really there now (with GMP if needed)
 AC_CHECK_FUNC(yices_version,[],[
 	AC_MSG_ERROR(Cannot find yices.)
 ],[])
+
+# Prints linking information
 AS_IF([test "$STATIC_YICES_WITH_GMP" = yes],[
   AC_MSG_NOTICE([Yices with GMP statically linked])
   AC_MSG_NOTICE([Ocamlyices will be linked with libyices.a])

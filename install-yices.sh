@@ -61,16 +61,18 @@ install -t "$LIBDIR" $LIBS || failwith "cannot install libraries"
 if [ -n "$LIBS_CYG" ]; then
   install -t "$BINDIR" $LIBS_CYG || failwith "cannot install libraries"
 fi
-if which ldconfig > /dev/null; then
+if which ldconfig > /dev/null 2> /dev/null; then
   ldconfig || failwith "ldconfig failed"
 else
   echo "[YI] ldconfig not found"
 fi
 
 echo '[YI] Install headers'
+mkdir -p "$INSTALL/include"
 install -t "$INSTALL/include" -m 'a=r,u+w' include/*.h || failwith "cannot install headers"
 
 echo '[YI] Install executable'
+mkdir -p "$BINDIR"
 install -t "$BINDIR" bin/yices || failwith "cannot install executable"
 
 cd
