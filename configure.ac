@@ -82,6 +82,7 @@ AS_IF([echo "let _ = Sys.os_type" | ocaml | grep -q Win32 > /dev/null], [
 ])
 
 ################################################################################
+
 LIBS="$LIBS -lyices"
 AC_CHECK_FUNC(__gmpz_init, [
   STATIC_YICES_WITH_GMP=yes
@@ -89,9 +90,11 @@ AC_CHECK_FUNC(__gmpz_init, [
   STATIC_YICES_WITH_GMP=no
   LIBS="$LIBS -lgmp"
 ])
+
 AC_CHECK_FUNC(yices_version,[],[
-	AC_MSG_ERROR(Cannot find yices.)
+    AC_MSG_ERROR(Cannot find yices.)
 ],[])
+
 AS_IF([test "$STATIC_YICES_WITH_GMP" = yes],[
   AC_MSG_NOTICE([Yices with GMP statically linked])
   AC_MSG_NOTICE([Ocamlyices will be linked with libyices.a])

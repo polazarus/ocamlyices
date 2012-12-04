@@ -11,6 +11,8 @@
 *.opt
 *.byte
 #
+.svn
+#
 /yices.mli
 /yices.ml
 /yices_stubs.c
@@ -22,7 +24,5 @@
 #
 .depend
 /Makefile
-/configure
 /config.status
 /config.log
-autom4te.cache

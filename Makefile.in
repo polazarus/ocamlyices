@@ -33,6 +33,7 @@ YICESL_C_H = $(prefix)/include/yicesl_c.h
 
 # Ocaml library directories for linking
 OCAMLLIB = @OCAMLLIB@
+OCAMLINC = $(addprefix -I, $(OCAMLLIB))
 
 # Ocaml library directory where to install this package
 OCAMLDESTDIR = @OCAMLDESTDIR@
@@ -61,7 +62,7 @@ OCAMLOPT = @OCAMLOPT@
 OCAMLDOC = @OCAMLDOC@
 OCAMLFIND = @OCAMLFIND@
 CC = @CC@
-CFLAGS = -O2 -fPIC
+CFLAGS = -O2 -fPIC $(OCAMLINC)
 AR = ar
 INSTALL = install
 INSTALL_PROGRAM = $(INSTALL)
@@ -111,7 +112,7 @@ CAMLIDL_CMX = $(CAMLIDL_ML:.ml=.cmx)
 
 ################################################################################
 
-prefix_lib = $(filter /%,$(1)) $(patsubst %,-l%,$(filter-out /%,$(1)))
+prefix_lib = $(filter /%,$(1)) $(filter -l%,$(1)) $(patsubst %,-l%,$(filter-out /%,$(filter-out -l%,$(1))))
 
 .PHONY: all byte native camlidl patches clean distclean mrproper install uninstall
 
