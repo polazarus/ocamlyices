@@ -1,6 +1,6 @@
 Ocamlyices: An Ocaml binding for Yices 1, version 0.6.3
 =======================================================
-Mickaël Delahaye, 2009-2012
+Mickaël Delahaye
 
 [Yices][1] is an efficient SMT solver developed at SRI International. Ocamlyices
 lets you use this SMT solver inside your own program in OCaml.
@@ -8,8 +8,8 @@ lets you use this SMT solver inside your own program in OCaml.
 Requirements
 ------------
 
-* [Yices][1], version 1.0.34 or more recent, but not 2,
-  preferably with GMP statically linked (except on Linux x86_64 for now).
+* [Yices][1], version 1.0.34 or more recent, but not 2.
+  Prefer the version with GMP statically linked, except on Linux x86_64 (see note below).
   After downloading the tarball from their website, you can use:
 
         ./install-yices.sh yicesXYZ.tar.gz
@@ -27,6 +27,11 @@ Requirements
 For developers, to use the latest version from the repository:
 
 * autoconf
+
+**N.B.:** On Linux x86_64 (and possibly other 64 bit platform), only “Yices with GMP
+dynamically linked” is supported at the moment. Indeed, `libyices.a`
+(provided in “Yices with GMP statically linked”) is not compiled with the `-fPIC` flag
+an cannot be compiled with Ocamlyices.
 
 
 WARNING
@@ -129,7 +134,7 @@ Uninstall the library
 License
 -------
 
-Copyright (c) 2012, Mickaël Delahaye, mickael.delahaye@gmail.com
+Copyright (c) 2009-2013, Mickaël Delahaye, http://micdel.fr
 
 Permission to use, copy, modify, and/or distribute this software for any purpose
 with or without fee is hereby granted, provided that the above copyright notice
@@ -145,4 +150,4 @@ THIS SOFTWARE.
 
 [1]: http://yices.csl.sri.com/
 [2]: http://caml.inria.fr/pub/old_caml_site/camlidl/
-[3]: http://polazarus.github.com/ocamlyices/api
+[3]: http://micdel.fr/ocamyices-api
