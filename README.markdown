@@ -1,4 +1,4 @@
-Ocamlyices: An Ocaml binding for Yices 1, version 0.6.3
+Ocamlyices: An Ocaml binding for Yices 1, version 0.7.0
 =======================================================
 Mickaël Delahaye
 
@@ -20,7 +20,7 @@ Requirements
         ./install-yices yices.tar.gz /usr/local /usr/local/lib64
 
 * GCC, Ocaml
-* Findlib (optional)
+* Findlib
 * [Camlidl][2]
 * GMP shared library (only for Yices without GMP statically linked)
 
@@ -53,12 +53,9 @@ Build the Ocamlyices library (for ocamlopt and ocamlc).
 Part of the linking is done by an incremental, aka partial, linking, the rest is
 done by ocamlc or ocamlopt when you use the Ocamlyices library
 
-    sudo make install
+    make install
 
-Install the library in ``DESTDIR/ocamlyices`` and possibly a DLL in
-``DESTDIR/stublibs``. If you have Findlib installed on your system, it uses
-Findlib default destination directory. Otherwise, it calls `ocamlc -where` and
-uses the standard Ocaml directory.
+Install the library using ocamlfind's (Findlib) default destination directory. 
 
 
 ### Configure options: `./configure [OPTIONS]`
