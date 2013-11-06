@@ -31,7 +31,7 @@ For developers, to use the latest version from the repository:
 **N.B.:** On Linux x86_64 (and possibly other 64 bit platform), only “Yices with GMP
 dynamically linked” is supported at the moment. Indeed, `libyices.a`
 (provided in “Yices with GMP statically linked”) is not compiled with the `-fPIC` flag
-an cannot be compiled with Ocamlyices.
+and cannot be compiled with Ocamlyices.
 
 
 WARNING
@@ -85,7 +85,7 @@ multi-process programs to larger memory footprint.
 
 That is why personnaly I prefer to stick with Yices without GMP. At the moment
 (1.0.34), `libyices.so` is dependent on `libgmp.so.10` (that is, a GMP version
-5.x). Most recent systems comes with packages for the version 5.x of GMP, called
+5.x). Most recent systems come with packages for the version 5.x of GMP, called
 for instance `libgmp10` and `libgmp10-dev` (with headers) on Debian and Ubuntu.
 
 Since version 0.6, Ocamlyices does not need to know which one is in use, but
@@ -105,7 +105,7 @@ Or without:
     ocamlc -I +ocamlyices nums.cma ocamlyices.cma ...
     ocamlopt -I +ocamlyices nums.cmxa ocamlyices.cmxa ...
 
-_nums_ is required in order to handle GMP big integers as big_int, but recent
+_nums_ is required in order to handle GMP big integers as `big_int`, but recent
 versions of Ocaml does include it automatically.
 
 Documentation
