@@ -1,4 +1,4 @@
-# Copyright (c) 2012, Mickaël Delahaye <mickael.delahaye@gmail.com>
+# Copyright (c) 2009-2013, Mickaël Delahaye, http://micdel.fr
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -12,127 +12,137 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
+AC_INIT(ocamlyices,0.7.0)
 
-AC_INIT(ocamlyices,0.6.3)
+CFLAGS="-O2 -fPIC"
+LIBS="-lstdc++"
+
 
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_RANLIB
 
-LIBS=-lstdc++
+################################################################################
+# Ocaml ########################################################################
 
 AC_CHECK_PROG([OCAMLC], [ocamlc], [ocamlc])
 AS_IF([test "x$OCAMLC" = x], [
   AC_MSG_ERROR(Cannot find ocamlc.)
 ])
 
+AC_MSG_CHECKING([for Ocaml version])
 OCAMLVERSION=`$OCAMLC -version`
-AC_MSG_NOTICE([ocaml version is $OCAMLVERSION])
-OCAMLLIB=`$OCAMLC -where`
-AC_MSG_NOTICE([ocaml library path is $OCAMLLIB])
+AC_MSG_RESULT([$OCAMLVERSION])
 
+AC_MSG_CHECKING([for Ocaml stdlib path])
+OCAMLLIB=`$OCAMLC -where`
+AC_MSG_RESULT([$OCAMLLIB])
+
+LDFLAGS="$LDFLAGS -L$OCAMLLIB"
+CPPFLAGS="$CPPFLAGS -I$OCAMLLIB"
 
 AC_CHECK_PROG([OCAMLFIND], [ocamlfind], [ocamlfind])
-AS_IF([test "x$OCAMLFIND" = x], [
-  AC_MSG_WARN([Cannot find ocamlfind. Use only the standard Ocaml library directory.])
-  OCAMLDESTDIR=$OCAMLLIB
-], [
-  OCAMLDESTDIR=`$OCAMLFIND printconf destdir`
-  AS_IF([test "x$OCAMLDESTDIR" != "x$OCAMLLIB"],[
-    OCAMLLIB="$OCAMLLIB $OCAMLDESTDIR"
-  ])
+AS_IF([ test "x$OCAMLFIND" = x ], [
+  AC_MSG_ERROR([Cannot find ocamlfind.])
 ])
 
 AC_CHECK_PROG([OCAMLOPT], [ocamlopt], [ocamlopt])
-OCAMLBEST=byte
-AS_IF([test "x$OCAMLOPT" = x], [
-  AC_MSG_WARN([Cannot find ocamlopt; bytecode compilation only.])
-], [
-  AC_MSG_CHECKING([ocamlopt version])
-  TMPVERSION=`$OCAMLOPT -version`
+AS_IF([ test "x$OCAMLOPT" = x ], [
+  AC_MSG_ERROR([Cannot find ocamlopt.])
+])
 
-  AS_IF([test "$TMPVERSION" != "$OCAMLVERSION"],[
-    AC_MSG_RESULT([differs from ocamlc; ocamlopt discarded.])
-    OCAMLOPT=no
-  ],[
-    AC_MSG_RESULT([ok])
-    OCAMLBEST=opt
-  ])
+AC_MSG_CHECKING([for Ocaml version consistency])
+TMPVERSION=`$OCAMLOPT -version`
+AS_IF([ test "$TMPVERSION" != "$OCAMLVERSION" ], [
+  AC_MSG_RESULT([no])
+  AC_MSG_ERROR([Version differs $TMPVERSION != $OCAMLVERSION])
+], [
+  AC_MSG_RESULT([yes])
 ])
 
 AC_CHECK_PROG([OCAMLDOC], [ocamldoc], [ocamldoc])
-AS_IF([test "x$OCAMLDOC" = x],[
+AS_IF([ test "x$OCAMLDOC" = x ], [
   AC_MSG_ERROR([Cannot find ocamldoc.])
 ])
 
+################################################################################
+# Camlidl ######################################################################
+
 AC_CHECK_PROG([CAMLIDL], [camlidl], [camlidl])
-AS_IF([test "x$CAMLIDL" = x], [
+AS_IF([ test "x$CAMLIDL" = x ], [
   AC_MSG_ERROR(Cannot find camlidl.)
 ])
 
-AC_MSG_CHECKING([platform])
-AS_IF([echo "let _ = Sys.os_type" | ocaml | grep -q Win32 > /dev/null], [
-	AC_MSG_RESULT(Win32)
-	OCAMLWIN32=yes
-	EXEEXT=.exe
+AC_MSG_CHECKING([for camlidl's package])
+CAMLIDLPATH=`ocamlfind query camlidl || true`
+AS_IF([ test "x$CAMLIDLPATH" = x ], [
+  AC_MSG_RESULT([unknown])
 ], [
-  AC_MSG_RESULT(*nix)
-	OCAMLWIN32=no
-	EXEEXT=
+  AC_MSG_RESULT([$CAMLIDLPATH])
+  AC_MSG_NOTICE([add camlidl to library search path])
+  CPPFLAGS="$CPPFLAGS -I$CAMLIDLPATH"
+  LDFLAGS="$LDFLAGS -L$CAMLIDLPATH"
+])
+
+AC_CHECK_HEADER([caml/camlidlruntime.h], [], [
+  AC_MSG_ERROR([Cannot find "caml/camlidlruntime.h".])
 ])
 
 ################################################################################
+# Yices library ################################################################
 
 # Add Yices as a library dependency
-LIBS="$LIBS -lyices"
+LIBS="-lyices $LIBS"
 
 # Checks if GMP is built in Yices (if it is there)
-AC_CHECK_FUNC(__gmpz_init, [
+AC_CHECK_FUNC([__gmpz_init], [
   STATIC_YICES_WITH_GMP=yes
 ], [
-  # __gmpz_init is not available yet, but for all we know neither is Yices
+  # __gmpz_init is not available yet, but, for all we know, neither is Yices
   STATIC_YICES_WITH_GMP=no
-  # add GMP, needed on some systems (tari3x)
+  # add GMP, reported to be needed on some systems (tari3x), still stands?
   LIBS="$LIBS -lgmp"
 ])
 
 # Checks if Yices is really there now (with GMP if needed)
-AC_CHECK_FUNC(yices_version,[],[
-	AC_MSG_ERROR(Cannot find yices.)
-],[])
+AC_CHECK_FUNC([yices_version], [], [
+  AC_MSG_ERROR([Cannot find yices.
+
+Please download and install Yices 1
+(preferably with GMP dynamically linked) from:
+  http://yices.csl.sri.com/download.shtml
+A convenient install script is available at:
+  https://raw.github.com/polazarus/ocamlyices/master/install-yices.sh
+To install Yices, execute the following command:
+  ./install-yices.sh yices.tar.gz
+  ])
+])
 
 # Prints linking information
-AS_IF([test "$STATIC_YICES_WITH_GMP" = yes],[
+AS_IF([ test "x$STATIC_YICES_WITH_GMP" = xyes ], [
   AC_MSG_NOTICE([Yices with GMP statically linked])
   AC_MSG_NOTICE([Ocamlyices will be linked with libyices.a])
-],[
+], [
   AC_MSG_NOTICE([Yices with GMP dynamically linked])
   AC_MSG_NOTICE([Ocamlyices will be linked with libyices.so])
 ])
 
 ################################################################################
-
-AC_ARG_WITH(destdir,
-  [AS_HELP_STRING([--with-destdir=destdir],[force a dest dir])],
-  [OCAMLDESTDIR=$with_destdir],
-  [])
-
-################################################################################
+# Options ######################################################################
 
 AC_ARG_ENABLE(custom,
-  [AS_HELP_STRING([--enable-custom], [Custom compilation (ocamlc option)])],
-  [CUSTOM=${enableval}],
-  [CUSTOM=no])
+  [ AS_HELP_STRING([--enable-custom], [Custom compilation (ocamlc option)]) ],
+  [ CUSTOM=${enableval} ], [ CUSTOM=no ])
 
 AC_ARG_ENABLE(partial-linking,
-  [AS_HELP_STRING([--disable-partial-linking],
-    [Disable incremental compilation])],
-  [PARTIAL_LINKING=${enableval}],
-  [PARTIAL_LINKING=yes])
+  [ AS_HELP_STRING([--disable-partial-linking],
+    [Disable incremental compilation]) ],
+  [ PARTIAL_LINKING=${enableval} ], [ PARTIAL_LINKING=yes ])
 
-AS_IF([test "x$PARTIAL_LINKING" != xno], [PARTIAL_LINKING=yes])
-AS_IF([test "x$CUSTOM" != xno], [CUSTOM=yes])
+AS_IF([ test "x$PARTIAL_LINKING" != xno ], [ PARTIAL_LINKING=yes ])
+AS_IF([ test "x$CUSTOM" != xno ], [ CUSTOM=yes ])
 
+################################################################################
 ################################################################################
 
 AC_SUBST(PARTIAL_LINKING)
@@ -145,13 +155,9 @@ AC_SUBST(OCAMLDOC)
 AC_SUBST(OCAMLDEP)
 AC_SUBST(OCAMLFIND)
 
-AC_SUBST(OCAMLBEST)
-AC_SUBST(OCAMLVERSION)
-AC_SUBST(OCAMLLIB)
-AC_SUBST(OCAMLDESTDIR)
-AC_SUBST(OCAMLWIN32)
-AC_SUBST(EXEEXT)
+AC_SUBST(DESTDIR)
+
 AC_SUBST(STATIC_YICES_WITH_GMP)
 
-AC_CONFIG_FILES([Makefile],[chmod a-w Makefile])
+AC_CONFIG_FILES([ Makefile ], [ chmod a-w Makefile ])
 AC_OUTPUT
