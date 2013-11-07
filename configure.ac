@@ -96,10 +96,10 @@ LIBS="-lyices $LIBS"
 
 # Checks if GMP is built in Yices (if it is there)
 AC_CHECK_FUNC([__gmpz_init], [
-  STATIC_YICES_WITH_GMP=yes
+  STATIC_YICES=yes
 ], [
   # __gmpz_init is not available yet, but, for all we know, neither is Yices
-  STATIC_YICES_WITH_GMP=no
+  STATIC_YICES=
   # add GMP, reported to be needed on some systems (tari3x), still stands?
   LIBS="$LIBS -lgmp"
 ])
@@ -119,7 +119,7 @@ To install Yices, execute the following command:
 ])
 
 # Prints linking information
-AS_IF([ test "x$STATIC_YICES_WITH_GMP" = xyes ], [
+AS_IF([ test -n "$STATIC_YICES" ], [
   AC_MSG_NOTICE([Yices with GMP statically linked])
   AC_MSG_NOTICE([Ocamlyices will be linked with libyices.a])
 ], [
@@ -139,8 +139,8 @@ AC_ARG_ENABLE(partial-linking,
     [Disable incremental compilation]) ],
   [ PARTIAL_LINKING=${enableval} ], [ PARTIAL_LINKING=yes ])
 
-AS_IF([ test "x$PARTIAL_LINKING" != xno ], [ PARTIAL_LINKING=yes ])
-AS_IF([ test "x$CUSTOM" != xno ], [ CUSTOM=yes ])
+AS_IF([ test "x$PARTIAL_LINKING" = xno ], [ PARTIAL_LINKING= ])
+AS_IF([ test "x$CUSTOM" = xno ], [ CUSTOM= ])
 
 ################################################################################
 ################################################################################
@@ -157,7 +157,7 @@ AC_SUBST(OCAMLFIND)
 
 AC_SUBST(DESTDIR)
 
-AC_SUBST(STATIC_YICES_WITH_GMP)
+AC_SUBST(STATIC_YICES)
 
 AC_CONFIG_FILES([ Makefile ], [ chmod a-w Makefile ])
 AC_OUTPUT

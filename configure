@@ -620,7 +620,7 @@ ac_includes_default="\
 
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
-STATIC_YICES_WITH_GMP
+STATIC_YICES
 DESTDIR
 OCAMLDEP
 CUSTOM
@@ -3976,12 +3976,12 @@ LIBS="-lyices $LIBS"
 ac_fn_c_check_func "$LINENO" "__gmpz_init" "ac_cv_func___gmpz_init"
 if test "x$ac_cv_func___gmpz_init" = xyes; then :
 
-  STATIC_YICES_WITH_GMP=yes
+  STATIC_YICES=yes
 
 else
 
   # __gmpz_init is not available yet, but, for all we know, neither is Yices
-  STATIC_YICES_WITH_GMP=no
+  STATIC_YICES=
   # add GMP, reported to be needed on some systems (tari3x), still stands?
   LIBS="$LIBS -lgmp"
 
@@ -4009,7 +4009,7 @@ fi
 
 
 # Prints linking information
-if  test "x$STATIC_YICES_WITH_GMP" = xyes ; then :
+if  test -n "$STATIC_YICES" ; then :
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: Yices with GMP statically linked" >&5
 $as_echo "$as_me: Yices with GMP statically linked" >&6;}
@@ -4044,11 +4044,11 @@ else
 fi
 
 
-if  test "x$PARTIAL_LINKING" != xno ; then :
-   PARTIAL_LINKING=yes
+if  test "x$PARTIAL_LINKING" = xno ; then :
+   PARTIAL_LINKING=
 fi
-if  test "x$CUSTOM" != xno ; then :
-   CUSTOM=yes
+if  test "x$CUSTOM" = xno ; then :
+   CUSTOM=
 fi
 
 ################################################################################
