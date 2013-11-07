@@ -2144,7 +2144,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 CFLAGS="-O2 -fPIC"
-LIBS="-lstdc++"
+LIBS="-lstdc++ -lm"
 
 
 ac_ext=c

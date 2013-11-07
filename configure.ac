@@ -15,7 +15,7 @@
 AC_INIT(ocamlyices,0.7.0)
 
 CFLAGS="-O2 -fPIC"
-LIBS="-lstdc++"
+LIBS="-lstdc++ -lm"
 
 
 AC_PROG_CC

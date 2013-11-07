@@ -72,9 +72,12 @@ STATIC_YICES = @STATIC_YICES_WITH_GMP@
 # Library dependencies #########################################################
 
 # Libraries to use with 'ocamlopt' or 'ocamlc -custom'
-CCLIBS = stdc++ yices
+CCLIBS = yices
 ifneq ($(PARTIAL_LINKING),yes)
 CCLIBS += camlidl
+endif
+ifeq ($(STATIC_YICES),yes)
+CCLIBS += stdc++ m
 endif
 
 # Partial linking library
@@ -83,7 +86,7 @@ PLLIBS = camlidl # no dependency to camlidl for Ocamlyices users
 # Libraries to build the shared library dll*.so (used only when CUSTOM=no)
 DL_LIBS = camlidl yices
 ifeq ($(STATIC_YICES),yes)
-DL_LIBS += stdc++
+DL_LIBS += m stdc++
 endif
 
 # Names of Camlidl-related files ###############################################
