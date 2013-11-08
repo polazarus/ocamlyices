@@ -108,13 +108,18 @@ AC_CHECK_FUNC([__gmpz_init], [
 AC_CHECK_FUNC([yices_version], [], [
   AC_MSG_ERROR([Cannot find yices.
 
-Please download and install Yices 1
-(preferably with GMP dynamically linked) from:
+Please download and install Yices 1.0.34 or more recent (but not 2).
+(1) Download the tarball from Yices' official website:
   http://yices.csl.sri.com/download.shtml
-A convenient install script is available at:
-  https://raw.github.com/polazarus/ocamlyices/master/install-yices.sh
-To install Yices, execute the following command:
-  ./install-yices.sh yices.tar.gz
+(2) Install it on your system (libraries and headers).
+You may use either the following command as root:
+  wget -q -O- http://git.io/sWxMmg | sh -s yices-XYZ.tar.gz
+or this one as a sudoer:
+  wget -q -O- http://git.io/sWxMmg | sudo sh -s yices-XYZ.tar.gz
+In both case, yices-XYZ.tar.gz should be replaced with the path to the
+downloaded tarball. Also, additional parameters can be added to specify
+installation directories (root and library path), e.g.:
+  wget -q -O- http://git.io/sWxMmg | sh -s <yices-XYZ.tar.gz> /opt /opt/lib64
   ])
 ])
 
