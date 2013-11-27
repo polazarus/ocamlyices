@@ -1,0 +1,22 @@
+language: c
+before_install:
+- source ./.travis-ocaml.sh
+- if [ ! -e cache ]; then mkdir cache; cd cache; wget -q $YICES_BASE_URL/yices-1.0.39-x86_64-pc-linux-gnu.tar.gz; cd ..; fi
+- sudo sh install-yices.sh cache/yices-1.0.39-x86_64-pc-linux-gnu.tar.gz
+install:
+- ocamlc -version
+- opam --version
+- opam install -y ocamlfind camlidl
+script:
+- ./configure
+- make
+- make install
+cache:
+  directory: ./cache
+env:
+  matrix:
+  - OCAML_VERSION=4.1
+  - OCAML_VERSION=4.0
+  - OCAML_VERSION=3.12
+  global:
+    secure: Lxq+PRBVglR7Knt9lH5heFY4O0cFOYvHpCTuqog5l3APUnEOiPhskjUVQbBAi4YaKtl0vpZrDy0/UDnSYxLc5MVgvr0DDFtt8+JzARisCjCWoIiU82PIh7v2cehMGh5NWdLtQBpqvCS4qZAZMca6YwnkW7IyymTxYfGGfh3s+MQ=
