@@ -15,7 +15,9 @@ script:
 cache:
   - apt
   - directories:
-    - ./cache
+    - cache
+    - autom4te.cache
+    - $HOME/.opam
 env:
   matrix:
   - OCAML_VERSION=4

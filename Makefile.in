@@ -196,9 +196,9 @@ $(META): $(META).in
 
 ifdef OCAMLDOC
 
-doc: doc/html/index.html
+doc: doc/index.html
 
-doc/html/index.html: *.mli
+doc/index.html: *.mli
 	@mkdir -p $(dir $@)
 	$(OCAMLDOC) -html $^ -d $(dir $@)
 	@touch $@
