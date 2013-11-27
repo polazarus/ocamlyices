@@ -50,7 +50,7 @@ tar -xzf "$ARCHIVE" || failwith "cannot untar $ARCHIVE"
 cd yices*
 
 if [ ! -f lib/libyices.so ]; then
-	echo "[YI] Warning! No shared libary present -> libgmp not needed"
+	echo "[YI] No shared libary present -> libgmp not needed"
 fi
 
 LIBS=`find lib/ \( -name '*.a' -o -name '*.so' \) -not -name 'cyg*.dll'`
@@ -62,7 +62,7 @@ if [ -n "$LIBS_CYG" ]; then
   install -t "$BINDIR" $LIBS_CYG || failwith "cannot install libraries"
 fi
 if which ldconfig > /dev/null 2> /dev/null; then
-  ldconfig || failwith "ldconfig failed"
+  ldconfig || echo "[YI] WARNING ldconfig failed"
 else
   echo "[YI] ldconfig not found"
 fi
@@ -71,16 +71,17 @@ echo '[YI] Install headers'
 mkdir -p "$INSTALL/include"
 install -t "$INSTALL/include" -m 'a=r,u+w' include/*.h || failwith "cannot install headers"
 
-echo '[YI] Install executable'
-mkdir -p "$BINDIR"
-install -t "$BINDIR" bin/yices || failwith "cannot install executable"
+if [ -f bin/yices ]; then
+  echo '[YI] Install executable'
+  mkdir -p "$BINDIR"
+  install -t "$BINDIR" bin/yices || failwith "cannot install executable"
+else
+  echo '[YI] WARNING library only version -> no executable installed'
+fi
 
 cd
 echo '[YI] Cleaning up'
 rm -rf "$TEMPDIR"
 
 echo '[YI] Done'
-
-
-
 
