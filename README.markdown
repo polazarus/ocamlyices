@@ -1,23 +1,26 @@
-Ocamlyices 0.7.0
-================
-An Ocaml binding for Yices 1
+OCamlyices
+==========
 
-Mickaël Delahaye
+*An OCaml binding for Yices 1*
 
-[Yices][1] is an efficient SMT solver developed at SRI International. Ocamlyices
-lets you use this SMT solver inside your own program in OCaml.
+[![Build Status](https://travis-ci.org/polazarus/ocamlyices.png?branch=master)](https://travis-ci.org/polazarus/ocamlyices)
 
-*Warning!* Only tested under Linux (32 and 64 bit platforms), but reported to
+[Yices][yices] is an efficient SMT solver developed at SRI International.
+OCamlyices lets you use this SMT solver inside your own [OCaml][ocaml] program.
+
+Based on [CamlIDL][camlidl], this library allows accessing both Yices APIs (full and light), with most (if not all) features: unsatisfiable cores, bit vectors, and more experimental features (interrupting, switching between APIs).
+
+**Warning!** Only tested under Linux (32 and 64 bit platforms), but reported to
 work under MacOS X…
 
 
 First requirement: Yices
 ------------------------
 
-[Yices][1] 1.0.34 or more recent (but not 2)  needs to be *installed* on your system.
+[Yices][yices] 1.0.34 or more recent (but not 2)  needs to be *installed* on your system.
 It can be done in two steps:
 
-1.  First download the latest tarball of Yices 1 from SRI website, 
+1.  First download the latest tarball of [Yices 1 from SRI website][yices-dl], 
     Prefer the version with GMP statically linked, except on Linux x86_64 (see note below).
 
 2.  Install Yices on your system as follow:
@@ -28,19 +31,20 @@ It can be done in two steps:
     tarball. The script (available in the repository) installs Yices in `/usr/local`
     and register the shared library.
     Optionally you can set installation directories (root and library):
-    wget -q -O- http://git.io/sWxMmg | sh -s <yices-XYZ.tar.gz> /opt /opt/lib64
+
+        wget -q -O- http://git.io/sWxMmg | sh -s <yices-XYZ.tar.gz> /opt /opt/lib64
 
 
 **N.B.:** On Linux x86_64 (and possibly other 64 bit platform), only “Yices with
 GMP dynamically linked” is supported at the moment. Indeed, `libyices.a`
 (provided in “Yices with GMP statically linked”) is not compiled with the
-`-fPIC` flag and cannot be compiled with Ocamlyices.
+`-fPIC` flag and cannot be compiled with OCamlyices.
 
 
-Easy install (requires OPAM)
-----------------------------
+Easy install (with Opam)
+------------------------
 
-Once Yices is installed, use OPAM:
+Once Yices is installed, use [Opam][opam] (the official OCaml package manager):
 
     opam update
     opam install ocamlyices
@@ -51,7 +55,7 @@ Done.
 Usage
 -----
 
-With Ocamlfind:
+With ocamlfind:
 
     ocamlfind ocamlc/ocamlopt -package ocamlyices ...
 
@@ -60,19 +64,19 @@ Or without:
     ocamlc -I +ocamlyices nums.cma ocamlyices.cma ...
     ocamlopt -I +ocamlyices nums.cmxa ocamlyices.cmxa ...
 
-_nums_ is required in order to handle GMP big integers as `big_int`, but recent
-versions of Ocaml should infer it automatically.
+`nums` is required in order to handle GMP big integers as `big_int`, but recent
+versions of OCaml should infer it automatically.
 
 
 Documentation
 -------------
 
-A documentation of the OCaml APIs is available [online][3] or locally in
-`doc/` provided you run this command:
+The documentation of [OCamlyices' API][api] is available online and can be build
+locally `doc/` by the following command:
 
     make doc
 
-For the rest, see the [Yices' official website][1].
+For the rest, see the [Yices' official website][yices].
 
 Also, three examples are also available in `examples/`.
 
@@ -82,9 +86,10 @@ Manual install
 
 ### Additional requirements
 
-* GCC, Ocaml
-* Findlib
-* [Camlidl][2]
+* GCC
+* [OCaml][ocaml]
+* Findlib (i.e. ocamlfind)
+* [CamlIDL][camlidl]
 * GMP shared library (only for Yices without GMP statically linked)
 * and optionally autoconf if you wish to tinker with the configuration file.
 
@@ -96,20 +101,20 @@ Manual install
 
 2.  Please make sure to uninstall any previous version beforehand.
 
-2.  Configure and build the Ocamlyices library (bytecode and native version):
+2.  Configure and build the OCamlyices library (bytecode and native version):
 
         autoconf # Only if there is no configure
         ./configure
         make
 
     Part of the linking is done by an incremental, aka partial, linking, the rest is
-    done by ocamlc or ocamlopt when you use the Ocamlyices library
+    done by ocamlc or ocamlopt when you use the OCamlyices library
 
 3.  Install the library using ocamlfind's (Findlib) default destination directory:
 
         make install
 
-    Depending on your Ocaml installation you may need admin rights or to `sudo`
+    Depending on your OCaml installation you may need admin rights or to `sudo`
     this last command.
 
 ### (Expert) Configure options: `./configure [OPTIONS]`
@@ -117,16 +122,16 @@ Manual install
     --enable-custom
     --disable-custom [DEFAULT]
 
-Build the Ocamlyices for custom bytecode compilation (see ocamlc manual for
+Build the OCamlyices for custom bytecode compilation (see ocamlc manual for
 more information), rather than using a shared library. As a result, every
-program using such a version of ocamlyices will be compiled with the
+program using such a version of OCamlyices will be compiled with the
 option `-custom`.
 
     --enable-partial-linking [DEFAULT]
     --disbable-partial-linking
 
 Partial linking is used so as the `ocamlyices.cma/.cmxa` does not depend on
-the camlidl library.
+the CamlIDL library.
 
 ### (Expert) About GMP
 
@@ -137,12 +142,12 @@ This version contains only a static library `libyices.a`, which includes GMP.
 However, using a static library leads to larger binaries and in case of
 multi-process programs to larger memory footprint.
 
-That is why personnally I prefer to stick with Yices without GMP. At the moment
+That is why personally I prefer to stick with Yices without GMP. At the moment
 (1.0.34), `libyices.so` is dependent on `libgmp.so.10` (that is, a GMP version
 5.x). Most recent systems come with packages for the version 5.x of GMP, called
 for instance `libgmp10` and `libgmp10-dev` (with headers) on Debian and Ubuntu.
 
-Since version 0.6, Ocamlyices does not need to know which one is in use, but
+Since version 0.6, OCamlyices does not need to know which one is in use, but
 you need to have it on your system. You can know if `libyices.so` has any
 problem with `ldd`. Indeed `ldd /pathto/libyices.so` should notably print the
 full path of the GMP dynamic library used by Yices.
@@ -151,11 +156,11 @@ full path of the GMP dynamic library used by Yices.
 Uninstall
 ---------
 
-If you used opam to install it:
+If you have install it with [Opam][opam]:
 
     opam remove ocamlyices
 
-Otherwise:
+Otherwise, use ocamlfind:
 
     ocamlfind remove ocamlyices
 
@@ -177,6 +182,9 @@ OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
 TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
 THIS SOFTWARE.
 
-[1]: http://yices.csl.sri.com/
-[2]: http://caml.inria.fr/pub/old_caml_site/camlidl/
-[3]: http://micdel.fr/ocamyices-api
+[yices]: http://yices.csl.sri.com/
+[yices-dl]: http://yices.csl.sri.com/download.shtml
+[ocaml]: http://ocaml.org/
+[opam]: http://opam.ocaml.org/
+[camlidl]: http://caml.inria.fr/pub/old_caml_site/camlidl/
+[api]: http://micdel.fr/ocamyices-api

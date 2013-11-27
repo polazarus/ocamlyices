@@ -3332,14 +3332,14 @@ if test "x$OCAMLC" = x; then :
 
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for Ocaml version" >&5
-$as_echo_n "checking for Ocaml version... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for OCaml version" >&5
+$as_echo_n "checking for OCaml version... " >&6; }
 OCAMLVERSION=`$OCAMLC -version`
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $OCAMLVERSION" >&5
 $as_echo "$OCAMLVERSION" >&6; }
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for Ocaml stdlib path" >&5
-$as_echo_n "checking for Ocaml stdlib path... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for OCaml stdlib path" >&5
+$as_echo_n "checking for OCaml stdlib path... " >&6; }
 OCAMLLIB=`$OCAMLC -where`
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $OCAMLLIB" >&5
 $as_echo "$OCAMLLIB" >&6; }
@@ -3433,8 +3433,8 @@ if  test "x$OCAMLOPT" = x ; then :
 
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for Ocaml version consistency" >&5
-$as_echo_n "checking for Ocaml version consistency... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for OCaml version consistency" >&5
+$as_echo_n "checking for OCaml version consistency... " >&6; }
 TMPVERSION=`$OCAMLOPT -version`
 if  test "$TMPVERSION" != "$OCAMLVERSION" ; then :
 
@@ -4018,15 +4018,15 @@ if  test -n "$STATIC_YICES" ; then :
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: Yices with GMP statically linked" >&5
 $as_echo "$as_me: Yices with GMP statically linked" >&6;}
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Ocamlyices will be linked with libyices.a" >&5
-$as_echo "$as_me: Ocamlyices will be linked with libyices.a" >&6;}
+  { $as_echo "$as_me:${as_lineno-$LINENO}: OCamlyices will be linked with libyices.a" >&5
+$as_echo "$as_me: OCamlyices will be linked with libyices.a" >&6;}
 
 else
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: Yices with GMP dynamically linked" >&5
 $as_echo "$as_me: Yices with GMP dynamically linked" >&6;}
-  { $as_echo "$as_me:${as_lineno-$LINENO}: Ocamlyices will be linked with libyices.so" >&5
-$as_echo "$as_me: Ocamlyices will be linked with libyices.so" >&6;}
+  { $as_echo "$as_me:${as_lineno-$LINENO}: OCamlyices will be linked with libyices.so" >&5
+$as_echo "$as_me: OCamlyices will be linked with libyices.so" >&6;}
 
 fi
 

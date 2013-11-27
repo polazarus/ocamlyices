@@ -30,11 +30,11 @@ AS_IF([test "x$OCAMLC" = x], [
   AC_MSG_ERROR(Cannot find ocamlc.)
 ])
 
-AC_MSG_CHECKING([for Ocaml version])
+AC_MSG_CHECKING([for OCaml version])
 OCAMLVERSION=`$OCAMLC -version`
 AC_MSG_RESULT([$OCAMLVERSION])
 
-AC_MSG_CHECKING([for Ocaml stdlib path])
+AC_MSG_CHECKING([for OCaml stdlib path])
 OCAMLLIB=`$OCAMLC -where`
 AC_MSG_RESULT([$OCAMLLIB])
 
@@ -51,7 +51,7 @@ AS_IF([ test "x$OCAMLOPT" = x ], [
   AC_MSG_ERROR([Cannot find ocamlopt.])
 ])
 
-AC_MSG_CHECKING([for Ocaml version consistency])
+AC_MSG_CHECKING([for OCaml version consistency])
 TMPVERSION=`$OCAMLOPT -version`
 AS_IF([ test "$TMPVERSION" != "$OCAMLVERSION" ], [
   AC_MSG_RESULT([no])
@@ -126,10 +126,10 @@ installation directories (root and library path), e.g.:
 # Prints linking information
 AS_IF([ test -n "$STATIC_YICES" ], [
   AC_MSG_NOTICE([Yices with GMP statically linked])
-  AC_MSG_NOTICE([Ocamlyices will be linked with libyices.a])
+  AC_MSG_NOTICE([OCamlyices will be linked with libyices.a])
 ], [
   AC_MSG_NOTICE([Yices with GMP dynamically linked])
-  AC_MSG_NOTICE([Ocamlyices will be linked with libyices.so])
+  AC_MSG_NOTICE([OCamlyices will be linked with libyices.so])
 ])
 
 ################################################################################
