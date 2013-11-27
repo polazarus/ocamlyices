@@ -200,7 +200,7 @@ doc: doc/index.html
 
 doc/index.html: *.mli
 	@mkdir -p $(dir $@)
-	$(OCAMLDOC) -html $^ -d $(dir $@)
+	$(OCAMLDOC) -html $^ -charset utf-8 -d $(dir $@)
 	@touch $@
 
 endif
