@@ -1,6 +1,7 @@
 language: c
 before_install:
 - source ./.travis-ocaml.sh
+- sudo apt-get install -qq libgmp-dev
 - if [ ! -e cache ]; then mkdir cache; cd cache; wget -q $YICES_BASE_URL/yices-1.0.39-x86_64-pc-linux-gnu.tar.gz; cd ..; fi
 - sudo sh install-yices.sh cache/yices-1.0.39-x86_64-pc-linux-gnu.tar.gz
 install:
@@ -12,7 +13,8 @@ script:
 - make
 - make install
 cache:
-  directory: ./cache
+  - directory: ./cache
+  - apt
 env:
   matrix:
   - OCAML_VERSION=4.1
