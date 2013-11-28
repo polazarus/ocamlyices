@@ -9,9 +9,9 @@ install:
 - opam --version
 - opam install -y ocamlfind camlidl
 script:
-- ./configure
-- make $OYFLAGS
-- make $OYFLAGS install
+- ./configure $OYFLAGS
+- make 
+- make install
 cache:
   - apt
   - directories:
@@ -20,8 +20,8 @@ cache:
     - $HOME/.opam
 env:
   matrix:
-  - OCAML_VERSION=4 YICES_NAME=yices-1.0.39-x86_64-pc-linux-gnu-trimmed.tar.gz OYFLAGS='CUSTOM=yes'
-  - OCAML_VERSION=4 YICES_NAME=yices-1.0.39-x86_64-pc-linux-gnu-static-gmp-trimmed.tar.gz OYFLAGS='CUSTOM=yes'
+  - OCAML_VERSION=4 YICES_NAME=yices-1.0.39-x86_64-pc-linux-gnu-trimmed.tar.gz OYFLAGS='--enable-custom'
+  - OCAML_VERSION=4 YICES_NAME=yices-1.0.39-x86_64-pc-linux-gnu-static-gmp-trimmed.tar.gz
   - OCAML_VERSION=4 YICES_NAME=yices-1.0.39-x86_64-pc-linux-gnu-trimmed.tar.gz
   - OCAML_VERSION=3 YICES_NAME=yices-1.0.39-x86_64-pc-linux-gnu-trimmed.tar.gz
   global:

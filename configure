@@ -2146,7 +2146,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 CFLAGS="-O2 -fPIC"
 LIBS="-lstdc++ -lm"
 
-
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -4030,6 +4029,33 @@ $as_echo "$as_me: OCamlyices will be linked with libyices.so" >&6;}
 
 fi
 
+DEFAULT_CUSTOM=no
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether Yices can be linked into a shared library" >&5
+$as_echo_n "checking whether Yices can be linked into a shared library... " >&6; }
+YDLC_TEST=`$CC $CPPFLAGS $CFLAGS $LDFLAGS -shared -xc - $LIBS -o - <<EOF > /dev/null 2> /dev/null && echo yes
+extern const char* yices_version();
+const char* myf() {
+  return yices_version();
+}
+EOF`
+if  test "x$YDLC_TEST" == xyes ; then :
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+
+else
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Ocaml custom compilation necessary." >&5
+$as_echo "$as_me: WARNING: Ocaml custom compilation necessary." >&2;}
+  { $as_echo "$as_me:${as_lineno-$LINENO}: Custom compilation by default (--enable-custom to override)." >&5
+$as_echo "$as_me: Custom compilation by default (--enable-custom to override)." >&6;}
+  DEFAULT_CUSTOM=yes
+
+fi
+
 ################################################################################
 # Options ######################################################################
 
@@ -4037,7 +4063,7 @@ fi
 if test "${enable_custom+set}" = set; then :
   enableval=$enable_custom;  CUSTOM=${enableval}
 else
-   CUSTOM=no
+   CUSTOM=$DEFAULT_CUSTOM
 fi
 
 

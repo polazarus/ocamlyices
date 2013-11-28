@@ -17,7 +17,6 @@ AC_INIT(ocamlyices,0.7.1)
 CFLAGS="-O2 -fPIC"
 LIBS="-lstdc++ -lm"
 
-
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_RANLIB
@@ -132,12 +131,30 @@ AS_IF([ test -n "$STATIC_YICES" ], [
   AC_MSG_NOTICE([OCamlyices will be linked with libyices.so])
 ])
 
+DEFAULT_CUSTOM=no
+
+AC_MSG_CHECKING([whether Yices can be linked into a shared library])
+YDLC_TEST=`$CC $CPPFLAGS $CFLAGS $LDFLAGS -shared -xc - $LIBS -o - <<EOF > /dev/null 2> /dev/null && echo yes
+extern const char* yices_version();
+const char* myf() {
+  return yices_version();
+}
+EOF`
+AS_IF([ test "x$YDLC_TEST" == xyes ], [
+  AC_MSG_RESULT([yes])
+ ], [
+  AC_MSG_RESULT([no])
+  AC_MSG_WARN([Ocaml custom compilation necessary.])
+  AC_MSG_NOTICE([Custom compilation by default (--enable-custom to override).])
+  DEFAULT_CUSTOM=yes
+])
+
 ################################################################################
 # Options ######################################################################
 
 AC_ARG_ENABLE(custom,
   [ AS_HELP_STRING([--enable-custom], [Custom compilation (ocamlc option)]) ],
-  [ CUSTOM=${enableval} ], [ CUSTOM=no ])
+  [ CUSTOM=${enableval} ], [ CUSTOM=$DEFAULT_CUSTOM ])
 
 AC_ARG_ENABLE(partial-linking,
   [ AS_HELP_STRING([--disable-partial-linking],
