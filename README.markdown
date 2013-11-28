@@ -8,9 +8,9 @@ OCamlyices
 [Yices][yices] is an efficient SMT solver developed at SRI International.
 OCamlyices lets you use this SMT solver inside your own [OCaml][ocaml] program.
 
-Based on [CamlIDL][camlidl], this library allows accessing both Yices APIs (full and light),
-with most (if not all) features: unsatisfiable cores, bit vectors, and more experimental
-features (interrupting, switching between APIs).
+Based on [CamlIDL][camlidl], this library allows accessing both Yices APIs (full
+and light), with most (if not all) features: unsatisfiable cores, bit vectors,
+and more experimental features (interrupting, switching between APIs).
 
 **Warning!** Only tested under Linux (32 and 64 bit platforms), but reported to
 work under MacOS X…
@@ -19,30 +19,31 @@ work under MacOS X…
 First requirement: Yices
 ------------------------
 
-[Yices][yices] 1.0.34 or more recent (but not 2)  needs to be *installed* on your system.
-It can be done in two steps:
+[Yices][yices] 1.0.34 or more recent (but not 2)  needs to be *installed* on
+your system. It can be done in two steps:
 
 1.  First download the latest tarball of [Yices 1 from SRI website][yices-dl]. 
-    Prefer the version with GMP statically linked, except on Linux x86_64 (see note below).
+    Prefer the version with GMP statically linked, except on Linux x86_64 (see
+    note below).
 
 2.  Install Yices on your system as follow:
 
         wget -q -O- http://git.io/sWxMmg | sh -s <yices-XYZ.tar.gz>
 
     where <yices-XYZ.tar.gz> should be replaced with the path to the downloaded
-    tarball. The script (available in the repository) installs Yices in `/usr/local`
-    and register the shared library.
+    tarball. The script (available in the repository) installs Yices in
+    `/usr/local` and register the shared library.
     Optionally you can set installation directories (root and library):
 
         wget -q -O- http://git.io/sWxMmg | sh -s <yices-XYZ.tar.gz> /opt /opt/lib64
 
 
 **N.B.:** On Linux x86_64 (and possibly other 64-bit platform), “Yices with
-GMP dynamically linked” is strongly prefered at the moment. Indeed, `libyices.a`
-(provided in “Yices with GMP statically linked”) is not compiled with the
-`-fPIC` flag and cannot be compiled in a shared library (used for bytecode
-compilation). A possible but *inadvisable* workaround is to use the custom
-compilation mode (see configure options).
+GMP dynamically linked” is strongly preferred at the moment. Indeed,
+`libyices.a` (provided in “Yices with GMP statically linked”) is not compiled
+with the `-fPIC` flag and cannot be compiled in a shared library (used for
+bytecode compilation). A possible but *inadvisable* workaround is to use the
+custom compilation mode (see configure options below).
 
 
 Easy install (with Opam)
@@ -111,10 +112,11 @@ Manual install
         ./configure
         make
 
-    Part of the linking is done by an incremental, aka partial, linking, the rest is
-    done by ocamlc or ocamlopt when you use the OCamlyices library
+    Part of the linking is done by an incremental, aka partial, linking, the
+    rest is done by ocamlc or ocamlopt when you use the OCamlyices library.
 
-3.  Install the library using ocamlfind's (Findlib) default destination directory:
+3.  Install the library using ocamlfind's (Findlib) default destination
+    directory:
 
         make install
 
@@ -130,7 +132,7 @@ Build the OCamlyices for custom bytecode compilation (see ocamlc manual for
 more information), rather than using a shared library. As a result, every
 program using such a version of OCamlyices will have to be compiled with the
 option `-custom`. Also, in this mode, OCamlyices cannot be used from within
-the standard interactive toplevel.
+the standard interactive toplevel `ocaml`.
 
     --enable-partial-linking [DEFAULT]
     --disbable-partial-linking
@@ -145,7 +147,7 @@ other dependency, this dependency may lead to version incompatibilities.
 Yices' website proposes a special version cooked with “GMP statically linked”.
 This version contains only a static library `libyices.a`, which includes GMP.
 However, using a static library leads to larger binaries and in case of
-multi-process programs to larger memory footprint.
+multiprocess programs to larger memory footprint.
 
 That is why personally I prefer to stick with Yices without GMP. At the moment
 (1.0.34), `libyices.so` is dependent on `libgmp.so.10` (that is, a GMP version
