@@ -7,7 +7,7 @@ before_install:
 install:
 - ocamlc -version
 - opam --version
-- opam install -y ocamlfind camlidl
+- opam install -y ocamlfind camlidl ounit
 script:
 - ./configure $OYFLAGS
 - make 
