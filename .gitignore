@@ -10,6 +10,8 @@
 *.so
 *.opt
 *.byte
+oUnit*.log
+oUnit*.cache
 #
 /yices.mli
 /yices.ml

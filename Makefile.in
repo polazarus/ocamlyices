@@ -192,6 +192,11 @@ $(META): $(META).in
 	-e 's|__VERSION__|$(PACKAGE_VERSION)|g' $< > $@
 	@chmod -f a-w $@
 
+# Test #########################################################################
+
+check test installcheck installtest:
+	@$(MAKE) -C test $@
+
 # Doc ##########################################################################
 
 ifdef OCAMLDOC

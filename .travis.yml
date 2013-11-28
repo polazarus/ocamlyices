@@ -11,7 +11,9 @@ install:
 script:
 - ./configure $OYFLAGS
 - make 
+- make check
 - make install
+- make installcheck
 cache:
   - apt
   - directories:
