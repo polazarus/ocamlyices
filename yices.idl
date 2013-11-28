@@ -315,17 +315,22 @@ quote(mli,"(**\n\
    See {!assert_retractable}.\n\
 *)")
 struct unsat_core get_unsat_core(yices_context ctx)
-quote(call,"  struct unsat_core res;\n\
-  res.length = yices_get_unsat_core_size(ctx);\n\
-  res.array = malloc(sizeof(assertion_id[res.length]));\n\
-  if (res.array) {\n\
-    int put = yices_get_unsat_core(ctx, res.array);\n\
-    if (res.length != put) {\n\
-      free(res.array);\n\
-      res.array = 0;\n\
+quote(call,"\n\
+  _res.length = yices_get_unsat_core_size(ctx);\n\
+  if (_res.length == 0) {\n\
+    _res.array = (void*)0;\n\
+  } else {\n\
+    _res.array = malloc(sizeof(assertion_id[_res.length]));\n\
+    if (_res.array) {\n\
+      int put = yices_get_unsat_core(ctx, _res.array);\n\
+      if (_res.length != put) {\n\
+        free(_res.array);\n\
+        _res.array = 0;\n\
+      }\n\
     }\n\
-  }")
-quote(dealloc,"if (res.array) free(_res.array);");
+  }\n\
+")
+quote(dealloc,"if (_res.array) free(_res.array);");
 
 
 quote(mli, "(** {2 Model} *)")
