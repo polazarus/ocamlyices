@@ -115,6 +115,29 @@ let test_mk_nor test_ctxt =
   Yices.assert_simple ctx (Yices.mk_nor ctx [|f;f;f;f;f;f|]);
   assert_equal Yices.True (Yices.check ctx)
 
+let test_mk_sum2 test_ctxt =
+  let ctx = bracket_mk_context test_ctxt in
+  let n = Yices.mk_num ctx in
+  Yices.assert_simple ctx (Yices.mk_eq ctx (n 3) (Yices.mk_sum2 ctx (n 1) (n 2)));
+  Yices.assert_simple ctx (Yices.mk_eq ctx (n (-2)) (Yices.mk_sum2 ctx (n 0) (n (-2))));
+  assert_equal Yices.True (Yices.check ctx)
+
+let test_mk_sub2 test_ctxt =
+  let ctx = bracket_mk_context test_ctxt in
+  let n = Yices.mk_num ctx in
+  Yices.assert_simple ctx (Yices.mk_eq ctx (n 56) (Yices.mk_sub2 ctx (n 81) (n 25)));
+  Yices.assert_simple ctx (Yices.mk_eq ctx (n (-502)) (Yices.mk_sub2 ctx (n (-2)) (n 500)));
+  assert_equal Yices.True (Yices.check ctx)
+
+let test_mk_mul2 test_ctxt =
+  let ctx = bracket_mk_context test_ctxt in
+  let n = Yices.mk_num ctx in
+  Yices.assert_simple ctx (Yices.mk_eq ctx (n 952) (Yices.mk_mul2 ctx (n 56) (n 17)));
+  Yices.assert_simple ctx (Yices.mk_eq ctx (n 0) (Yices.mk_mul2 ctx (n 0) (n 1548)));
+  assert_equal Yices.True (Yices.check ctx)
+
+(* Empty array tests *)
+
 let test_mk_and_nil test_ctxt =
   let ctx = bracket_mk_context test_ctxt in
   Yices.assert_simple ctx (Yices.mk_and ctx [||]);
@@ -135,6 +158,35 @@ let test_mk_nor_nil test_ctxt =
   Yices.assert_simple ctx (Yices.mk_nor ctx [||]);
   assert_equal Yices.True (Yices.check ctx)
 
+let test_mk_sum_nil test_ctxt =
+  let ctx = bracket_mk_context test_ctxt in
+  let n = Yices.mk_num ctx in
+  Yices.assert_simple ctx
+    (Yices.mk_eq ctx (n 0) (Yices.mk_sum ctx [||]));
+  assert_equal Yices.True (Yices.check ctx);
+  Yices.reset ctx;
+  Yices.assert_simple ctx
+    (Yices.mk_eq ctx (n 6) (Yices.mk_sum ctx [|n 1;n 2;n 3|]));
+  assert_equal ~msg:"non-empty array" Yices.True (Yices.check ctx)
+
+let test_mk_sub_nil test_ctxt =
+  let ctx = bracket_mk_context test_ctxt in
+  assert_raises (Failure "mk_sub") (fun () -> Yices.mk_sub ctx [||]);
+  let n = Yices.mk_num ctx in
+  Yices.assert_simple ctx
+    (Yices.mk_eq ctx (n 6) (Yices.mk_sub ctx [|n 12;n 1;n 2;n 3|]));
+  assert_equal ~msg:"non-empty array" Yices.True (Yices.check ctx)
+
+let test_mk_mul_nil test_ctxt =
+  let ctx = bracket_mk_context test_ctxt in
+  let n = Yices.mk_num ctx in
+  Yices.assert_simple ctx
+    (Yices.mk_eq ctx (n 1) (Yices.mk_mul ctx [||]));
+  assert_equal Yices.True (Yices.check ctx);
+  Yices.reset ctx;
+  Yices.assert_simple ctx
+    (Yices.mk_eq ctx (n 6) (Yices.mk_sub ctx [|n 12;n 1;n 2;n 3|]));
+  assert_equal ~msg:"non-empty array" Yices.True (Yices.check ctx)
 
 let tests = [
     "mk_and2" >:: test_mk_and2;
@@ -143,10 +195,16 @@ let tests = [
     "mk_nand" >:: test_mk_nand;
     "mk_nor2" >:: test_mk_nor2;
     "mk_nor" >:: test_mk_nor;
+    "mk_sum2" >:: test_mk_sum2;
+    "mk_sub2" >:: test_mk_sub2;
+    "mk_mul2" >:: test_mk_mul2;
     "zero-length array" >::: [
       "mk_and" >:: test_mk_and_nil;
       "mk_or" >:: test_mk_or_nil;
       "mk_nand" >:: test_mk_nand_nil;
       "mk_nor" >:: test_mk_nor_nil;
+      "mk_sum" >:: test_mk_sum_nil;
+      "mk_sub" >:: test_mk_sub_nil;
+      "mk_mul" >:: test_mk_mul_nil;
     ];
   ]

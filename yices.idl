@@ -661,8 +661,7 @@ yices_var_decl yices_mk_bool_var_decl(yices_context ctx, [string] const char * n
 
 
 quote(mli, "(**\n\
-   [mk_var_decl ctx name type] returns a new (global) variable declaration. It is an error to create two variables\n\
-   with the same name.\n\
+   [mk_var_decl ctx name type] returns a new (global) variable declaration. It is an error to create two variables with the same name.\n\
 *)")
 yices_var_decl yices_mk_var_decl(yices_context ctx, [string] const char * name, yices_type ty);
 
@@ -741,6 +740,8 @@ quote(mli, "(**\n\
   [mk_or ctx args] returns an expression representing the disjunction (i.e. [or]) of the given arguments (as an array).\n\
 \n\
   {i (Since Ocamlyices 0.8)} If the array's length is 0, returns the expression for [false].\n\
+\n\
+  @before 0.8 if called with a zero-length array, the program exits with a non-null exit cod.\n\
 *)")
 yices_expr yices_mk_or(yices_context ctx, [size_is(n)] yices_expr args[], unsigned int n) quote(call, "{\n\
   _res = n == 0 ? yices_mk_false(ctx) : yices_mk_or(ctx, args, n);\n\
@@ -763,6 +764,8 @@ quote(mli, "(**\n\
   [mk_and ctx args] returns an expression representing the conjunction (i.e. [and]) of the given arguments (as an array).\n\
 \n\
   {i (Since Ocamlyices 0.8)} If the array's length is 0, returns the expression for [true].\n\
+\n\
+  @before 0.8 if called with a zero-length array, the program exits with a non-null exit code.\n\
 *)")
 yices_expr yices_mk_and(yices_context ctx, [size_is(n)] yices_expr args[], unsigned int n) quote(call, "{\n\
   _res = n == 0 ? yices_mk_true(ctx) : yices_mk_and(ctx, args, n);\n\
@@ -921,30 +924,80 @@ yices_expr yices_mk_num_from_string(yices_context ctx, [string] const char * n);
 
 
 quote(mli, "(**\n\
-   [mk_sum ctx arr] returns an expression representing [arr.(0) + ... + arr.(n)].\n\
+  [mk_sum ctx arr] returns an expression representing [arr.(0) + ... + arr.(n)].\n\
+  If the array's length is zero, returns the expression for zero.\n\
 \n\
-   {b Warning!} [Array.length arr] must be greater than zero.\n\
+  @before 0.8 the program exists with a non-null exit code if the array's length is zero.\n\
 *)")
 yices_expr yices_mk_sum(yices_context ctx, [size_is(n), in] yices_expr args[],
-  unsigned int n);
+  unsigned int n)
+quote(call, "{\n\
+  _res = (n == 0) ? yices_mk_num(ctx, 0) : yices_mk_sum(ctx, args, n);\n\
+}");
+
+
+quote(mli, "(**\n\
+   [mk_sum2 ctx a b] returns an expression representing [a + b].\n\
+\n\
+   @since 0.8\n\
+*)")
+yices_expr yices_mk_sum2(yices_context ctx, yices_expr a, yices_expr b)
+quote(call, "{\n\
+  yices_expr args[2] = { a, b };\n\
+  _res = yices_mk_sum(ctx, args, 2);\n\
+}");
 
 
 quote(mli, "(**\n\
    [mk_sub ctx arr] returns an expression representing [arr.(0) - ... - arr.(n)].\n\
 \n\
-   {b Warning!} [Array.length arr] must be greater than zero.\n\
+  @raise Failure if the array's lenth is zero.\n\
+  @before 0.8 the program exists with a non-null exit code if the array's length is zero.\n\
  *)")
 yices_expr yices_mk_sub(yices_context ctx, [size_is(n), in] yices_expr args[],
-  unsigned int n);
+  unsigned int n)
+quote(call, "{\n\
+  if (n==0) caml_failwith(\"mk_sub\");\n\
+  _res = yices_mk_sub(ctx, args, n);\n\
+}");
 
 
 quote(mli, "(**\n\
-   [mk_mul ctx arr] returns an expression representing [arr.(0) * ... * arr.(n)].\n\
+   [mk_sub2 ctx a b] returns an expression representing [a - b].\n\
+\n\
+   @since 0.8\n\
+*)")
+yices_expr yices_mk_sub2(yices_context ctx, yices_expr a, yices_expr b)
+quote(call, "{\n\
+  yices_expr args[2] = { a, b };\n\
+  _res = yices_mk_sub(ctx, args, 2);\n\
+}");
+
+
+quote(mli, "(**\n\
+  [mk_mul ctx arr] returns an expression representing [arr.(0) * ... * arr.(n)].\n\
+  If the array's length is zero, returns the expression for zero.\n\
 \n\
    {b Warning!} [Array.length arr] must be greater than zero.\n\
+  @before 0.8 the program exists with a non-null exit code if the array's length is zero.\n\
 *)")
 yices_expr yices_mk_mul(yices_context ctx, [size_is(n), in] yices_expr args[],
-  unsigned int n);
+  unsigned int n)
+quote(call, "{\n\
+  _res = (n == 0) ? yices_mk_num(ctx, 1) : yices_mk_mul(ctx, args, n);\n\
+}");
+
+
+quote(mli, "(**\n\
+   [mk_mul2 ctx a b] returns an expression representing [a * b].\n\
+\n\
+   @since 0.8\n\
+*)")
+yices_expr yices_mk_mul2(yices_context ctx, yices_expr a, yices_expr b)
+quote(call, "{\n\
+  yices_expr args[2] = { a, b };\n\
+  _res = yices_mk_mul(ctx, args, 2);\n\
+}");
 
 
 quote(mli, "(**\n\
