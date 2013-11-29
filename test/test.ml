@@ -67,7 +67,26 @@ let test_boolean_unsat_core test_ctxt =
   Array.sort compare expected;
   assert_equal expected core
 
+let test_mk_type test_ctxt ctx : Yices.typ * Yices.typ = (Yices.mk_type ctx "nat", Yices.mk_type ctx "bool")
 
+let test_mk_tuple_type ctx : Yices.typ =
+  let t = Yices.mk_type ctx "nat" in Yices.mk_tuple_type ctx [|t;t|]
+
+let test_mk_function_type ctx : Yices.typ =
+  let t = Yices.mk_type ctx "nat" in Yices.mk_function_type ctx [|t;t|] t
+
+let test_mk_bitvector_type ctx : Yices.typ = Yices.mk_bitvector_type ctx 128
+
+let test_mk_true ctx : Yices.expr = Yices.mk_true ctx
+
+let test_mk_false ctx : Yices.expr = Yices.mk_false ctx
+
+let test_mk_num ctx : Yices.expr = Yices.mk_num ctx 4549
+
+let test_mk_num_from_string ctx : Yices.expr = Yices.mk_num_from_string ctx "54998626045544784214882"
+
+let test_mk_tuple_literal ctx : Yices.expr=
+  Yices.mk_tuple_literal ctx [| Yices.mk_true ctx; Yices.mk_num ctx 1 |]
 
 let tests = "all tests" >::: [
   "version" >:: test_version;
@@ -76,7 +95,22 @@ let tests = "all tests" >::: [
   "boolean sat model" >:: test_boolean_sat_model;
   "boolean unsat" >:: test_boolean_unsat;
   "boolean unsat core" >:: test_boolean_unsat_core;
-  "ocaml addition" >::: Specific.tests
+  "ocaml addition" >::: Specific.tests;
+
+  "types" >::: [
+    "mk_type" >:: simple_test test_mk_type;
+    "mk_tuple_type" >:: simple_test test_mk_tuple_type;
+    "mk_function_type" >:: simple_test test_mk_function_type;
+    "mk_bitvector_type" >:: simple_test test_mk_bitvector_type;
+  ];
+
+  "expressions" >::: [
+    "mk_true" >:: simple_test test_mk_true;
+    "mk_false" >:: simple_test test_mk_false;
+    "mk_num" >:: simple_test test_mk_num;
+    "mk_num_from_string" >:: simple_test test_mk_num_from_string;
+    "mk_tuple_literal" >:: simple_test test_mk_tuple_literal;
+  ];
 ]
 
 let () = run_test_tt_main tests
