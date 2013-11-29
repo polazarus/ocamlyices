@@ -739,7 +739,7 @@ yices_expr yices_mk_false(yices_context ctx);
 quote(mli, "(**\n\
   [mk_or ctx args] returns an expression representing the disjunction (i.e. [or]) of the given arguments (as an array).\n\
 \n\
-  {i (Since Ocamlyices 0.8)} If the array's length is 0, returns the expression for [false].\n\
+  If the array's length is 0, returns the expression for [false].\n\
 \n\
   @before 0.8 if called with a zero-length array, the program exits with a non-null exit cod.\n\
 *)")
@@ -763,7 +763,7 @@ quote(call,"{\n\
 quote(mli, "(**\n\
   [mk_and ctx args] returns an expression representing the conjunction (i.e. [and]) of the given arguments (as an array).\n\
 \n\
-  {i (Since Ocamlyices 0.8)} If the array's length is 0, returns the expression for [true].\n\
+  If the array's length is 0, returns the expression for [true].\n\
 \n\
   @before 0.8 if called with a zero-length array, the program exits with a non-null exit code.\n\
 *)")
@@ -951,13 +951,13 @@ quote(call, "{\n\
 quote(mli, "(**\n\
    [mk_sub ctx arr] returns an expression representing [arr.(0) - ... - arr.(n)].\n\
 \n\
-  @raise Failure if the array's lenth is zero.\n\
+  @raise Invalid_argument if the array's lenth is zero.\n\
   @before 0.8 the program exists with a non-null exit code if the array's length is zero.\n\
  *)")
 yices_expr yices_mk_sub(yices_context ctx, [size_is(n), in] yices_expr args[],
   unsigned int n)
 quote(call, "{\n\
-  if (n==0) caml_failwith(\"mk_sub\");\n\
+  if (n==0) caml_invalid_argument(\"mk_sub\");\n\
   _res = yices_mk_sub(ctx, args, n);\n\
 }");
 
@@ -976,9 +976,8 @@ quote(call, "{\n\
 
 quote(mli, "(**\n\
   [mk_mul ctx arr] returns an expression representing [arr.(0) * ... * arr.(n)].\n\
-  If the array's length is zero, returns the expression for zero.\n\
+  If the array's length is zero, returns the expression for one.\n\
 \n\
-   {b Warning!} [Array.length arr] must be greater than zero.\n\
   @before 0.8 the program exists with a non-null exit code if the array's length is zero.\n\
 *)")
 yices_expr yices_mk_mul(yices_context ctx, [size_is(n), in] yices_expr args[],
@@ -1028,13 +1027,26 @@ quote(mli, "(** {3 Bitvector expressions} *)")
 
 
 quote(mli, "(**\n\
-   [mk_bv_constant ctx size value] creates a bit vector constant of\n\
-   [size] bits and from the given [value].\n\
+  [mk_bv_constant ctx size value] creates a bit vector constant of\n\
+  [size] bits and from the given [value].\n\
 \n\
-   [size] must be positive.\n\
+  [size] must be positive. If [size] is greater than 32, [value] is sign-extended.\n\
 *)")
 yices_expr yices_mk_bv_constant(yices_context ctx, unsigned int size, long val);
-// In C, val is an unsigned long, but Nativeint (signed) seems the best match...
+
+
+quote(mli, "(**\n\
+  [mk_bv_constant_from_int ctx size value] creates a bit vector constant of [size] bits and from the given [value].\n\
+\n\
+  [size] must be strictly positive. If [size] is greater than 31, [value] is sign-extended.\n\
+\n\
+  @since 0.8\n\
+*)")
+yices_expr yices_mk_bv_constant_from_int(yices_context ctx, unsigned int size, int val) quote(call, "{\n\
+  if (size == 0) caml_invalid_argument(\"mk_bv_constant_from_int\");\n\
+  if (size > 31) val |= ((val & 0x4000) << 1);\n\
+  _res = yices_mk_bv_constant(ctx, size, val);\n\
+}");
 
 
 quote(mli, "(**\n\
