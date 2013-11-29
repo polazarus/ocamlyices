@@ -738,25 +738,91 @@ yices_expr yices_mk_false(yices_context ctx);
 
 
 quote(mli, "(**\n\
-   [mk_or ctx args] returns an expression representing the disjunction [or] of the given arguments (as an array).\n\
+   [mk_or ctx args] returns an expression representing the disjunction (i.e. [or]) of the given arguments (as an array).\n\
 \n\
-   {b Warning!} the length of the array must be greater than 0.\n\
+   {i (Since Ocamlyices 0.8)} if the array's length is 0, returns the expression for [false].\n\
 *)")
-yices_expr yices_mk_or(yices_context ctx, [size_is(n)] yices_expr args[], unsigned int n);
+yices_expr yices_mk_or(yices_context ctx, [size_is(n)] yices_expr args[], unsigned int n) quote(call, "{\n\
+  _res = n == 0 ? yices_mk_false(ctx) : yices_mk_or(ctx, args, n);\n\
+}");
 
 
 quote(mli, "(**\n\
-   [mk_and ctx args] returns an expression representing the conjunction [and] of the given arguments (as an array).\n\
-\n\
-   {b Warning!} the length of the array must be greater than 0.\n\
+   [mk_or2 ctx a b] returns an expression representing the conjunction (i.e. [or]) of [a] and [b].\n\
 *)")
-yices_expr yices_mk_and(yices_context ctx, [size_is(n)] yices_expr args[], unsigned int n);
+yices_expr yices_mk_or2(yices_context ctx, yices_expr a, yices_expr b)
+quote(call,"{\n\
+  yices_expr args[2] = { a, b };\n\
+  _res = yices_mk_or(ctx, args, 2);\n\
+}");
+
+
+quote(mli, "(**\n\
+   [mk_and ctx args] returns an expression representing the conjunction (i.e. [and]) of the given arguments (as an array).\n\
+\n\
+   {i (Since Ocamlyices 0.8)} if the array's length is 0, returns the expression for [true].\n\
+*)")
+yices_expr yices_mk_and(yices_context ctx, [size_is(n)] yices_expr args[], unsigned int n) quote(call, "{\n\
+  _res = n == 0 ? yices_mk_true(ctx) : yices_mk_and(ctx, args, n);\n\
+}");
+
+
+quote(mli, "(**\n\
+   [mk_and2 ctx a b] returns an expression representing the conjunction (i.e. [and]) of [a] and [b].\n\
+*)")
+yices_expr yices_mk_and2(yices_context ctx, yices_expr a, yices_expr b)
+quote(call,"{\n\
+  yices_expr args[2] = { a, b };\n\
+  _res = yices_mk_and(ctx, args, 2);\n\
+}");
 
 
 quote(mli, "(**\n\
    [mk_not ctx a] returns an expression representing [(not a)].\n\
- *)")
+*)")
 yices_expr yices_mk_not(yices_context ctx, yices_expr a);
+
+
+quote(mli, "(**\n\
+   [mk_nand ctx args] returns an expression representing the negation of the conjunction (i.e. [nand]) of the given arguments (as an array).\n\
+\n\
+   {i (Since Ocamlyices 0.8)} if the array's length is 0, returns the expression for [false].\n\
+*)")
+yices_expr yices_mk_nand(yices_context ctx, [size_is(n)] yices_expr args[], unsigned int n)
+quote(call, "{\n\
+  _res = (n == 0) ? yices_mk_false(ctx) : yices_mk_not(ctx, yices_mk_and(ctx, args, n));\n\
+}");
+
+
+quote(mli, "(**\n\
+   [mk_nand2 ctx a b] returns an expression representing the negation of the conjunction (i.e. [nand]) of [a] and [b].\n\
+*)")
+yices_expr yices_mk_nand2(yices_context ctx, yices_expr a, yices_expr b)
+quote(call,"{\n\
+  yices_expr args[2] = { a, b };\n\
+  _res = yices_mk_not(ctx, yices_mk_and(ctx, args, 2));\n\
+}");
+
+
+quote(mli, "(**\n\
+   [mk_nor ctx args] returns an expression representing the negation of the disjonction (i.e. [nor]) of the given arguments (as an array).\n\
+\n\
+   {i (Since Ocamlyices 0.8)} if the array's length is 0, returns the expression for [false].\n\
+*)")
+yices_expr yices_mk_nor(yices_context ctx, [size_is(n)] yices_expr args[], unsigned int n)
+quote(call, "{\n\
+  _res = (n == 0) ? yices_mk_true(ctx) : yices_mk_not(ctx, yices_mk_or(ctx, args, n));\n\
+}");
+
+
+quote(mli, "(**\n\
+   [mk_nor2 ctx a b] returns an expression representing the negation of the conjunction (i.e. [nor]) of [a] and [b].\n\
+*)")
+yices_expr yices_mk_nor2(yices_context ctx, yices_expr a, yices_expr b)
+quote(call,"{\n\
+  yices_expr args[2] = { a, b };\n\
+  _res = yices_mk_not(ctx, yices_mk_or(ctx, args, 2));\n\
+}");
 
 
 quote(mli, "(**\n\
@@ -775,6 +841,16 @@ quote(mli, "(**\n\
    [mk_ite ctx c t e] returns an expression representing [(if c t e)] (if {i condition} then {i then-value} else {i else-value}).\n\
 *)")
 yices_expr yices_mk_ite(yices_context ctx, yices_expr c, yices_expr t, yices_expr e);
+
+
+quote (mli, "(**\n\
+   [mk_implies ctx a b] returns an expression representing [(implies a b)]\n\
+*)")
+yices_expr yices_mk_implies(yices_context ctx, yices_expr a, yices_expr b)
+quote(call,"{\n\
+  yices_expr args[2] = { yices_mk_not(ctx, a), b };\n\
+  _res = yices_mk_or(ctx, args, 2);\n\
+}");
 
 
 quote(mli, "(** {3 Function and tuple expressions} *)")

@@ -14,27 +14,26 @@
 
 OCAMLFIND=ocamlfind
 
-check test: test.opt test.byte
+check test: clean test.opt test.byte
 	./test.opt
 	./test.byte
 	
-installcheck installtest: installtest.opt installtest.byte
+installcheck installtest: clean installtest.opt installtest.byte
 	./installtest.opt
 	./installtest.byte
 
-test.opt: test.ml
-	$(OCAMLFIND) ocamlopt -package oUnit -linkpkg -I .. -ccopt -L.. ocamlyices.cmxa test.ml -o $@
-test.byte: test.ml
-	$(OCAMLFIND) ocamlc -package oUnit -linkpkg -I .. -dllpath .. -ccopt -L.. ocamlyices.cma test.ml -o $@
 
-installtest.opt: test.ml
-	$(OCAMLFIND) ocamlopt -package oUnit -package ocamlyices -linkpkg test.ml -o $@
-installtest.byte: test.ml
-	$(OCAMLFIND) ocamlc -package oUnit -package ocamlyices -linkpkg test.ml -o $@
+test.opt: util.ml specific.ml test.ml
+	$(OCAMLFIND) ocamlopt -package oUnit -linkpkg -I .. -ccopt -L.. ocamlyices.cmxa $^ -o $@
+test.byte: util.ml specific.ml test.ml
+	$(OCAMLFIND) ocamlc -package oUnit -linkpkg -I .. -dllpath .. -ccopt -L.. ocamlyices.cma $^ -o $@
+
+installtest.opt: util.ml specific.ml test.ml
+	$(OCAMLFIND) ocamlopt -package oUnit -package ocamlyices -linkpkg $^ -o $@
+installtest.byte: util.ml specific.ml test.ml
+	$(OCAMLFIND) ocamlc -package oUnit -package ocamlyices -linkpkg $^ -o $@
 
 clean:
-	$(RM) *.cmo *.cmi *.cmx
-distclean: clean
-	$(RM) *.byte *.opt
+	$(RM) *.cmo *.cmi *.cmx *.o *.byte *.opt
 
 .PHONY: test installtest check installcheck clean distclean

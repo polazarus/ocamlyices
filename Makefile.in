@@ -111,7 +111,7 @@ endif
 ################################################################################
 ################################################################################
 
-.PHONY: all build byte native camlidl clean distclean mrproper install uninstall
+.PHONY: all build byte native camlidl clean distclean mrproper install uninstall check test installcheck installtest
 
 build all: byte native $(META)
 
