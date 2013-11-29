@@ -28,14 +28,15 @@ your system. It can be done in two steps:
 
 2.  Install Yices on your system as follow:
 
-        wget -q -O- http://git.io/sWxMmg | sh -s <yices-XYZ.tar.gz>
+        wget -q -O- http://git.io/sWxMmg | sudo sh -s <yices-XYZ.tar.gz>
 
     where <yices-XYZ.tar.gz> should be replaced with the path to the downloaded
     tarball. The script (available in the repository) installs Yices in
     `/usr/local` and register the shared library.
+
     Optionally you can set installation directories (root and library):
 
-        wget -q -O- http://git.io/sWxMmg | sh -s <yices-XYZ.tar.gz> /opt /opt/lib64
+        wget -q -O- http://git.io/sWxMmg | sudo sh -s <yices-XYZ.tar.gz> /opt /opt/lib64
 
 
 **N.B.:** On Linux x86_64 (and possibly other 64-bit platform), “Yices with

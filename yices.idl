@@ -22,11 +22,11 @@ typedef [abstract,errorcheck(check_model)] void * yices_model;
 typedef int assertion_id;
 
 typedef [errorcheck(check_scalar_int)] int yices_scalar_int;
-typedef [string, errorcheck(check_scalar_name)] const char* yices_scalar_name;
+typedef [string,errorcheck(check_scalar_name)] const char* yices_scalar_name;
 
-typedef [abstract, errorcode,errorcheck(check_yices_error)] int yices_error;
-typedef [abstract, errorcode, errorcheck(check_yices_error_with_message)] int yices_error_with_message;
-typedef [abstract, errorcode, errorcheck(check_yices_log_file_error)] int yices_log_file_error;
+typedef [abstract,errorcode,errorcheck(check_yices_error)] int yices_error;
+typedef [abstract,errorcode,errorcheck(check_yices_error_with_message)] int yices_error_with_message;
+typedef [abstract,errorcode,errorcheck(check_yices_log_file_error)] int yices_log_file_error;
 
 enum lbool { False=-1, Undef, True };
 
@@ -313,23 +313,23 @@ quote(mli,"(**\n\
    Each element is the id of a retractable assertion.\n\
 \n\
    See {!assert_retractable}.\n\
+\n\
+   @raise Failure if there's not enough memory to fetch the unsat core.\n\
 *)")
 struct unsat_core get_unsat_core(yices_context ctx)
-quote(call,"\n\
+quote(call,"{\n\
   _res.length = yices_get_unsat_core_size(ctx);\n\
   if (_res.length == 0) {\n\
     _res.array = (void*)0;\n\
   } else {\n\
     _res.array = malloc(sizeof(assertion_id[_res.length]));\n\
     if (_res.array) {\n\
-      int put = yices_get_unsat_core(ctx, _res.array);\n\
-      if (_res.length != put) {\n\
-        free(_res.array);\n\
-        _res.array = 0;\n\
-      }\n\
+      _res.length = yices_get_unsat_core(ctx, _res.array);\n\
+    } else {\n\
+      caml_failwith(\"get_unsat_core\");\n\
     }\n\
   }\n\
-")
+}")
 quote(dealloc,"if (_res.array) free(_res.array);");
 
 
@@ -523,9 +523,7 @@ quote(mli, "(**\n\
    The cost is the sum of the weights of unsatisfied constraints.\n\
 \n\
    {b Warning!} The model cost is computed automatically by {!max_sat} but \n\
-   not by {!check}. If {!check} returns [True] (or [Undef]),\n\
-   you can to call [compute_model_cost] to compute the cost explicitly.\n\
-   {b But this function does not seem to exist yet... MD}\n\
+   not by {!check}.\n\
 *)")
 long long yices_get_cost(yices_model m);
 
@@ -643,7 +641,7 @@ quote(mli, "(**\n\
    [mk_tuple_type ctx a] constructs the tuple type [(a0, ..., an)].\n\
 *)")
 yices_type yices_mk_tuple_type(yices_context ctx,
-  [size_is(size)] yices_type_ptr args[], unsigned int size);
+  [size_is(size)] yices_type args[], unsigned int size);
 
 /******************************************************************************/
 
@@ -1133,8 +1131,10 @@ yices_expr yices_mk_bv_not(yices_context ctx, yices_expr a1);
 quote(mli,"(**\n\
   [mk_bv_extract ctx end begin a] extracts a subvector from the bitvector [a].\n\
 \n\
-  [a] must a bitvector expression of size [n] with [begin < end < n].\n\
+  [a] must a bitvector expression of size [n] with [0 ≤ begin < end < n].\n\
   The result is the subvector from [a[begin]] to [a[end]].\n\
+\n\
+  Note however that this function allows construct a term which violates this constraint. In this case, the behavior is unspecified.\n\
 *)")
 yices_expr yices_mk_bv_extract(yices_context ctx, unsigned int end, unsigned int begin, yices_expr a);
 

@@ -67,6 +67,8 @@ else
   echo "[YI] ldconfig not found"
 fi
 
+sed 's/yices_type\s*\*\s*args\s*\[\]/yices_type args[]/' -i include/yices_c.h
+
 echo '[YI] Install headers'
 mkdir -p "$INSTALL/include"
 install -t "$INSTALL/include" -m 'a=r,u+w' include/*.h || failwith "cannot install headers"

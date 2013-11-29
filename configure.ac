@@ -14,7 +14,7 @@
 
 AC_INIT(ocamlyices,0.8.0)
 
-CFLAGS="-O2 -fPIC"
+CFLAGS="-O3 -fPIC"
 LIBS="-lstdc++ -lm"
 
 AC_PROG_CC
@@ -119,7 +119,7 @@ In both case, yices-XYZ.tar.gz should be replaced with the path to the
 downloaded tarball. Also, additional parameters can be added to specify
 installation directories (root and library path), e.g.:
   wget -q -O- http://git.io/sWxMmg | sh -s <yices-XYZ.tar.gz> /opt /opt/lib64
-  ])
+])
 ])
 
 # Prints linking information

@@ -2143,7 +2143,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-CFLAGS="-O2 -fPIC"
+CFLAGS="-O3 -fPIC"
 LIBS="-lstdc++ -lm"
 
 ac_ext=c
@@ -4007,7 +4007,7 @@ In both case, yices-XYZ.tar.gz should be replaced with the path to the
 downloaded tarball. Also, additional parameters can be added to specify
 installation directories (root and library path), e.g.:
   wget -q -O- http://git.io/sWxMmg | sh -s <yices-XYZ.tar.gz> /opt /opt/lib64
-  " "$LINENO" 5
+" "$LINENO" 5
 
 fi
 

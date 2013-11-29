@@ -194,7 +194,8 @@ let test_mk_bv_constant_nil test_ctxt =
 
 let test_mk_bv_constant_from_int test_ctxt =
   let ctx = bracket_mk_context test_ctxt in
-  assert_raises (Invalid_argument "mk_bv_constant_from_int") (fun () -> Yices.mk_bv_constant_from_int ctx 0 455);
+  assert_raises (Invalid_argument "mk_bv_constant_from_int")
+    (fun () -> Yices.mk_bv_constant_from_int ctx 0 455);
   let a = Yices.mk_bv_constant_from_int ctx 8 85 in
   let b = Yices.mk_bv_constant ctx 8 85l in
   Yices.assert_simple ctx (Yices.mk_eq ctx a b);
@@ -209,6 +210,7 @@ let test_mk_bv_constant_from_int test_ctxt =
   let b = Yices.mk_bv_constant ctx 64 16l in
   Yices.assert_simple ctx (Yices.mk_eq ctx a b);
   assert_equal ~msg:"sign extension (0)" Yices.True (Yices.check ctx);;
+
 
 let tests = [
     "mk_nand" >:: test_mk_nand;
