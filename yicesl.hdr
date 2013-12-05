@@ -16,6 +16,6 @@ THIS SOFTWARE.
 (**
   Light Yices binding for Ocaml
 
-  See the official {{:http://yices.csl.sri.com/capil.shtml} C API Lite documentation}
-  and the {{:http://yices.csl.sri.com/language.shtml} input language specification}.
+  @see <http://yices.csl.sri.com/capil.shtml> the official C API Lite documentation
+  @see <http://yices.csl.sri.com/language.shtml> the input language specification
 *)

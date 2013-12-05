@@ -17,5 +17,13 @@ THIS SOFTWARE.
 #include <yicesl_c.h>
 
 #define yicesl_error int
+#define yicesl_log_file_error int
+#define yicesl_output_file_error int
+
 #define check_yicesl_error(res) if (res == 0) caml_failwith(yicesl_get_last_error_message())
 #define check_yicesl_context(res) if (res == (void*)0) caml_failwith("null return value (Yicesl context)")
+#define check_yicesl_log_file_error(e) do {\
+  if ((e) == 0) caml_failwith("enable_log_file: log file already open");\
+  else if ((e) == -1) caml_failwith("enable_log_file: cannot open log file");\
+} while (0)
+#define check_yicesl_output_file_error(e) if ((e) == 0) caml_failwith("set_output_file: cannot open output file");

@@ -1,7 +1,9 @@
-/* Copyright (c) SRI International 2006.
-   Author: Leonardo de Moura.
-   Revisions: Bruno Dutertre.
-   Camlidl: Mickaël Delahaye.
+/* 
+  Based on the standard API for the Yices SMT Solver (version 1)
+  Copyright (c) SRI International.
+  Authors: Leonardo de Moura and Bruno Dutertre.
+
+  Adaption for Camlidl and comments for OCaml: Mickaël Delahaye.
 */
 
 [long_default(int32)] interface yices {
@@ -173,7 +175,7 @@ quote(mli, "(**\n\
 \n\
    Restores the context from the top of the stack, and pops it off the\n\
    stack.  Any changes to the logical context (by {!assert_simple} or\n\
-   other functions) between the matching {!push} and [pop]\n\
+   other functions) between the matching {!push} and {!pop}\n\
    operators are flushed, and the context is completely restored to\n\
    what it was right before the {!push}.\n\
 \n\
@@ -235,7 +237,7 @@ quote(mli, "(**\n\
 int yices_inconsistent(yices_context ctx);
 
 quote(mli, "(**\n\
-   Check if the logical context is satisfiable.\n\
+   Check whether the logical context is satisfiable.\n\
 \n\
    - [True] means the context is satisfiable\n\
    - [False] means it is unsatisfiable\n\
@@ -394,9 +396,9 @@ quote(mli, "(**\n\
    in model [m] to a floating point number and returns it. \n\
 \n\
    @raise Failure if one of the following errors occurs:\n\
-   - [v] is not a proper declaration or not the declaration of a numerical variable\n\
+   - [v] is not a proper declaration or not the declaration of a numerical variable;\n\
    - [v] has no value assigned in model [m] (typically, this means that [v] does not \n\
-   occur in the asserted constraints)\n\
+   occur in the asserted constraints).\n\
 \n\
    See {!get_value}, {!get_int_value} and {!get_arith_value}.\n\
 *)")
@@ -522,7 +524,7 @@ quote(mli, "(**\n\
 \n\
    The cost is the sum of the weights of unsatisfied constraints.\n\
 \n\
-   {b Warning!} The model cost is computed automatically by {!max_sat} but \n\
+   {b Warning!} The model cost is computed by {!max_sat} but \n\
    not by {!check}.\n\
 *)")
 long long yices_get_cost(yices_model m);

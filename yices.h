@@ -27,6 +27,8 @@ typedef void* yicesl_context;
 // Given on yices-help by Bruno Dutertre (2010-06-01)
 extern yicesl_context yices_get_lite_context(yices_context ctx);
 
+#define yicesl_log_file_error int
+#define yicesl_output_file_error int
 
 /* Virtual types and names*/
 
