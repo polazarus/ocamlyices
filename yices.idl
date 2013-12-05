@@ -67,7 +67,7 @@ typedef [mltype("string"), c2ml(srec2string), ml2c(string2srec)] void* srec_p;
 /******************************************************************************/
 
 quote(mli, "(**\n\
-   Return the Yices version number.\n\
+   @returns the Yices version number.\n\
 *)") 
 [string]
 const char * yices_version();

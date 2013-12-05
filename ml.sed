@@ -1,6 +1,4 @@
-/^and yicesl\?_\(log_file_\)\?error/ d
-/^and srec_p/ d
-/^and yicesl\?_\(log_file_\)\?error/ d
+/^and yicesl\?_\(log_file_\|output_file_\)\?error/ d
 /^and srec_p/ d
 /^and\s\+yices_type_ptr = yices_type$/ d
 s/yices_type_ptr/yices_type/g 
