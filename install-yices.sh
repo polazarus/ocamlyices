@@ -129,22 +129,22 @@ elif which sudo > /dev/null 2> /dev/null; then
   warning "Cannot write in $includedir"
   if [ "x$0" = xsh ]; then
     print_verbose "Cannot get the script filename: the script will be downloaded from Github"
-    print_info "Let me sudo it for you\n    wget -q -O- http://git.io/sWxMmg | sudo $0 -s $@"
+    print_info "Let me sudo that for you\n    wget -q -O- http://git.io/sWxMmg | sudo $0 -s $@"
     wget -q -O- http://git.io/sWxMmg | sudo $0 -s "$@"
     exit 0
   else
-    print_info "Let me sudo it for you\n    sudo $0 $@"
+    print_info "Let me sudo that for you\n    sudo $0 $@"
     exec sudo $0 "$@"
   fi
 else
   failwith "Cannot install Yices (check write permission)"
 fi
 
-tempdir=`mktemp -dt yices-install.XXX`
+tempdir="`mktemp -dt yices-install.XXX`"
 
 mkdir -p "$tempdir"
 cd "$tempdir"
-tar -xzf "$tarball" || failwith "cannot untar $tarball"
+tar -xzf "$tarball" || failwith "Cannot decompress $tarball"
 
 cd yices*
 
