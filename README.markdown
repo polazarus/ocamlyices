@@ -19,25 +19,24 @@ work under MacOS X…
 First requirement: Yices
 ------------------------
 
-[Yices][yices] 1.0.34 or more recent (but not 2)  needs to be *installed* on
+[Yices][yices] 1.0.40 or more recent (but not 2)  needs to be *installed* on
 your system. It can be done in two steps:
 
-1.  First download the latest tarball of [Yices 1 from SRI website][yices-dl]. 
+1.  Download the latest tarball of [Yices 1 from SRI website][yices-dl]. 
     Prefer the version with GMP statically linked, except on Linux x86_64 (see
     note below).
 
 2.  Install Yices on your system as follow:
 
-        wget -q -O- http://git.io/sWxMmg | sudo sh -s <yices-XYZ.tar.gz>
+        wget -q -O- http://git.io/sWxMmg | sh -s <yices-XYZ.tar.gz>
 
-    where <yices-XYZ.tar.gz> should be replaced with the path to the downloaded
-    tarball. The script (available in the repository) installs Yices in
-    `/usr/local` and register the shared library.
+    where `<yices-XYZ.tar.gz>` should be replaced with the path to the
+    downloaded tarball. The script (available in the repository) installs Yices
+    in `/usr/local` and register the shared library.
 
-    Optionally you can set installation directories (root and library):
+    Optionally you can set installation directories :
 
-        wget -q -O- http://git.io/sWxMmg | sudo sh -s <yices-XYZ.tar.gz> /opt /opt/lib64
-
+        wget -q -O- http://git.io/sWxMmg | sh -s <yices-XYZ.tar.gz> --prefix /opt --libdir /opt/lib64
 
 **N.B.:** On Linux x86_64 (and possibly other 64-bit platform), “Yices with
 GMP dynamically linked” is strongly preferred at the moment. Indeed,
