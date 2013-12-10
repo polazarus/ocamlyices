@@ -230,11 +230,11 @@ quote(mli, "(** {3 Checking} *)")
 quote(mli, "(**\n\
    Check whether the logical context is known to be inconsistent.\n\
 \n\
-   If the function returns true (i.e., a non-zero value) then the context \n\
-   is inconsistent. If it returns false (i.e., 0) then the context's status\n\
-   is unknown. To determine the status in this case, call {!check}.\n\
+   If the function returns [true], then the context is inconsistent.\n\
+   If it returns [false], then the context's status is unknown.\n\
+   To determine the status in this case, call {!check}.\n\
 *)")
-int yices_inconsistent(yices_context ctx);
+boolean yices_inconsistent(yices_context ctx);
 
 quote(mli, "(**\n\
    Check whether the logical context is satisfiable.\n\
