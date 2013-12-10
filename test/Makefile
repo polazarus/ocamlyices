@@ -17,7 +17,7 @@ OCAMLFIND=ocamlfind
 check test: clean test.opt test.byte
 	./test.opt
 	./test.byte
-	
+
 installcheck installtest: clean installtest.opt installtest.byte
 	./installtest.opt
 	./installtest.byte

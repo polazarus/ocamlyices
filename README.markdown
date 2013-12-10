@@ -22,7 +22,7 @@ First requirement: Yices
 [Yices][yices] 1.0.40 or more recent (but not 2)  needs to be *installed* on
 your system. It can be done in two steps:
 
-1.  Download the latest tarball of [Yices 1 from SRI website][yices-dl]. 
+1.  Download the latest tarball of [Yices 1 from SRI website][yices-dl].
     Prefer the version with GMP statically linked, except on Linux x86_64 (see
     note below).
 

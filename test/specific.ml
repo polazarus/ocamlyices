@@ -214,7 +214,7 @@ let test_mk_bv_constant_from_int test_ctxt =
 
 let tests = [
     "mk_nand" >:: test_mk_nand;
-    "mk_nor" >:: test_mk_nor;  
+    "mk_nor" >:: test_mk_nor;
     "binary shortcuts" >::: [
       "mk_and2" >:: test_mk_and2;
       "mk_or2" >:: test_mk_or2;

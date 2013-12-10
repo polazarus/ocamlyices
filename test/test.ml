@@ -31,7 +31,7 @@ let test_boolean_sat_model test_ctxt =
   Yices.assert_simple ctx a;
   ignore (Yices.check ctx);
   let model = Yices.get_model ctx in
-  let value v = Yices.get_value model (Yices.get_var_decl v) in 
+  let value v = Yices.get_value model (Yices.get_var_decl v) in
   assert_equal ~msg:"Check a" Yices.True (value a);
   assert_equal ~msg:"Check b" Yices.True (value b);
   assert_equal ~msg:"Check c" Yices.True (value c)

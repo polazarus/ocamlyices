@@ -1,4 +1,4 @@
-/* 
+/*
   Based on the standard API for the Yices SMT Solver (version 1)
   Copyright (c) SRI International.
   Authors: Leonardo de Moura and Bruno Dutertre.
@@ -68,7 +68,7 @@ typedef [mltype("string"), c2ml(srec2string), ml2c(string2srec)] void* srec_p;
 
 quote(mli, "(**\n\
    @returns the Yices version number.\n\
-*)") 
+*)")
 [string]
 const char * yices_version();
 
@@ -184,7 +184,7 @@ quote(mli, "(**\n\
 void yices_pop(yices_context ctx);
 
 
-quote(mli, "(** {3 Assertions} *)") 
+quote(mli, "(** {3 Assertions} *)")
 quote(mli, "(**\n\
    Assert a constraint in the logical context.\n\
 \n\
@@ -421,7 +421,7 @@ quote(ml,"let get_ratio_value m d =\
   Ratio.ratio_of_string (get_arith_value_as_string m d);;\n\n\
 let get_big_int_value m d =\
   Big_int.big_int_of_string (get_arith_value_as_string m d);;\n")
-  
+
 quote(mli,"val get_ratio_value : model -> var_decl -> Ratio.ratio\n\n\
 val get_big_int_value : model -> var_decl -> Big_int.big_int\n")
 
@@ -510,7 +510,7 @@ quote(mli, "(**\n\
      typically this is due to a function application, e.g., \n\
      the model defines [(f 1)] and [(f 2)], but the formula references [(f 3)]\n\
 *)")
-enum lbool yices_evaluate_in_model(yices_model m, yices_expr e);  
+enum lbool yices_evaluate_in_model(yices_model m, yices_expr e);
 
 
 quote(mli, "(**\n\
@@ -881,7 +881,7 @@ quote(mli, "(**\n\
 *)")
 yices_expr yices_mk_app(yices_context ctx, yices_expr f,
   [size_is(n)] yices_expr args[], unsigned int n);
-  
+
 
 quote(mli, "(**\n\
    [mk_function_update ctx f a v] returns a function update term\n\

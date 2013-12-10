@@ -67,7 +67,7 @@ let () =
   pp_expr b; print_newline ();
   pp_expr c; print_newline ();
   print_newline ();
-  
+
   assert_simple ctx a;
   let r = assert_retractable ctx b in
   assert_simple ctx c;
@@ -76,7 +76,7 @@ let () =
   print_endline "Result: ";
   print_endline (res (check ctx));
   print_newline ();
-  
+
   print_string "Retract "; flush stdout;
   pp_expr b; print_newline ();
   print_newline ();
@@ -91,7 +91,7 @@ let () =
     display_model (get_model ctx);
 
   del_context ctx
-    
+
 let () =
   print_endline "**mk_tuple_literal**";
   let ctx = mk_context () in
