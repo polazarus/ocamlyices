@@ -127,6 +127,7 @@ camlidl : $(ML_FILES) $(MLI_FILES) $(STUBS_FILES)
 	$(CAMLIDL) $<
 	sed -f ml.sed -i $(<:.idl=.ml)
 	sed -f ml.sed -f mli.sed -e '1r $(<:.idl=.hdr)' -i $(<:.idl=.mli)
+	sed -e 's/__VERSION__/$(PACKAGE_VERSION)/g' -i $(<:.idl=.mli)
 
 %.cmi: %.mli
 	$(OCAMLC) -c -o $@ $< 
@@ -216,7 +217,7 @@ clean:
 	$(RM) *.cmo *.cmx *.o *_stubs.c
 
 distclean mrproper: clean
-	$(RM) *.cma *.cmxa *.cmi *.a *.so $(META)
+	$(RM) *.cma *.cmxa *.cmi $(MLI_FILES) $(ML_FILES) *.a *.so $(META)
 
 # Install ######################################################################
 

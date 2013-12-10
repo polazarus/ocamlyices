@@ -16,5 +16,6 @@ THIS SOFTWARE.
 (**
   Yices binding for Ocaml
 
+  @version __VERSION__
   @see <http://yices.csl.sri.com/capi.shtml> the official C API documentation
 *)

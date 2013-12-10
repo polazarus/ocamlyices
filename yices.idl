@@ -35,9 +35,9 @@ enum lbool { False=-1, Undef, True };
 quote(mli, "(**\n\
   [context] A context sotres a collection of declarations and asserations.\n\
 \n\
-  [expr] Expressions (abstract syntax tree)\n\
+  [expr] Expressions (abstract syntax tree).\n\
 \n\
-  [typ] Types (abstract syntax tree)\n\
+  [typ] Types (abstract syntax tree).\n\
 \n\
   [var_decl] Variable declaration.\n\
   A declaration consists of a name a type (such as [x::bool]). An\n\
@@ -54,7 +54,7 @@ quote(mli, "(**\n\
 \n\
   [unsat_core] Arrays of assertion indexes.\n\
 \n\
-  [lbool] Extended booleans: to represent the value of literals in the context\n\
+  [lbool] Extended booleans, to represent the value of literals in the context.\n\
 *)\n\n")
 
 /**

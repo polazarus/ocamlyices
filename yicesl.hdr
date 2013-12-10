@@ -16,6 +16,7 @@ THIS SOFTWARE.
 (**
   Light Yices binding for Ocaml
 
+  @version __VERSION__
   @see <http://yices.csl.sri.com/capil.shtml> the official C API Lite documentation
   @see <http://yices.csl.sri.com/language.shtml> the input language specification
 *)
