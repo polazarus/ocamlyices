@@ -194,4 +194,4 @@ THIS SOFTWARE.
 [ocaml]: http://ocaml.org/
 [opam]: http://opam.ocaml.org/
 [camlidl]: http://caml.inria.fr/pub/old_caml_site/camlidl/
-[api]: http://micdel.fr/ocamyices-api
+[api]: http://micdel.fr/ocamlyices-api
