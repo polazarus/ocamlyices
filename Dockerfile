@@ -1,9 +1,5 @@
-FROM ubuntu:20.04 AS dev
+FROM ubuntu:22.04 AS dev
 ARG DEBIAN_FRONTEND=noninteractive
-
-# Make sudo dummy replacement, so we don't weaken docker security
-RUN echo "#!/bin/bash\n\$@" > /usr/bin/sudo
-RUN chmod +x /usr/bin/sudo
 
 RUN apt update && apt install -y build-essential m4 autoconf npm curl git libgmp-dev libmpfr-dev && apt-get clean
 RUN npm install -g --unsafe-perm esy
