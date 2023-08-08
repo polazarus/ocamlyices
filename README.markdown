@@ -86,6 +86,18 @@ For the rest, see the [Yices' official website][yices].
 Also, three examples are also available in `examples/`.
 
 
+Quick development setup:
+------------------------
+
+1. Install [rootless](https://docs.docker.com/engine/security/rootless/) or [non-root](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user) [Docker](https://www.docker.com) and VSCode;
+2. Install [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers);
+3. Download or clone the repository and open it in the editor;
+4. Reopen in dev container and wait for it to finish the build;
+5. Run `esy` command inside the container to install OCaml language server and build the project.
+Packages will be cached into local `.esy` folder to persist between the container runs.
+(if no typing inference, `Ctrl+Shift+P -> OCaml: restart language server`)
+
+
 Manual install
 --------------
 
