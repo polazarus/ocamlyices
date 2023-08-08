@@ -31,6 +31,5 @@ oUnit*.cache
 /cache
 /doc
 node_modules/
-.esy/
 _esy/
 esy.lock/
