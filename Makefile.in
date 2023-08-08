@@ -130,11 +130,11 @@ camlidl : $(ML_FILES) $(MLI_FILES) $(STUBS_FILES)
 	sed -e 's/__VERSION__/$(PACKAGE_VERSION)/g' -i $(<:.idl=.mli)
 
 %.cmi: %.mli
-	$(OCAMLC) -c -o $@ $<
+	$(OCAMLFIND) ocamlc -package num -c -o $@ $<
 %.cmo: %.ml
-	$(OCAMLC) -c -o $@ $<
+	$(OCAMLFIND) ocamlc -package num -c -o $@ $<
 %.cmx: %.ml
-	$(OCAMLOPT) -c -o $@ $<
+	$(OCAMLFIND) ocamlopt -package num -c -o $@ $<
 
 # Generic dependencies #########################################################
 

@@ -1,0 +1,27 @@
+{
+    "name": "ocamlyices",
+    "version": "0.7.2",
+    "description": "Yices SMT solver binding",
+    "license": "ISC",
+    "esy": {
+        "build": [
+            "./configure",
+            "make all"
+        ],
+        "release": {},
+        "install": [
+            "make install"
+        ]
+    },
+    "dependencies": {
+        "ocaml": ">=4.06",
+        "@opam/num": "^1",
+        "@opam/camlidl": "*",
+        "@opam/ocamlfind": "*"
+    },
+    "devDependencies": {
+        "@opam/ocaml-lsp-server": "*",
+        "@opam/odoc": "*",
+        "@opam/ocamlformat": "*"
+    }
+}
